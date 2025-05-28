@@ -30,7 +30,7 @@ Este aplicativo React Native permite que usuários gerenciem seus treinos e exer
 ```bash
 git clone <url-do-repositorio>
 cd <nome-do-projeto>
-
+```bash
 2. Instale as dependências:
 npm install
 
