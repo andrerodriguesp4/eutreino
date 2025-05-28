@@ -22,7 +22,7 @@ Este aplicativo React Native permite que usuários gerenciem seus treinos e exer
 - AsyncStorage
 - Expo Vector Icons
 - React Native Picker
-
+```bash
 ## Instalação e Configuração
 
 1. Clone este repositório:
@@ -38,5 +38,5 @@ expo start
 
 Ou pelo React Native CLI:
 npx react-native run-android
-# ou
+ ou
 npx react-native run-ios
