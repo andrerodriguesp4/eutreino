@@ -24,7 +24,7 @@ Este aplicativo React Native permite que usuários gerenciem seus treinos e exer
 - React Native Picker
 
 ## Instalação e Configuração
-```bash
+
 1. Clone este repositório:
 
 git clone <url-do-repositorio>
