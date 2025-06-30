@@ -6,7 +6,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Ionicons} from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 
-
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
     const [treinos, setTreinos] = useState([]);
@@ -48,12 +47,16 @@ export default function Treinos({navigation}){
     }, [navigation])
 
     async function getUser() {
-            const usuario = await AsyncStorage.getItem('usuario');                
-            if(!usuario){
-                navigation.navigate('Home')
-            }else{
-                setUser(usuario);
-                fetchTreinos(usuario);
+            try{
+                const usuario = await AsyncStorage.getItem('usuario');                
+                if(!usuario){
+                    navigation.navigate('Home')
+                }else{
+                    setUser(usuario);
+                    fetchTreinos(usuario);
+                }
+            }catch{
+                console.log('Erro na função getUser: ', error)
             }
     }
 
@@ -66,7 +69,7 @@ export default function Treinos({navigation}){
                 setCheckButtonClick({});
             }
         }catch(error){
-            console.log('Erro: ', error);
+            console.log('Errona função checkButtonClickGetItems(): ', error);
         }
     }
 
@@ -79,56 +82,75 @@ export default function Treinos({navigation}){
     }
 
     function checkButton(titulo){
-        const newState = {
-            ...checkButtonClick,
-            [titulo]: checkButtonClick[titulo] === 'checkmark-done' ? 'radio-button-off' : 'checkmark-done'
-        };
-        setCheckButtonClick(newState)
-        checkButtonClickAsyncStorage(newState)
+        try{
+            const newState = {
+                ...checkButtonClick,
+                [titulo]: checkButtonClick[titulo] === 'checkmark-done' ? 'radio-button-off' : 'checkmark-done'
+            };
+            setCheckButtonClick(newState)
+            checkButtonClickAsyncStorage(newState)
+        }catch(error){
+            console.log('Erro na função checkButton: ', error)
+        }
     }
         
     const fetchTreinos = async (usuario) => {
-        if(usuario){            
-            const db = getFirestore(app);
-            const treinosCollection = collection(db, `users/${usuario}/treinos`);
-            const querySnapshot = await getDocs(treinosCollection);
+        try{
+            if(usuario){            
+                const db = getFirestore(app);
+                const treinosCollection = collection(db, `users/${usuario}/treinos`);
+                const querySnapshot = await getDocs(treinosCollection);
 
-            const treinosList = querySnapshot.docs.map(doc => ({
-                ...doc.data(),
-            }))
+                const treinosList = querySnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                }))
 
-            setTreinos(treinosList);
+                setTreinos(treinosList);
+            }
+        }catch(error){
+            console.log('Erro na função fetchTreinos: ',error)
         }
     };
 
     const fetchExerciciosSelect = async (usuario, treino) => {
-        const db = getFirestore(app);
-        const treinosCollection = collection(db, `users/${usuario}/treinos/${treino}/exercicios`);
-        const querySnapshot = await getDocs(treinosCollection);
+        try{
+            const db = getFirestore(app);
+            const treinosCollection = collection(db, `users/${usuario}/treinos/${treino}/exercicios`);
+            const querySnapshot = await getDocs(treinosCollection);
 
-        const exerciciosTreinoList = querySnapshot.docs.map(doc => ({
-            ...doc.data(),
-        }));      
-        setTreinoDetalhe(exerciciosTreinoList);
+            const exerciciosTreinoList = querySnapshot.docs.map(doc => ({
+                ...doc.data(),
+            }));      
+            setTreinoDetalhe(exerciciosTreinoList);
+            return exerciciosTreinoList;
+        }catch(error){
+            console.log('Erro na função fetchExerciciosSelect: ', error)
+        }
     };
 
     const fetchExerciciosSelectDetalhes = async (exercicio) => {
-
-        const exercicioSelect = treinoDetalhe.filter(item => item.id === exercicio);
-
-        setTreinoSelectDetalhe(exercicioSelect);
+        try{
+            const exercicioSelect = treinoDetalhe.filter(item => item.id === exercicio);
+            setTreinoSelectDetalhe(exercicioSelect);
+        }catch{
+            console.log(error)('Erro na função fetchExerciciosSelectDetalhes: ', error)
+        }
     }
 
     const fetchExercicios = async () => {
-        const db = getFirestore(app);
-        const exerciciosCollection = collection(db, 'exercicios');
-        const querySnapshot = await getDocs(exerciciosCollection);
+        try{
+            const db = getFirestore(app);
+            const exerciciosCollection = collection(db, 'exercicios');
+            const querySnapshot = await getDocs(exerciciosCollection);
 
-        const exerciciosList = querySnapshot.docs.map(doc => ({
-            ...doc.data(),
-        }))
+            const exerciciosList = querySnapshot.docs.map(doc => ({
+                ...doc.data(),
+            }))
 
-        setExercicios(exerciciosList);
+            setExercicios(exerciciosList)
+        }catch(error){
+            console.log('Erro na função fetchExercicios: ', error)
+        }
     };
 
     async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
@@ -147,8 +169,8 @@ export default function Treinos({navigation}){
             await fetchExerciciosSelectDetalhes(exercicio);
             setValueSelect(newParametros);
             setTextState('Salvo com sucesso!');
-        }catch{
-            console.log('Erro ao salvar')
+        }catch(error){
+            console.log('Erro ao salvar:', error)
         }
     }
 
@@ -237,7 +259,8 @@ export default function Treinos({navigation}){
                                     <Modal transparent animationType="fade" visible={modalVisibleRepeticoes}>
                                         <View style={styles.containerModal2}>
                                             <View style={styles.viewEditarExercicio}>
-                                                <Text>Mínimo: {exercicioSelect[0]}</Text>
+                                                <Text>Mínimo: </Text>
+                                                <TextInput style={styles.textInputEditSeries}/>
                                                 <Text>Máximo: {exercicioSelect[1]}</Text>
                                                 <View style={styles.viewButtonSalvarFechar}>
                                                     <TouchableOpacity style={styles.buttonSalvar}>
@@ -383,11 +406,11 @@ export default function Treinos({navigation}){
                 getItem={(treinos, index) => treinos[index]}
                 renderItem={({item}) => (
                     <View style={styles.listaTreinos} key={item.id}>
-                        <TouchableOpacity onPress={() => {
+                        <TouchableOpacity onPress={async() => {
                                 setTreinoId(item.id);
                                 setTreinoSelect(item.titulo);
-                                fetchExerciciosSelect(user, item.titulo);
-                                setModalVisible(!modalVisible);                                
+                                const detalhes = await fetchExerciciosSelect(user, item.titulo); // Aguarda os dados
+                                navigation.navigate('DetalhesTreino', { treinoDetalhe: detalhes }); // Passa os dados recebidos
                         }}>
                             <Text style={styles.textTituloTreino}>{item.titulo}</Text>
                         </TouchableOpacity>
@@ -438,10 +461,10 @@ const styles = StyleSheet.create({
     },
 
     listaTreinos: {
-        marginVertical: 5,
+        marginVertical: 1,
         marginHorizontal:5,
         paddingHorizontal:10,
-        paddingVertical: 20,
+        paddingVertical: 15,
         backgroundColor:'#0400ff4d',
     },
     viewTextListDetalhes:{

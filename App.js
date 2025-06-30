@@ -1,11 +1,13 @@
-import { NavigationContainer, StackRouter, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Home from './screens/Home';
 import Treinos from './screens/Treinos'
 import Login from './screens/Login';
+import DetalhesTreino from './screens/DetalhesTreino';
 import UserArea from './screens/UserArea';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StatusBar } from 'expo-status-bar';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,26 +32,19 @@ function SairButton(){
 export default function App() {
   return (
     <NavigationContainer>
+      <StatusBar style='auto'/>
       <Stack.Navigator initialRouteName='Home'>
-        <Stack.Screen name='Home' component={Home} options={{
-          ...styles.optionsnv,
-          headerLeft: () =>  false,
-          gestureEnabled: false,
-          }}/>
-        <Stack.Screen name='Treinos' component={Treinos} options={{
-          ...styles.optionsnv, 
-           
-          gestureEnabled:false,          
-        }}/>
-        <Stack.Screen name='Login' component={Login} options={styles.optionsnv}/>
+        <Stack.Screen name='DetalhesTreino' component={DetalhesTreino}/>
+        <Stack.Screen name='Home' component={Home} options={styles.optionsnv}/>
         <Stack.Screen name='UserArea' component={UserArea} options={{
           ...styles.optionsnv,
           
           gestureEnabled:false,
-          headerRight: () => <SairButton/>,
-          headerLeft: () => false,
+          header: () => false,
           }}/>
+        <Stack.Screen name='Login' component={Login} options={styles.optionsnv}/>
       </Stack.Navigator>
+      
     </NavigationContainer>
   );
 }
