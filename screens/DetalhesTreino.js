@@ -14,13 +14,13 @@ export default function DetalhesTreino(){
     const [modalVisible, setModalVisible] = useState(false);
     const [campoEditando, setCampoEditando] = useState(null);
     const [newExercicioSelect, setNewExercicioSelect] = useState();
-    const [newCargaSelect, setNewCargaSelect] = useState();
     const [exercicios, setExercicios] = useState([]);
-    const [textState, setTextState] = useState();
     const [user, setUser] = useState();
     const treino = route.params.treino;
     const [listExercicio, setListExercicio] = useState(route.params.treinoDetalhe);
     const [disabledSalvar, setDisabledSalvar] = useState(true);
+    const [newRepeticoesMinimo, setNewRepeticoesMinimo] = useState();
+    const [newRepeticoesMaximo, setNewRepeticoesMaximo] = useState();
 
     useEffect(() => {
         fetchExercicios();
@@ -78,18 +78,44 @@ export default function DetalhesTreino(){
                     [parametro]: newParametros,
                 });
             }
-            setListExercicio((prev) =>
-                prev.map((item) =>
-                    item.id === exercicio ? { ...item, [parametro]: newParametros } : item
-                )
-            );
-            setExercicioSelectDetalhe((prev) =>
-                prev.map((item) =>
-                    item.id === exercicio ? { ...item, [parametro]: newParametros } : item
-                )
-                );
+
+            const atualizarItem = (item) => {
+                if (item.id !== exercicio) return item;
+
+
+                if (parametro === 'repeticoes.minimo') {
+                    return {
+                        ...item,
+                        repeticoes: {
+                            ...item.repeticoes,
+                            minimo: newParametros,
+                        },
+                    };
+                }
+                
+                if (parametro === 'repeticoes.maximo') {
+                    return {
+                        ...item,
+                        repeticoes: {
+                            ...item.repeticoes,
+                            maximo: newParametros,
+                        },
+                    };
+                }
+                return {
+                    ...item,
+                    [parametro]: newParametros,
+                };
+            }
+
+            setListExercicio((prev) => prev.map(atualizarItem));
+
+            setExercicioSelectDetalhe((prev) => prev.map(atualizarItem));
 
             setCampoEditando(null);
+            setNewRepeticoesMaximo(null);
+            setNewRepeticoesMinimo(null);
+            setDisabledSalvar(true);
         }catch(error){
             console.log('Erro ao salvar:', error)
         }
@@ -118,7 +144,11 @@ export default function DetalhesTreino(){
                                         Carga: {item.carga} kg
                                     </Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setCampoEditando('repeticoes')}>
+                                <TouchableOpacity onPress={() => (
+                                    setCampoEditando('repeticoes'),
+                                    setNewRepeticoesMaximo(null),
+                                    setNewRepeticoesMinimo(null)
+                                    )}>
                                     <Text style={styles.modalText}>
                                         Repetições: {item.repeticoes.minimo} - {item.repeticoes.maximo}
                                     </Text>
@@ -179,12 +209,16 @@ export default function DetalhesTreino(){
                         {campoEditando === 'carga' && (
                             <View style={styles.viewEditando}>
                                 <Text style={{marginBottom: 20, fontSize: 15}}>Insira a nova carga: </Text>
-                                <TextInput 
-                                    style={styles.textInputEditando}
-                                    placeholder={listExercicio[0].carga}
-                                    placeholderTextColor={'#0000006e'}
-                                    onChange={(itemValue) => (setNewExercicioSelect(itemValue.nativeEvent.text), setDisabledSalvar(false))}
-                                />
+                                <View style={styles.viewSalvarFechar}>
+                                    <TextInput 
+                                        style={styles.textInputEditando}
+                                        placeholder={listExercicio[0].carga}
+                                        placeholderTextColor={'#0000006e'}
+                                        keyboardType="numeric"
+                                        onChange={(itemValue) => (setNewExercicioSelect(itemValue.nativeEvent.text), setDisabledSalvar(false))}
+                                    />
+                                    <Text style={{marginLeft: 15, fontSize: 20}}>Kg</Text>
+                                </View>
                                 <View style={styles.viewSalvarFechar}>
                                     <TouchableOpacity 
                                         style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar} 
@@ -203,8 +237,52 @@ export default function DetalhesTreino(){
                                 </View>
                             </View>
                         )}
-                        {/* <TouchableOpacity onPress={() => setCampoEditando(null)}>
-                            <Ionicons name="close" size={40}/>
+                        {campoEditando === 'repeticoes' && (
+                            <View style={styles.viewEditando}>
+                                <Text style={{marginBottom: 20, fontSize: 15}}>Insira o novo intervalo de repetições: </Text>
+                                <View style={styles.viewSalvarFechar}>
+                                    <TextInput 
+                                        style={styles.textInputEditando}
+                                        placeholder={listExercicio[0].repeticoes.minimo.toString()}
+                                        placeholderTextColor={'#0000006e'}
+                                        keyboardType="numeric"
+                                        onChange={(itemValue) => (setNewRepeticoesMinimo(itemValue.nativeEvent.text), setDisabledSalvar(false))}
+                                    />
+                                    <Text style={{marginHorizontal: 20}}>-</Text>
+                                    <TextInput 
+                                        style={styles.textInputEditando}
+                                        placeholder={listExercicio[0].repeticoes.maximo.toString()}
+                                        placeholderTextColor={'#0000006e'}
+                                        keyboardType="numeric"
+                                        onChange={(itemValue) => (setNewRepeticoesMaximo(itemValue.nativeEvent.text), setDisabledSalvar(false))}
+                                    />    
+                                </View>
+                                <View style={styles.viewSalvarFechar}>
+                                    <TouchableOpacity 
+                                        style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar} 
+                                        onPress={() => {
+                                            newRepeticoesMinimo && setNewParametros(user, treino, exercicioSelectDetalhe[0].id, 'repeticoes.minimo', newRepeticoesMinimo);
+                                            newRepeticoesMaximo && setNewParametros(user, treino, exercicioSelectDetalhe[0].id, 'repeticoes.maximo', newRepeticoesMaximo);
+                                            setNewRepeticoesMinimo(null);
+                                            setNewRepeticoesMaximo(null);
+                                            setDisabledSalvar(true);
+                                        }}
+                                        >
+                                        <Text style={styles.textSalvar}>Salvar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => (
+                                        setCampoEditando(null),
+                                        setDisabledSalvar(true),
+                                        setNewRepeticoesMaximo(null),
+                                        setNewRepeticoesMinimo(null)
+                                        )}>
+                                        <Ionicons name="close" size={40}/>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+                        {/* <TouchableOpacity onPress={() => console.log(listExercicio[0].repeticoes.minimo)}>
+                            <Text>Console</Text>
                         </TouchableOpacity> */}
                     </View>
                 </>
@@ -218,7 +296,8 @@ export default function DetalhesTreino(){
                     <View key={index}>
                         <TouchableOpacity style={styles.buttonListExercicio} onPress={() =>(
                                 fetchExerciciosSelectDetalhes(item.id),
-                                setModalVisible(true)
+                                setModalVisible(true),
+                                setNewExercicioSelect(item.titulo)
                                 )}>
                             <Text style={styles.textListExercicio}>
                                 {item.titulo}
