@@ -410,7 +410,8 @@ export default function Treinos({navigation}){
                                 setTreinoId(item.id);
                                 setTreinoSelect(item.titulo);
                                 const detalhes = await fetchExerciciosSelect(user, item.titulo); // Aguarda os dados
-                                navigation.navigate('DetalhesTreino', { treinoDetalhe: detalhes }); // Passa os dados recebidos
+                                const treinoRoute = item.titulo;
+                                navigation.navigate('DetalhesTreino', { treinoDetalhe: detalhes, treino: treinoRoute }); // Passa os dados recebidos
                         }}>
                             <Text style={styles.textTituloTreino}>{item.titulo}</Text>
                         </TouchableOpacity>

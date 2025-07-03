@@ -1,4 +1,4 @@
-import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet } from "react-native";
+import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import app from "../firebaseConfig";
 import { getFirestore, collection, getDocs, doc, updateDoc, query, where} from "firebase/firestore";
@@ -6,6 +6,7 @@ import {use, useEffect, useState } from "react";
 import * as Config from './Treinos';
 import {Ionicons} from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function DetalhesTreino(){
     const route = useRoute();
@@ -13,16 +14,34 @@ export default function DetalhesTreino(){
     const [modalVisible, setModalVisible] = useState(false);
     const [campoEditando, setCampoEditando] = useState(null);
     const [newExercicioSelect, setNewExercicioSelect] = useState();
+    const [newCargaSelect, setNewCargaSelect] = useState();
     const [exercicios, setExercicios] = useState([]);
     const [textState, setTextState] = useState();
+    const [user, setUser] = useState();
+    const treino = route.params.treino;
+    const [listExercicio, setListExercicio] = useState(route.params.treinoDetalhe);
+    const [disabledSalvar, setDisabledSalvar] = useState(true);
 
     useEffect(() => {
         fetchExercicios();
+        getUser();
     }, []);
+    async function getUser() {
+            try{
+                const usuario = await AsyncStorage.getItem('usuario');                
+                if(!usuario){
+                    navigation.navigate('Home')
+                }else{
+                    setUser(usuario);
+                    fetchTreinos(usuario);
+                }
+            }catch{
+                console.log('Erro na função getUser: ', error)
+            }
+    };
     const fetchExerciciosSelectDetalhes = async (exercicio) => {
         try {
-            const treinoDetalhe = route.params.treinoDetalhe;
-            const filterList = treinoDetalhe.filter((item) => item.id === exercicio);
+            const filterList = listExercicio.filter((item) => item.id === exercicio);
 
             setExercicioSelectDetalhe(filterList);
         } catch {
@@ -45,6 +64,34 @@ export default function DetalhesTreino(){
             setExercicios(exerciciosList)
         }catch(error){
             console.log('Erro na função fetchExercicios: ', error)
+        }
+    };
+
+    async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
+        try{
+            const db = getFirestore(app);
+            const treinosCollection = collection(db, `users/${user}/treinos/${treino}/exercicios`);
+            const docSelect = query(treinosCollection, where('id', '==', exercicio));
+            const querySnapshot = await getDocs(docSelect);
+            for (const document of querySnapshot.docs) {
+                    await updateDoc(doc(db, document.ref.path), {
+                    [parametro]: newParametros,
+                });
+            }
+            setListExercicio((prev) =>
+                prev.map((item) =>
+                    item.id === exercicio ? { ...item, [parametro]: newParametros } : item
+                )
+            );
+            setExercicioSelectDetalhe((prev) =>
+                prev.map((item) =>
+                    item.id === exercicio ? { ...item, [parametro]: newParametros } : item
+                )
+                );
+
+            setCampoEditando(null);
+        }catch(error){
+            console.log('Erro ao salvar:', error)
         }
     };
 
@@ -91,39 +138,85 @@ export default function DetalhesTreino(){
                     </View>
                 </View>
             {campoEditando && (
-                <View style={styles.slidePanel}>
-                    <Text style={styles.modalText}>Editando: {campoEditando}</Text>
-                    {campoEditando === 'titulo' && (
-                        <View>
-                            <Text style={styles.modalText}>Selecione o exercício:</Text>
-                            <Picker
-                                selectedValue={newExercicioSelect}
-                                onValueChange={(itemValue) => {
-                                    setNewExercicioSelect(itemValue)
-                                    setTextState('Salvar')
-                                }}
-                                style={{height: 50, width: 300, paddingBottom: 150}}
-                                itemStyle={{color: 'black'}}
-                            >
-                                {exercicios.map((item) => (
-                                    <Picker.Item key={item.id} label={item.titulo} value={item.titulo}/>
-                                ))}
-                            </Picker>
-                        </View>
-                    )}
-                    <TouchableOpacity onPress={() => setCampoEditando(null)} style={{padding: 20}}>
-                    <Ionicons name="close" size={50} color="black" />
-                    </TouchableOpacity>
-                </View>
+                <>
+                    <View style={{...StyleSheet.absoluteFill, backgroundColor:'rgba(0, 0, 0, 0.3)'}} pointerEvents="auto" />                  
+                    <View style={styles.slidePanel}>
+                        {campoEditando === 'titulo' && (
+                            <View>
+                                <Text style={styles.modalText}>Selecione o exercício:</Text>
+                                <Picker
+                                    selectedValue={newExercicioSelect}
+                                    onValueChange={(itemValue) => {
+                                        setNewExercicioSelect(itemValue);
+                                        setDisabledSalvar(false);
+                                    }}
+                                    style={{height: 50, width: 300, paddingBottom: 200}}
+                                    itemStyle={{color: 'black'}}
+                                >
+                                    {exercicios.map((item) => (
+                                        <Picker.Item key={item.id} label={item.titulo} value={item.titulo}/>
+                                    ))}
+                                </Picker>
+                                <View style={styles.viewSalvarFechar}>
+                                    <TouchableOpacity 
+                                        style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar} 
+                                        onPress={() => (
+                                            setNewParametros(user, treino, exercicioSelectDetalhe[0].id, campoEditando, newExercicioSelect),
+                                            setDisabledSalvar(true)
+                                            )}>
+                                        <Text style={styles.textSalvar}>Salvar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => (
+                                            setCampoEditando(null),
+                                            setDisabledSalvar(true),
+                                            setNewExercicioSelect(listExercicio[0].titulo)
+                                        )} style={{padding: 20}}>
+                                        <Ionicons name="close" size={40} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+                        {campoEditando === 'carga' && (
+                            <View style={styles.viewEditando}>
+                                <Text style={{marginBottom: 20, fontSize: 15}}>Insira a nova carga: </Text>
+                                <TextInput 
+                                    style={styles.textInputEditando}
+                                    placeholder={listExercicio[0].carga}
+                                    placeholderTextColor={'#0000006e'}
+                                    onChange={(itemValue) => (setNewExercicioSelect(itemValue.nativeEvent.text), setDisabledSalvar(false))}
+                                />
+                                <View style={styles.viewSalvarFechar}>
+                                    <TouchableOpacity 
+                                        style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar} 
+                                        onPress={() => (
+                                            setNewParametros(user, treino, exercicioSelectDetalhe[0].id, campoEditando, newExercicioSelect),
+                                            setDisabledSalvar(true)
+                                            )}>
+                                        <Text style={styles.textSalvar}>Salvar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => (
+                                        setCampoEditando(null),
+                                        setDisabledSalvar(true)
+                                        )}>
+                                        <Ionicons name="close" size={40}/>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+                        {/* <TouchableOpacity onPress={() => setCampoEditando(null)}>
+                            <Ionicons name="close" size={40}/>
+                        </TouchableOpacity> */}
+                    </View>
+                </>
             )}
             </Modal>
             <VirtualizedList
-                data={route.params.treinoDetalhe}
+                data={listExercicio}
                 getItemCount={(treinoDetalhe) => treinoDetalhe.length}
                 getItem={(treinoDetalhe, index) => treinoDetalhe[index]}
                 renderItem={({item, index}) => (
                     <View key={index}>
-                        <TouchableOpacity style={styles.buttonListExercicio} onPress={() => (
+                        <TouchableOpacity style={styles.buttonListExercicio} onPress={() =>(
                                 fetchExerciciosSelectDetalhes(item.id),
                                 setModalVisible(true)
                                 )}>
@@ -171,10 +264,12 @@ const styles = StyleSheet.create({
     slidePanel: {
         position: 'absolute',
         height: '50%',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: '25%',
+        left: 5,
+        right: 5,
         backgroundColor: 'white',
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
@@ -184,5 +279,33 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
         alignItems: 'center',
-    }
+    },
+    viewSalvarFechar:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    textSalvar:{
+        fontSize: 20,
+        padding: 10,
+    },
+    touchableOpacitySalvar:{
+        backgroundColor: '#00ce005e',
+    },
+    viewEditando: {
+        flex:1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    textInputEditando: {
+        borderWidth: 1,
+        borderColor: '#000',
+        width: 60,
+        height: 60,
+        padding: 10,
+        marginBottom: 20,
+        color: 'black',
+        textAlign: 'center',
+        fontSize: 20,
+    },
 });
