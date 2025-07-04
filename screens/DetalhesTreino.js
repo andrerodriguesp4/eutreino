@@ -21,6 +21,7 @@ export default function DetalhesTreino(){
     const [disabledSalvar, setDisabledSalvar] = useState(true);
     const [newRepeticoesMinimo, setNewRepeticoesMinimo] = useState();
     const [newRepeticoesMaximo, setNewRepeticoesMaximo] = useState();
+    const [checkButton, setCheckButton] = useState('stop-outline');
 
     useEffect(() => {
         fetchExercicios();
@@ -347,14 +348,20 @@ export default function DetalhesTreino(){
                 getItem={(treinoDetalhe, index) => treinoDetalhe[index]}
                 renderItem={({item, index}) => (
                     <View key={index}>
-                        <TouchableOpacity style={styles.buttonListExercicio} onPress={() =>(
+                        <TouchableOpacity style={{...styles.buttonListExercicio, flexDirection: 'row'}} onPress={() =>(
                                 fetchExerciciosSelectDetalhes(item.id),
                                 setModalVisible(true),
                                 setNewExercicioSelect(item.titulo)
                                 )}>
-                            <Text style={styles.textListExercicio}>
+                            <Text style={{...styles.textListExercicio, width: '73%'}}>
                                 {item.titulo}
                             </Text>
+                        <TouchableOpacity>
+                            <Ionicons name={checkButton} size={20} color={'#ffffff'} style={styles.buttonListExercicio}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Ionicons name="trash-outline" size={20} color={'#ffffff'} style={styles.buttonListExercicio}/>
+                        </TouchableOpacity>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -384,11 +391,13 @@ const styles = StyleSheet.create({
         fontSize: 20,
         padding: 5,
         borderWidth: 1,
-        borderColor: '#ffffff8a',
+        borderRadius: 5,
+        borderColor: '#ffffff50',
+        color: '#ffffff',
         
     },
     buttonListExercicio: {
-        backgroundColor: '#ff9f9f',
+        backgroundColor: '#ff6767',
         padding: 10,
         marginBottom: 2,
         marginHorizontal: 5,
