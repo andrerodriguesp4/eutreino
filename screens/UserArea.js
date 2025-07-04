@@ -11,11 +11,14 @@ export default function UserArea({navigation}){
     return(
         <Tab.Navigator screenOptions={{
             headerStyle: {
-                height: 100
+                height: 100,
+                backgroundColor: "black",
+                borderBottomColor: "black",
             },
+            headerTintColor: "white",
             headerTitleStyle:{
                 fontSize: 24,
-                paddingTop: 40
+                // paddingTop: 40
             }
         }}>
             <Tab.Screen name="Treinos" component={Treinos} options={{

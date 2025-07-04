@@ -38,7 +38,7 @@ export default function Treinos({navigation}){
         navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity onPress={() => getUser()}>
-                    <Text style={{color: 'white'}}>
+                    <Text style={{color: 'white', margin: 5, padding: 5}}>
                         Atualizar
                     </Text>
                 </TouchableOpacity>

@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     backgroundColor:'black',
   },
   optionsnv:{
-    headerStyle: {backgroundColor: 'black'},
+    headerStyle: {backgroundColor: 'black', borderBottomColor: "black"},
     headerTintColor: 'white',
     
   }
