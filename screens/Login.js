@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
         paddingVertical: 40,
         paddingHorizontal: 20,
         backgroundColor: '#cec5ffff',
-        borderRadius: 5,
+        borderRadius: 25,
     },
     viewMostarSenha: {
         alignItems: 'flex-end',

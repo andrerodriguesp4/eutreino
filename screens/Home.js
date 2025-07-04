@@ -42,9 +42,9 @@ const styles = StyleSheet.create({
     container1: {
         paddingVertical: 10,
         paddingHorizontal:30,
-        borderWidth: 2,
-        borderColor: '#ffffff27',
-        borderRadius: 5,
+        // borderWidth: 2,
+        // borderColor: '#ffffff27',
+        borderRadius: 25,
         backgroundColor: '#ffffff1f',
 
     },
@@ -73,6 +73,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     imageBg:{
+        height: "100%",
+        width: "100%",
         flex:1,
         backgroundColor: 'black',
     }
