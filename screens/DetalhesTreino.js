@@ -172,8 +172,8 @@ export default function DetalhesTreino(){
                     <View style={{...StyleSheet.absoluteFill, backgroundColor:'rgba(0, 0, 0, 0.3)'}} pointerEvents="auto" />                  
                     <View style={styles.slidePanel}>
                         {campoEditando === 'titulo' && (
-                            <View>
-                                <Text style={styles.modalText}>Selecione o exercício:</Text>
+                            <View style={styles.viewEditando}>
+                                <Text style={styles.textTituloEditando}>Selecione o exercício:</Text>
                                 <Picker
                                     selectedValue={newExercicioSelect}
                                     onValueChange={(itemValue) => {
@@ -208,7 +208,7 @@ export default function DetalhesTreino(){
                         )}
                         {campoEditando === 'carga' && (
                             <View style={styles.viewEditando}>
-                                <Text style={{marginBottom: 20, fontSize: 15}}>Insira a nova carga: </Text>
+                                <Text style={styles.textTituloEditando}>Insira a nova carga: </Text>
                                 <View style={styles.viewSalvarFechar}>
                                     <TextInput 
                                         style={styles.textInputEditando}
@@ -239,7 +239,7 @@ export default function DetalhesTreino(){
                         )}
                         {campoEditando === 'repeticoes' && (
                             <View style={styles.viewEditando}>
-                                <Text style={{marginBottom: 20, fontSize: 15}}>Insira o novo intervalo de repetições: </Text>
+                                <Text style={styles.textTituloEditando}>Insira o novo intervalo de repetições: </Text>
                                 <View style={styles.viewSalvarFechar}>
                                     <TextInput 
                                         style={styles.textInputEditando}
@@ -277,6 +277,19 @@ export default function DetalhesTreino(){
                                         setNewRepeticoesMinimo(null)
                                         )}>
                                         <Ionicons name="close" size={40}/>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+                        {campoEditando === 'series' && (
+                            <View style={styles.viewEditando}>
+                                <Text style={styles.textTituloEditando}>Insira a nova quantidade de séries:</Text>
+                                <View style={styles.viewSalvarFechar}>
+                                    <TouchableOpacity style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar}>
+                                        <Text style={styles.textSalvar}>Salvar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setCampoEditando(null)}>
+                                        <Ionicons name="close" size={30}/>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -387,4 +400,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 20,
     },
+    textTituloEditando: {
+        marginBottom: 20,
+        fontSize: 15
+    }
 });
