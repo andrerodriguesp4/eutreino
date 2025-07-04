@@ -284,11 +284,51 @@ export default function DetalhesTreino(){
                         {campoEditando === 'series' && (
                             <View style={styles.viewEditando}>
                                 <Text style={styles.textTituloEditando}>Insira a nova quantidade de séries:</Text>
+                                <TextInput 
+                                        style={styles.textInputEditando}
+                                        placeholder={listExercicio[0].series}
+                                        placeholderTextColor={'#0000006e'}
+                                        keyboardType="numeric"
+                                        onChange={(itemValue) => (setNewExercicioSelect(itemValue.nativeEvent.text), setDisabledSalvar(false))}
+                                    />
                                 <View style={styles.viewSalvarFechar}>
-                                    <TouchableOpacity style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar}>
+                                    <TouchableOpacity style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar} 
+                                        onPress={() => (setNewParametros(user, treino, exercicioSelectDetalhe[0].id, campoEditando, newExercicioSelect))}
+                                    >
                                         <Text style={styles.textSalvar}>Salvar</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setCampoEditando(null)}>
+                                    <TouchableOpacity onPress={() => (
+                                            setDisabledSalvar(true),
+                                            setCampoEditando(null)
+                                        )}>
+                                        <Ionicons name="close" size={30}/>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+                        {campoEditando === 'descanso' && (
+                            <View style={styles.viewEditando}>
+                                <Text style={styles.textTituloEditando}>Insira o novo tempo de descanso:</Text>
+                                <View style={styles.viewSalvarFechar}>
+                                    <TextInput 
+                                        style={styles.textInputEditando}
+                                        placeholder={listExercicio[0].descanso.toString()}
+                                        placeholderTextColor={'#0000006e'}
+                                        keyboardType="numeric"
+                                        onChange={(itemValue) => (setNewExercicioSelect(itemValue.nativeEvent.text), setDisabledSalvar(false))}
+                                    />
+                                    <Text style={{marginLeft: 15, fontSize: 20}}>segundos</Text>
+                                </View>
+                                <View style={styles.viewSalvarFechar}>
+                                    <TouchableOpacity style={{...styles.touchableOpacitySalvar, opacity: disabledSalvar ? 0.5 : 1}} disabled={disabledSalvar} 
+                                        onPress={() => (setNewParametros(user, treino, exercicioSelectDetalhe[0].id, campoEditando, newExercicioSelect))}
+                                    >
+                                        <Text style={styles.textSalvar}>Salvar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => (
+                                            setDisabledSalvar(true),
+                                            setCampoEditando(null)
+                                        )}>
                                         <Ionicons name="close" size={30}/>
                                     </TouchableOpacity>
                                 </View>

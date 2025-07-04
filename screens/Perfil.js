@@ -16,7 +16,7 @@ export default function Perfil({navigation}){
         navigation.setOptions({
             headerRight: () => (
             <TouchableOpacity onPress={() => sair()}>
-                <Text style={{ color: "white", margin: 5, padding: 5 }}>Sair</Text>
+                <Text style={{color: "white", margin: 5, padding: 5, marginTop: "50%"}}>Sair</Text>
             </TouchableOpacity>
             ),
         });

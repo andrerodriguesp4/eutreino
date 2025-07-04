@@ -17,8 +17,8 @@ export default function UserArea({navigation}){
             },
             headerTintColor: "white",
             headerTitleStyle:{
-                fontSize: 24,
-                // paddingTop: 40
+                fontSize: 20,
+                paddingTop: 40
             }
         }}>
             <Tab.Screen name="Treinos" component={Treinos} options={{

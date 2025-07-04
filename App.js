@@ -35,7 +35,11 @@ export default function App() {
       <StatusBar style='auto'/>
       <Stack.Navigator initialRouteName='Home'>
         <Stack.Screen name='DetalhesTreino' component={DetalhesTreino}/>
-        <Stack.Screen name='Home' component={Home} options={styles.optionsnv}/>
+        <Stack.Screen name='Home' component={Home} options={{
+          ...styles.optionsnv,
+          
+          header: () => false,
+          }}/>
         <Stack.Screen name='UserArea' component={UserArea} options={{
           ...styles.optionsnv,
           
