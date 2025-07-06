@@ -11,23 +11,23 @@ import { StatusBar } from 'expo-status-bar';
 
 const Stack = createNativeStackNavigator();
 
-function SairButton(){
-  const navigation = useNavigation();
+// function SairButton(){
+//   const navigation = useNavigation();
 
-  async function sair(){
-    await AsyncStorage.setItem('usuario', "");
-    await AsyncStorage.setItem('senha', "");
+//   async function sair(){
+//     await AsyncStorage.setItem('usuario', "");
+//     await AsyncStorage.setItem('senha', "");
 
-    navigation.navigate('Home');
-  }
+//     navigation.navigate('Home');
+//   }
 
-  return(
-    <TouchableOpacity onPress={() => sair()}>
-      <Text style={{color: 'white'}}>Sair</Text>
-    </TouchableOpacity>
-  )
+//   return(
+//     <TouchableOpacity onPress={() => sair()}>
+//       <Text style={{color: 'white'}}>Sair</Text>
+//     </TouchableOpacity>
+//   )
 
-}
+// }
 
 export default function App() {
   return (

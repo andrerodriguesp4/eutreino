@@ -36,7 +36,7 @@ export default function DetalhesTreino(){
                     setUser(usuario);
                     fetchTreinos(usuario);
                 }
-            }catch{
+            }catch (error){
                 console.log('Erro na função getUser: ', error)
             }
     };

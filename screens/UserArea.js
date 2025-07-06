@@ -19,7 +19,17 @@ export default function UserArea({navigation}){
             headerTitleStyle:{
                 fontSize: 20,
                 paddingTop: 40
-            }
+            },
+            tabBarStyle: {
+                border: 0,
+                height: 60,
+                backgroundColor: "white",
+            },
+            tabBarActiveTintColor: "black",
+            tabBarActiveBackgroundColor: "#FA801C",
+            tabBarLabelStyle: {
+                fontSize: 15,
+            },
         }}>
             <Tab.Screen name="Treinos" component={Treinos} options={{
                 tabBarIcon: () => (
