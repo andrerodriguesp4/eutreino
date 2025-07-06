@@ -22,7 +22,8 @@ export default function UserArea({navigation}){
             },
             tabBarStyle: {
                 border: 0,
-                height: 60,
+                height: 100,
+                paddingBottom: 40,
                 backgroundColor: "white",
             },
             tabBarActiveTintColor: "black",

@@ -8,6 +8,10 @@ import DetalhesTreino from './screens/DetalhesTreino';
 import UserArea from './screens/UserArea';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import EditarPerfil from './screens/account/EditarPerfil';
+import MostrarAcademia from './screens/account/MostrarAcademia';
+import MostrarInformacoes from './screens/account/MostrarInformacoes';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,25 +35,30 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style='auto'/>
-      <Stack.Navigator initialRouteName='Home'>
-        <Stack.Screen name='DetalhesTreino' component={DetalhesTreino}/>
-        <Stack.Screen name='Home' component={Home} options={{
-          ...styles.optionsnv,
-          
-          header: () => false,
-          }}/>
-        <Stack.Screen name='UserArea' component={UserArea} options={{
-          ...styles.optionsnv,
-          
-          gestureEnabled:false,
-          header: () => false,
-          }}/>
-        <Stack.Screen name='Login' component={Login} options={styles.optionsnv}/>
-      </Stack.Navigator>
-      
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <StatusBar style='auto'/>
+        <Stack.Navigator initialRouteName='Home'>
+          <Stack.Screen name='DetalhesTreino' component={DetalhesTreino}/>
+          <Stack.Screen name='Home' component={Home} options={{
+            ...styles.optionsnv,
+            
+            header: () => false,
+            }}/>
+          <Stack.Screen name='UserArea' component={UserArea} options={{
+            ...styles.optionsnv,
+            
+            gestureEnabled:false,
+            header: () => false,
+            }}/>
+          <Stack.Screen name='Login' component={Login} options={styles.optionsnv}/>
+          <Stack.Screen name='EditarPerfil' component={EditarPerfil} options={{ title: 'Dados Pessoais' }} />
+          <Stack.Screen name='MostrarAcademia' component={MostrarAcademia} options={{ title: 'Academia' }} />
+          <Stack.Screen name='MostrarInformacoes' component={MostrarInformacoes} options={{ title: 'Informações' }} />
+        </Stack.Navigator>
+        
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 

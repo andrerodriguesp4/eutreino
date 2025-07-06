@@ -1,6 +1,5 @@
 import { Pressable, View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {useEffect} from "react";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 export default function Perfil({navigation}){
@@ -12,16 +11,6 @@ export default function Perfil({navigation}){
             routes: [{name: 'Home'}]
         })
     }
-    
-    useEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-            <TouchableOpacity onPress={() => sair()}>
-                <Text style={{color: "white", margin: 5, padding: 5, marginTop: "50%"}}>Sair</Text>
-            </TouchableOpacity>
-            ),
-        });
-    }, [navigation]);
 
     const MenuItem = ({ label, icon, screen }) => (
         <Pressable
@@ -37,19 +26,27 @@ export default function Perfil({navigation}){
     );
 
     return (
-        <View>
+        <View style={styles.container}>
             <View>
                 <MenuItem label="Conta" icon="user" screen="EditarPerfil" />
-                <MenuItem label="Academia" icon="dumbbell" screen="EditarAcademia" />
-                <MenuItem label="Informações" icon="info-circle" screen="EditarInformacoes" />
+                <MenuItem label="Academia" icon="dumbbell" screen="MostrarAcademia" />
+                <MenuItem label="Informações" icon="info-circle" screen="MostrarInformacoes" />
             </View>
+            <TouchableOpacity style={styles.logoutButton} onPress={() => sair()}>
+                <FontAwesome5 name="sign-out-alt" size={22} color="#FA801C" style={styles.logoutIcon} />
+                <Text style={styles.logoutText}>Sair</Text>
+            </TouchableOpacity>
         </View>
     )
 }
 
 
 const styles = StyleSheet.create({
-  menuItem: {
+  container: {
+    flex:1,
+    justifyContent: 'space-between'
+  },
+    menuItem: {
     flexDirection: 'row',
     padding: 16,
     borderBottomWidth: 1,
@@ -59,6 +56,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
   },
   menuText: {
+    fontSize: 22,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 48,
+    borderRadius: 8,
+    backgroundColor: '#ddd',
+    marginBottom: 10,
+  },
+  logoutIcon: {
+    marginRight: 8,
+  },
+  logoutText: {
+    color: '#FA801C',
+    fontWeight: 'bold',
     fontSize: 22,
   },
 });
