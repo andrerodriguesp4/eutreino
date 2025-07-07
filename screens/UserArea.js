@@ -10,12 +10,13 @@ const Tab = createBottomTabNavigator();
 export default function UserArea({navigation}){
     return(
         <Tab.Navigator screenOptions={{
+            headerTitle: "EuTreino",
             headerStyle: {
                 height: 100,
-                backgroundColor: "black",
+                backgroundColor: "#FA801C",
                 borderBottomColor: "black",
             },
-            headerTintColor: "white",
+            headerTintColor: "black",
             headerTitleStyle:{
                 fontSize: 20,
                 paddingTop: 40

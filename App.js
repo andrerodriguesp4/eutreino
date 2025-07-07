@@ -39,7 +39,9 @@ export default function App() {
       <NavigationContainer>
         <StatusBar style='auto'/>
         <Stack.Navigator initialRouteName='Home'>
-          <Stack.Screen name='DetalhesTreino' component={DetalhesTreino}/>
+          <Stack.Screen name='DetalhesTreino' component={DetalhesTreino} options={{
+            headerStyle: {backgroundColor: '#FA801C'},
+          }}/>
           <Stack.Screen name='Home' component={Home} options={{
             ...styles.optionsnv,
             
@@ -65,10 +67,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:'black',
+    backgroundColor:'#000000',
   },
   optionsnv:{
-    headerStyle: {backgroundColor: 'black', borderBottomColor: "black"},
+    headerStyle: {backgroundColor: '#000000', borderBottomColor: "#000000"},
     headerTintColor: 'white',
     
   }

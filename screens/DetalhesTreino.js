@@ -8,7 +8,7 @@ import {Ionicons} from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function DetalhesTreino(){
+export default function DetalhesTreino({navigation}){
     const route = useRoute();
     const [exercicioSelectDetalhe, setExercicioSelectDetalhe] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
@@ -34,7 +34,6 @@ export default function DetalhesTreino(){
                     navigation.navigate('Home')
                 }else{
                     setUser(usuario);
-                    fetchTreinos(usuario);
                 }
             }catch (error){
                 console.log('Erro na função getUser: ', error)
@@ -343,6 +342,7 @@ export default function DetalhesTreino(){
             )}
             </Modal>
             <VirtualizedList
+                style={styles.viewVirtualizedList}
                 data={listExercicio}
                 getItemCount={(treinoDetalhe) => treinoDetalhe.length}
                 getItem={(treinoDetalhe, index) => treinoDetalhe[index]}
@@ -397,10 +397,10 @@ const styles = StyleSheet.create({
         
     },
     buttonListExercicio: {
-        backgroundColor: '#ff6767',
+        backgroundColor: '#ff8585',
         padding: 10,
         marginBottom: 2,
-        marginHorizontal: 5,
+        marginHorizontal: 2,
     },
     slidePanel: {
         position: 'absolute',
@@ -432,6 +432,9 @@ const styles = StyleSheet.create({
     },
     touchableOpacitySalvar:{
         backgroundColor: '#00ce005e',
+    },
+    viewVirtualizedList: {
+        marginTop: 2,
     },
     viewEditando: {
         flex:1,
