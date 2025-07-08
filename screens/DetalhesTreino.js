@@ -1,12 +1,12 @@
 import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import app from "../firebaseConfig";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, where} from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc} from "firebase/firestore";
 import {use, useEffect, useState } from "react";
-import * as Config from './Treinos';
 import {Ionicons} from '@expo/vector-icons';
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 export default function DetalhesTreino({navigation}){
     const route = useRoute();
@@ -117,9 +117,41 @@ export default function DetalhesTreino({navigation}){
             setNewRepeticoesMinimo(null);
             setDisabledSalvar(true);
         }catch(error){
-            console.log('Erro ao salvar:', error)
+            console.log('Erro na função setNewParametros:', error)
         }
     };
+
+    async function setNewExercicio(user, treino, titulo, carga, minimo, maximo, series, descanso) {
+    try {
+        const db = getFirestore();
+        const exerciciosRef  = collection(db, `users/${user}/treinos/${treino}/exercicios`);
+        const snapshot = await getDocs(exerciciosRef);
+
+        let maiorId = -1;
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (typeof data.id === 'number' && data.id > maiorId){
+                maiorId = data.id;
+            }
+        });
+
+        const novoId = maiorId + 1;
+        await addDoc(
+            exerciciosRef,
+            {
+                titulo,
+                carga,
+                repeticoes: {minimo, maximo},
+                series,
+                descanso,
+                id: novoId
+            }
+        );
+        alert('Exercício salvo com sucesso!');
+    } catch (error) {
+        console.log('Erro na função setNewExercicio', error);
+    }
+}
 
     return(
         <View style={styles.container}>
@@ -353,19 +385,32 @@ export default function DetalhesTreino({navigation}){
                                 setModalVisible(true),
                                 setNewExercicioSelect(item.titulo)
                                 )}>
-                            <Text style={{...styles.textListExercicio, width: '73%'}}>
+                            <Text style={{...styles.textListExercicio, flex: 1}}>
                                 {item.titulo}
                             </Text>
-                        <TouchableOpacity>
-                            <Ionicons name={checkButton} size={20} color={'#ffffff'} style={styles.buttonListExercicio}/>
-                        </TouchableOpacity>
-                        <TouchableOpacity>
-                            <Ionicons name="trash-outline" size={20} color={'#ffffff'} style={styles.buttonListExercicio}/>
-                        </TouchableOpacity>
+                            <View style={{flexDirection: 'row'}}>
+                                <TouchableOpacity>
+                                    <Ionicons name={checkButton} size={22} color={'#ffffff'} style={styles.buttonListExercicio}/>
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <FontAwesome5 name="trash-alt" size={20} color={'#ffffff'} style={styles.buttonListExercicio}/>
+                                </TouchableOpacity>
+                            </View>
                         </TouchableOpacity>
                     </View>
                 )}
                 keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={() => (
+                    <TouchableOpacity 
+                        style={{...styles.buttonAdicionarExercicio, justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}
+                        // onPress={() => setNewExercicio('andre_rodriguesp4', 'Treino de Peito', 'Crucifixo', '14', '6','10', '4', '60')}
+                    >
+                        <FontAwesome5 name="plus" color={'white'} size={20}/>
+                        <Text style={{...styles.textAdicionarExercicio, marginLeft: 5}}>
+                            Adicionar Exercício
+                        </Text>
+                    </TouchableOpacity>
+                )}
             />
         </View>
     )
@@ -455,5 +500,16 @@ const styles = StyleSheet.create({
     textTituloEditando: {
         marginBottom: 20,
         fontSize: 15
+    },
+    textAdicionarExercicio: {
+        fontSize: 20,
+        padding: 5,
+        color: '#ffffff',
+    },
+    buttonAdicionarExercicio: {
+        backgroundColor: '#ff4949',
+        padding: 10,
+        marginBottom: 2,
+        marginHorizontal: 2,
     }
 });

@@ -85,8 +85,8 @@ export default function Login({navigation}){
             alert('Digite um e-mail válido!')
         }else{
             const db = getFirestore();
-            const usuarioTeste = listaUsuarios.find(item => item.user == user)
-            const emailTeste = listaUsuarios.find(item => item.email == email)
+            const usuarioTeste = listaUsuarios.find(item => item.user == user);
+            const emailTeste = listaUsuarios.find(item => item.email == email);
             if (usuarioTeste){
                 setUsuario(null)
                 setLoadingVisible(false)

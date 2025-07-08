@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
         marginTop: 50,
     },
     textbutton: {
-        fontFamily: 'cursive',
         color: 'white',
         fontSize: 20,
         textAlign: 'center',

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Treinos from "./Treinos";
 import Perfil from "./Perfil";
@@ -18,8 +18,10 @@ export default function UserArea({navigation}){
             },
             headerTintColor: "black",
             headerTitleStyle:{
-                fontSize: 20,
-                paddingTop: 40
+                fontSize: 30,
+                paddingTop: 40,
+                fontWeight: "bold",
+                fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
             },
             tabBarStyle: {
                 border: 0,
