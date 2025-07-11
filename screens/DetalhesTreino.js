@@ -1,7 +1,7 @@
 import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import app from "../firebaseConfig";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc, setDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -197,7 +197,29 @@ export default function DetalhesTreino({ navigation }) {
   } catch (error) {
     console.log("Erro na função setNewExercicio", error);
   }
-}
+  };
+
+  async function deleteExercicio(user, treino, exercicioId) {
+    try{
+      const db = getFirestore();
+      await deleteDoc(doc(db, `users/${user}/treinos/${treino}/exercicios`, exercicioId.toString()));
+      fetchListaExercicios(user, treino);
+    }catch(error){
+      console.log('Erro na função deleteExercicio', error);
+    }
+  };
+
+  async function fetchListaExercicios(user, treino) {
+    try{
+      const db = getFirestore();
+      const exerciciosRef = collection(db, `users/${user}/treinos/${treino}/exercicios`);
+      const snapshot = await getDocs(exerciciosRef);
+      const novaLista = snapshot.docs.map(doc => doc.data());
+      setListExercicio(novaLista);    
+    }catch(error){
+      console.log('Erro na função fetchListaExercicio', error);
+    }
+  }
   
   return (
     <View style={styles.container}>
@@ -559,7 +581,7 @@ export default function DetalhesTreino({ navigation }) {
                     style={styles.buttonListExercicio}
                   />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => deleteExercicio(user, treino, item.id)}>
                   <FontAwesome5
                     name="trash-alt"
                     size={20}
