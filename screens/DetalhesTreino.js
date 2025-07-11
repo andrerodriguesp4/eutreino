@@ -1,7 +1,7 @@
 import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import app from "../firebaseConfig";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc, setDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -22,7 +22,6 @@ export default function DetalhesTreino({ navigation }) {
   const [disabledSalvar, setDisabledSalvar] = useState(true);
   const [newRepeticoesMinimo, setNewRepeticoesMinimo] = useState();
   const [newRepeticoesMaximo, setNewRepeticoesMaximo] = useState();
-  const [checkButton, setCheckButton] = useState("stop-outline");
   const [campoAdicionando, setCampoAdicionando] = useState(false);
   const [tituloAdicionar, setTituloAdicionar] = useState(null);
   const [cargaAdicionar, setCargaAdicionar] = useState(null);
@@ -83,13 +82,7 @@ export default function DetalhesTreino({ navigation }) {
     }
   };
 
-  async function setNewParametros(
-    user,
-    treino,
-    exercicio,
-    parametro,
-    newParametros
-  ) {
+  async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
     try {
       const db = getFirestore(app);
       const treinosCollection = collection(
@@ -145,37 +138,41 @@ export default function DetalhesTreino({ navigation }) {
     }
   };
 
-  async function setNewExercicio(
-    user,
-    treino,
-    titulo,
-    carga,
-    minimo,
-    maximo,
-    series,
-    descanso
-  ) {
-    try {
-      if(tituloAdicionar === null){
-        alert("Selecione o exercício!")
-      }else{
-        const db = getFirestore();
-        const exerciciosRef = collection(
-          db,
-          `users/${user}/treinos/${treino}/exercicios`
-        );
-        const snapshot = await getDocs(exerciciosRef);
+  async function setNewExercicio(user, treino, titulo, carga, minimo, maximo, series, descanso) {
+  try {
+    if (tituloAdicionar === null) {
+      alert("Selecione o exercício!");
+    } else {
+      const db = getFirestore();
+      const exerciciosRef = collection(
+        db,
+        `users/${user}/treinos/${treino}/exercicios`
+      );
+      const snapshot = await getDocs(exerciciosRef);
 
-        let maiorId = -1;
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          if (typeof data.id === "number" && data.id > maiorId) {
-            maiorId = data.id;
-          }
-        });
+      let maiorId = -1;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (typeof data.id === "number" && data.id > maiorId) {
+          maiorId = data.id;
+        }
+      });
 
-        const novoId = maiorId + 1;
-        await addDoc(exerciciosRef, {
+      const novoId = maiorId + 1;
+
+      await setDoc(doc(exerciciosRef, novoId.toString()), {
+        titulo,
+        carga,
+        repeticoes: { minimo, maximo },
+        series,
+        descanso,
+        id: novoId,
+        checkButton: 0,
+      });
+
+      setListExercicio((prev) => [
+        ...prev,
+        {
           titulo,
           carga,
           repeticoes: { minimo, maximo },
@@ -183,23 +180,24 @@ export default function DetalhesTreino({ navigation }) {
           descanso,
           id: novoId,
           checkButton: 0,
-        });
-        setListExercicio(prev => [...prev, {
-          titulo,
-          carga,
-          repeticoes: { minimo, maximo },
-          series,
-          descanso,
-          id: novoId,
-          checkbutton: 0,
-        }])
-        alert("Exercício salvo com sucesso!");
-        setCampoAdicionando(false);
-      }
-    } catch (error) {
-      console.log("Erro na função setNewExercicio", error);
+        },
+      ]);
+
+      alert("Exercício salvo com sucesso!");
+      setCampoAdicionando(false);
+      setOpen(false);
+      setDisabledSalvar(true);
+      setTituloAdicionar(null);
+      setCargaAdicionar(null);
+      setRepeticoesMinimoAdicionar(null);
+      setRepeticoesMaximoAdicionar(null);
+      setSeriesAdicionar(null);
+      setDescansoAdicionar(null);
     }
-  };
+  } catch (error) {
+    console.log("Erro na função setNewExercicio", error);
+  }
+}
   
   return (
     <View style={styles.container}>
