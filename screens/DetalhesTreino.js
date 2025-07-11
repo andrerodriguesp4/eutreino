@@ -143,7 +143,7 @@ export default function DetalhesTreino({ navigation }) {
     } catch (error) {
       console.log("Erro na função setNewParametros:", error);
     }
-  }
+  };
 
   async function setNewExercicio(
     user,
@@ -182,6 +182,7 @@ export default function DetalhesTreino({ navigation }) {
           series,
           descanso,
           id: novoId,
+          checkButton: 0,
         });
         setListExercicio(prev => [...prev, {
           titulo,
@@ -190,6 +191,7 @@ export default function DetalhesTreino({ navigation }) {
           series,
           descanso,
           id: novoId,
+          checkbutton: 0,
         }])
         alert("Exercício salvo com sucesso!");
         setCampoAdicionando(false);
@@ -197,8 +199,8 @@ export default function DetalhesTreino({ navigation }) {
     } catch (error) {
       console.log("Erro na função setNewExercicio", error);
     }
-  }
-
+  };
+  
   return (
     <View style={styles.container}>
       <Modal visible={modalVisible}>
@@ -544,9 +546,16 @@ export default function DetalhesTreino({ navigation }) {
                 {item.titulo}
               </Text>
               <View style={{ flexDirection: "row" }}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => 
+                  setNewParametros(
+                    user,
+                    treino,
+                    item.id,
+                    'checkButton',
+                    item.checkButton === 0 ? 1 : 0
+                )}>
                   <Ionicons
-                    name={checkButton}
+                    name={item.checkButton === 1 ? 'checkmark-outline' : 'stop-outline'}
                     size={22}
                     color={"#ffffff"}
                     style={styles.buttonListExercicio}
