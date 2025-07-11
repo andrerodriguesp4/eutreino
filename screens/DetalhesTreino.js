@@ -183,7 +183,6 @@ export default function DetalhesTreino({ navigation }) {
         },
       ]);
 
-      alert("Exercício salvo com sucesso!");
       setCampoAdicionando(false);
       setOpen(false);
       setDisabledSalvar(true);
