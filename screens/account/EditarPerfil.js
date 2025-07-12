@@ -1,17 +1,20 @@
-import { TextInput, Text, StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator, Modal } from "react-native";
+import { TextInput, Text, StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator, Modal, Image } from "react-native";
 import app from "../../firebaseConfig";
 import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import styles from '../account/styles/styles'
+import PasswordField from "./components/Passwordfield";
 
 export default function EditarPerfil({navigation}){
     const [originalData, setOriginalData] = useState({});
     const [user, setUser] = useState('');
     // const [nickname, setNickname] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [senha, setSenha] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [userId, setUserId] = useState('');
+
     const [loading, setLoading] = useState(false);
 
     useEffect(()=>{
@@ -33,6 +36,7 @@ export default function EditarPerfil({navigation}){
                     const data = userSnap.data();
                     setOriginalData(data);
                     setUser(data.user || '');
+                    // setSenha(data.senha || '');
                     setEmail(data.email || '');
                     // setNickname(data.nickname || '');
                 }
@@ -49,6 +53,10 @@ export default function EditarPerfil({navigation}){
             Alert.alert('Erro', 'Usuário não encontrado');
             return;
         }
+        if (newPassword && !senha) {
+            Alert.alert('Erro', 'Digite sua senha atual para alterar a senha.');
+            return;
+        }
 
         const dadosAtualizados = {};
         if (user !== originalData.user) dadosAtualizados.user = user;
@@ -56,7 +64,7 @@ export default function EditarPerfil({navigation}){
         if (email !== originalData.email) dadosAtualizados.email = email;
 
         // Editar método de autenticação para não salvar senha diretamente
-        if (newPassword) dadosAtualizados.newPassword = newPassword;
+        if (newPassword) dadosAtualizados.senha = newPassword;
 
         if (Object.keys(dadosAtualizados).length === 0){
             Alert.alert('Aviso', 'Nenhum dado foi alterado.');
@@ -77,90 +85,77 @@ export default function EditarPerfil({navigation}){
 
     const campos = [
         { label: 'Nome', value: user, setter: setUser, placeholder: 'Digite seu nome' },
-        { label: 'Senha Atual', value: password, setter: setPassword, placeholder: 'Senha atual' },
-        { label: 'Nova Senha', value: newPassword, setter: setNewPassword, placeholder: 'Nova senha' },
         { label: 'Email', value: email, setter: setEmail, placeholder: 'Digite seu email' },
     ];
 
+    // const ProfilePicture = ({userImage}) => {
+    //     const defaultImage = require('../../source/perfil.png');
+    //     const profileImage = userImage ? {url: userImage} : {url: defaultImage};
+
+    //     return(
+    //         <View style={styles.imageContainer}>
+    //             <Image source={defaultImage} style={styles.image} />
+    //         </View>
+    //     )
+    // }
+
     return (
-        <View style={styles.container}>
-            <View>
-                {campos.map((campo, index) => (
-                    <View key={index} style={{ marginBottom: 16 }}>
-                        <Text style={styles.label}>{campo.label}</Text>
-                        <TextInput
-                            value={campo.value}
-                            onChangeText={campo.setter}
-                            placeholder={campo.placeholder}
-                            placeholderTextColor="#666"
-                            style={styles.inputProfile}
-                        />
-                    </View>
-                ))}
+        <View style={{flex:1}}>
+            <View style={styles.imageContainer}>
+                <Image source={require('../../source/perfil.png')} style={styles.image} />
             </View>
+            <View style={styles.container}>
+                <View>
+                    {campos.map((campo, index) => (
+                        <View key={index}>
+                            <Text style={styles.label}>{campo.label}</Text>
+                            <TextInput
+                                value={campo.value}
+                                onChangeText={campo.setter}
+                                placeholder={campo.placeholder}
+                                placeholderTextColor="#666"
+                                style={styles.inputProfile}
+                            />
+                        </View>
+                    ))}
+                    <PasswordField
+                        label={"Senha Atual"}
+                        value={senha}
+                        onChangeText={setSenha}
+                        placeholder={"Senha Atual"}
+                    />
 
-            <View>
-                <TouchableOpacity
-                    style={styles.saveButton}
-                    onPress={salvarDados}
-                    disabled={loading}
-                >
-                    <Text style={styles.saveText}>Salvar</Text>
-                </TouchableOpacity>
-            </View>
-
-            <Modal
-                transparent={true}
-                visible={loading}
-                animationType="fade"
-            >
-                <View style={styles.modalBackground}>
-                    <ActivityIndicator size="large" color="#007BFF" />  
+                    <PasswordField
+                        label={"Nova Senha"}
+                        value={newPassword}
+                        onChangeText={setNewPassword}
+                        placeholder={"Nova Senha"}
+                    />        
                 </View>
-            </Modal>
+
+                <View>
+                    <TouchableOpacity
+                        style={styles.saveButton}
+                        onPress={salvarDados}
+                        disabled={loading}
+                    >
+                        <Text style={styles.saveText}>Salvar</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Modal
+                    transparent={true}
+                    visible={loading}
+                    animationType="fade"
+                >
+                    <View style={styles.modalBackground}>
+                        <ActivityIndicator size="large" color="#007BFF" />  
+                    </View>
+                </Modal>
+            </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex:1,
-        justifyContent: 'space-between'
-    },
-    label: {
-        fontSize: 14,
-        color: '#444',
-        marginBottom: 4,
-        fontWeight: '500',
-    },
-    inputProfile: {
-        backgroundColor: '#fff',
-        padding: 5,
-        margin:10,
-        borderWidth: 1,
-    },
-    saveButton: {
-        flexDirection: 'row',
-        alignSelf: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 48,
-        borderRadius: 8,
-        backgroundColor: '#ddd',
-        marginBottom: 65,
-    },
-    saveText: {
-        color: '#FA801C',
-        fontWeight: 'bold',
-        fontSize: 22,
-    },
-    modalBackground: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 10
-    },
-})
 
 // Refatorar com Formulário controlado (ex: com Formik).
 // Adicionar validações com Yup.
