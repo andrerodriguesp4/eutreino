@@ -1,10 +1,11 @@
-import { TextInput, Text, StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator, Modal, Image } from "react-native";
+import { TextInput, Text, View, TouchableOpacity, Alert, ActivityIndicator, Modal, Image } from "react-native";
 import app from "../../firebaseConfig";
-import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, updateDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from '../account/styles/styles'
 import PasswordField from "./components/Passwordfield";
+import PasswordConfirmationModal from "./components/PasswordConfirmationModal";
 
 export default function EditarPerfil({navigation}){
     const [originalData, setOriginalData] = useState({});
@@ -14,6 +15,11 @@ export default function EditarPerfil({navigation}){
     const [senha, setSenha] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [userId, setUserId] = useState('');
+
+    const [ShowDeleteModal, setShowDeleteModal] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [deleting, setDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
 
     const [loading, setLoading] = useState(false);
 
@@ -48,7 +54,7 @@ export default function EditarPerfil({navigation}){
         carregarDadosUsuario();
     }, [userId]);
 
-    async function salvarDados() {
+    async function atualizarDados() {
         if(!userId){
             Alert.alert('Erro', 'Usuário não encontrado');
             return;
@@ -80,6 +86,53 @@ export default function EditarPerfil({navigation}){
             Alert.alert('Erro', 'Não foi possível atualizar os dados.')
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function excluirUser() {
+        if(!userId){
+            Alert.alert('Erro', 'Usuário não encontrado');
+            return;
+        }
+        if (!confirmPassword){
+            Alert.alert('Erro', 'Digite sua senha para continuar.');
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            setDeleteError('');
+
+            const db = getFirestore(app);
+            const userRef = doc(db, 'users', userId);
+            const userSnap = await getDoc(userRef);
+            
+            if (!userSnap.exists()) {
+                setDeleteError('Usuário não encontrado.');
+                return;
+            }
+            const userData = userSnap.data();
+            const senhaBanco = userData.senha;
+
+            if (confirmPassword !== senhaBanco) {
+                setDeleteError('Senha incorreta.');
+                return;
+            }
+            
+            await deleteDoc(userRef);
+            Alert.alert('Sucesso', 'Conta ecluída com sucesso!');
+            
+            setShowDeleteModal(false);
+            setConfirmPassword('');
+            await AsyncStorage.removeItem('usuario');
+            navigation.reset({
+                index: 0,
+                routes: [{name: 'Login'}]
+            });
+        } catch (error){
+            setDeleteError('Erro inesperado ao excluir a conta.'); 
+        } finally {
+            setDeleting(false);
         }
     }
 
@@ -133,13 +186,19 @@ export default function EditarPerfil({navigation}){
                     />        
                 </View>
 
-                <View>
+                <View style={styles.footContainer}>
                     <TouchableOpacity
-                        style={styles.saveButton}
-                        onPress={salvarDados}
+                        style={styles.actionButton}
+                        onPress={atualizarDados}
                         disabled={loading}
                     >
-                        <Text style={styles.saveText}>Salvar</Text>
+                        <Text style={styles.saveText}>Salvar Dados</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => setShowDeleteModal(true)}
+                    >
+                        <Text style={styles.deleteText}>Excluir Conta</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -152,6 +211,19 @@ export default function EditarPerfil({navigation}){
                         <ActivityIndicator size="large" color="#007BFF" />  
                     </View>
                 </Modal>
+                <PasswordConfirmationModal
+                    visible={ShowDeleteModal}
+                    password={confirmPassword}
+                    onChangePassword={setConfirmPassword}
+                    onCancel={()=>{
+                        setShowDeleteModal(false);
+                        setConfirmPassword('');
+                        setDeleteError('');
+                    }}
+                    onConfirm={excluirUser}
+                    loading={deleting}
+                    errorMessage={deleteError}
+                />
             </View>
         </View>
     );

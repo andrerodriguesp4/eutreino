@@ -51,12 +51,16 @@ const styles = StyleSheet.create({
         color: '#000',
     },
 
-
-    saveButton: {
+    footContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+    },
+    actionButton: {
         flexDirection: 'row',
         alignSelf: 'center',
         paddingVertical: 12,
-        paddingHorizontal: 48,
+        paddingHorizontal: 12,
         borderRadius: 8,
         backgroundColor: '#ddd',
         marginBottom: 65,
@@ -66,12 +70,87 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 22,
     },
+
+    deleteText: {
+        color: '#e9210fff',
+        fontWeight: 'bold',
+        fontSize: 22,
+    },
+
+
     modalBackground: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
         justifyContent: 'center',
         alignItems: 'center',
     },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContainer: {
+        width: '85%',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        elevation: 10,
+    },
+
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    modalText: {
+        fontSize: 14,
+        marginBottom: 10,
+    },
+    modalInput: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        marginBottom: 20,
+        color: '#000',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    cancelButton: {
+        backgroundColor: '#ccc',
+        padding: 10,
+        borderRadius: 8,
+        flex: 1,
+        marginRight: 10,
+        alignItems: 'center',
+    },
+    confirmButton: {
+        backgroundColor: '#e53935',
+        padding: 10,
+        borderRadius: 8,
+        flex: 1,
+        marginLeft: 10,
+        alignItems: 'center',
+    },
+    cancelText: {
+        color: '#000',
+        fontWeight: 'bold',
+    },
+    confirmText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    errorText: {
+        color: '#e53935',
+        fontSize: 13,
+        // marginBottom: 10,
+        // marginTop: -12,
+    },
+
 });
 
 export default styles;
