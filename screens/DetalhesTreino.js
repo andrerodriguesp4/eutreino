@@ -2,7 +2,7 @@ import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextI
 import { useRoute } from "@react-navigation/native";
 import app from "../firebaseConfig";
 import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc, setDoc, deleteDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";

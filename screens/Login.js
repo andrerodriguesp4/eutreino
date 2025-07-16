@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from "react-native"
 import app from "../firebaseConfig";
-import {collection, doc, getDocs, getFirestore, setDoc } from "firebase/firestore";
+import {collection, doc, Firestore, getDocs, getFirestore, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Ionicons} from '@expo/vector-icons'
 
@@ -58,7 +58,15 @@ export default function Login({navigation}){
                 const testUser = checkUser(user, password)
 
                 if (testUser === true){
-                    await AsyncStorage.setItem('usuario', user);
+                    const db = getFirestore();
+                    const usersRef = collection(db, 'users');
+                    const snapshot = await getDocs(usersRef);
+                    const snapshotMap = snapshot.docs.map((doc) => ({
+                        ...doc.data()
+                    }));
+                    const userSelect = snapshotMap.find(item => item.user === user);
+                    const userId = userSelect.id;
+                    await AsyncStorage.setItem('usuario', userId.toString());
                     await AsyncStorage.setItem('senha', password);
                     setLoadingVisible(false)
                     navegar()
@@ -87,6 +95,17 @@ export default function Login({navigation}){
             const db = getFirestore();
             const usuarioTeste = listaUsuarios.find(item => item.user == user);
             const emailTeste = listaUsuarios.find(item => item.email == email);
+            const userRef = collection(db, 'users');
+            const snapshot = await getDocs(userRef);
+            let maiorId = -1;
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                if (typeof data.id === "number" && data.id > maiorId) {
+                maiorId = data.id;
+                }
+            });
+
+            const novoId = maiorId + 1;
             if (usuarioTeste){
                 setUsuario(null)
                 setLoadingVisible(false)
@@ -109,7 +128,7 @@ export default function Login({navigation}){
                             setLoadingVisible(false)
                             alert('As senhas não coincidem!')
                         }else{
-                            await setDoc(doc(db, 'users', user), { user: user, senha: password, email: email });
+                            await setDoc(doc(db, 'users', novoId.toString()), { user: user, senha: password, email: email, id: novoId });
                             setUsuario(null)
                             setEmail(null)
                             setSenha(null)

@@ -104,8 +104,8 @@ export default function Treinos({navigation}){
                     <TouchableOpacity onPress={async() => {
                                     setTreinoId(item.id);
                                     setTreinoSelect(item.titulo);
-                                    const detalhes = await fetchExerciciosSelect(user, item.titulo);
-                                    const treinoRoute = item.titulo;
+                                    const detalhes = await fetchExerciciosSelect(user, item.id);
+                                    const treinoRoute = item.id;
                                     navigation.navigate('DetalhesTreino', { treinoDetalhe: detalhes, treino: treinoRoute });
                             }}>
                         <View style={styles.listaTreinos} key={item.id}>
