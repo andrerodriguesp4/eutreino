@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, TextInput} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, TextInput, ActivityIndicator} from "react-native";
 import { db } from "../firebaseConfig";
 import {collection, getDocs, doc, setDoc, deleteDoc} from "firebase/firestore";
 import {useEffect, useState } from "react";
@@ -12,6 +12,7 @@ export default function Treinos({navigation}){
     const [campoConfimacao, setCampoConfirmacao] = useState(false);
     const [textNewTreino, setTextNewTreino] = useState();
     const [treinoId, setTreinoId] = useState();
+    const [loadingVisible, setLoadingVisible] = useState(false);
     
     useEffect(() => {
         getUser();
@@ -29,6 +30,10 @@ export default function Treinos({navigation}){
         });
     }, [navigation])
 
+    function sleep(ms){
+        return new Promise(result => setTimeout(result, ms))
+    };
+
     async function getUser() {
             try{
                 const usuario = await AsyncStorage.getItem('usuario');                
@@ -36,17 +41,18 @@ export default function Treinos({navigation}){
                     navigation.navigate('Home')
                 }else{
                     setUser(usuario);
-                    fetchTreinos(usuario);
+                    fetchTreinos();
                 }
             }catch{
                 console.log('Erro na função getUser: ', error)
             }
     }
         
-    const fetchTreinos = async (usuario) => {
+    const fetchTreinos = async () => {
         try{
-            if(usuario){
-                const treinosCollection = collection(db, `users/${usuario}/treinos`);
+            setLoadingVisible(true);
+            if(user){
+                const treinosCollection = collection(db, `users/${user}/treinos`);
                 const querySnapshot = await getDocs(treinosCollection);
 
                 const treinosList = querySnapshot.docs.map(doc => ({
@@ -55,14 +61,16 @@ export default function Treinos({navigation}){
 
                 setTreinos(treinosList);
             }
+            await sleep(200)
+            setLoadingVisible(false);
         }catch(error){
             console.log('Erro na função fetchTreinos: ',error)
         }
     };
 
-    const fetchExerciciosSelect = async (usuario, treino) => {
+    const fetchExerciciosSelect = async (treino) => {
         try{
-            const treinosCollection = collection(db, `users/${usuario}/treinos/${treino}/exercicios`);
+            const treinosCollection = collection(db, `users/${user}/treinos/${treino}/exercicios`);
             const querySnapshot = await getDocs(treinosCollection);
 
             const exerciciosTreinoList = querySnapshot.docs.map(doc => ({
@@ -77,6 +85,7 @@ export default function Treinos({navigation}){
     
     async function setNewTreino(titulo) {
         try{
+            setLoadingVisible(true);
             const treinoRef = collection(db, `users/${user}/treinos`);
             const snapshot = await getDocs(treinoRef);
 
@@ -101,7 +110,8 @@ export default function Treinos({navigation}){
                     id: novoId,
                 }
             ])
-            setCampoAdicionando(false)
+            setCampoAdicionando(false);
+            setLoadingVisible(false);
         }catch(error){
             console.log('Erro na função setNewTreino', error);
         }
@@ -109,29 +119,40 @@ export default function Treinos({navigation}){
     };
 
     async function deleteTreino(tituloId) {
-        const db = getFirestore();
-        const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
-        const exerciciosRef = collection(treinoRef, 'exercicios');
-        const exerciciosSnapshot = await getDocs(exerciciosRef);
+        try{
+            const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
+            const exerciciosRef = collection(treinoRef, 'exercicios');
+            const exerciciosSnapshot = await getDocs(exerciciosRef);
 
-        const deletePromises = exerciciosSnapshot.docs.map((doc) => 
-            deleteDoc(doc.ref)
-        );
+            const deletePromises = exerciciosSnapshot.docs.map((doc) => 
+                deleteDoc(doc.ref)
+            );
 
-        await Promise.all(deletePromises);
-        await deleteDoc(treinoRef);
-        getUser();
+            
+            await Promise.all(deletePromises);
+            await deleteDoc(treinoRef);
+            getUser();
+        }catch(error){
+            console.log('Erro na função deleteTreino', error);
+        }
     }
 
     return(
         <View style={styles.container}>
+            {loadingVisible && (
+                <View style={styles.viewLoading}>
+                    <ActivityIndicator
+                    size={"large"}
+                    />
+                </View>
+            )}
             <VirtualizedList
                 data={treinos}
                 getItemCount={(treinos) => treinos.length}
                 getItem={(treinos, index) => treinos[index]}
                 renderItem={({item}) => (
                     <TouchableOpacity onPress={async() => {
-                                    const detalhes = await fetchExerciciosSelect(user, item.id);
+                                    const detalhes = await fetchExerciciosSelect(item.id);
                                     const treinoRoute = item.id;
                                     navigation.navigate('DetalhesTreino', { treinoDetalhe: detalhes, treino: treinoRoute });
                             }}>
@@ -279,6 +300,17 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         right: 20,
+    },
+    viewLoading: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 999,
+        backgroundColor: '#0000008a',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

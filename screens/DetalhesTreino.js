@@ -1,7 +1,7 @@
-import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput } from "react-native";
+import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput, ActivityIndicator } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -31,6 +31,8 @@ export default function DetalhesTreino({ navigation }) {
   const [descansoAdicionar, setDescansoAdicionar] = useState(null);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
+  const [loadingVisible, setLoadingVisible] = useState(false);
+
   useEffect(() => {
     fetchExercicios();
     getUser();
@@ -42,6 +44,11 @@ export default function DetalhesTreino({ navigation }) {
     }));
     setItems(itensAtualizados);
   }, [exercicios]);
+
+  function sleep(ms){
+    return new Promise(result => setTimeout(result, ms))
+  };
+
   async function getUser() {
     try {
       const usuario = await AsyncStorage.getItem("usuario");
@@ -68,6 +75,7 @@ export default function DetalhesTreino({ navigation }) {
   };
   const fetchExercicios = async () => {
     try {
+      setLoadingVisible(true);
       const exerciciosCollection = collection(db, "exercicios");
       const querySnapshot = await getDocs(exerciciosCollection);
 
@@ -76,6 +84,9 @@ export default function DetalhesTreino({ navigation }) {
       }));
 
       setExercicios(exerciciosList);
+      await sleep(200);
+      setLoadingVisible(false);
+      
     } catch (error) {
       console.log("Erro na função fetchExercicios: ", error);
     }
@@ -83,6 +94,7 @@ export default function DetalhesTreino({ navigation }) {
 
   async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
     try {
+      setLoadingVisible(true);
       const treinosCollection = collection(
         db,
         `users/${user}/treinos/${treino}/exercicios`
@@ -131,6 +143,8 @@ export default function DetalhesTreino({ navigation }) {
       setNewRepeticoesMaximo(null);
       setNewRepeticoesMinimo(null);
       setDisabledSalvar(true);
+      await sleep(50);
+      setLoadingVisible(false);
     } catch (error) {
       console.log("Erro na função setNewParametros:", error);
     }
@@ -138,6 +152,7 @@ export default function DetalhesTreino({ navigation }) {
 
   async function setNewExercicio(user, treino, titulo, carga, minimo, maximo, series, descanso) {
   try {
+    setLoadingVisible(true);
     if (tituloAdicionar === null) {
       alert("Selecione o exercício!");
     } else {
@@ -190,6 +205,7 @@ export default function DetalhesTreino({ navigation }) {
       setRepeticoesMaximoAdicionar(null);
       setSeriesAdicionar(null);
       setDescansoAdicionar(null);
+      setLoadingVisible(false);
     }
   } catch (error) {
     console.log("Erro na função setNewExercicio", error);
@@ -198,9 +214,11 @@ export default function DetalhesTreino({ navigation }) {
 
   async function deleteExercicio(user, treino, exercicioId) {
     try{
+      setLoadingVisible(true);
       const db = getFirestore();
       await deleteDoc(doc(db, `users/${user}/treinos/${treino}/exercicios`, exercicioId.toString()));
       fetchListaExercicios(user, treino);
+      setLoadingVisible(false);
     }catch(error){
       console.log('Erro na função deleteExercicio', error);
     }
@@ -222,6 +240,13 @@ export default function DetalhesTreino({ navigation }) {
     <View style={styles.container}>
       <Modal visible={modalVisible}>
         <View style={styles.containerModal}>
+          {loadingVisible && (
+            <View style={styles.viewLoading}>
+              <ActivityIndicator
+                size={"large"}
+              />
+            </View>
+          )}
           <View style={styles.modalContent}>
             <Text>Clique no ítem para editar</Text>
             <TouchableOpacity
@@ -722,6 +747,13 @@ export default function DetalhesTreino({ navigation }) {
           </View>
         </View>
       )}
+      {loadingVisible && (
+        <View style={styles.viewLoading}>
+          <ActivityIndicator
+            size={"large"}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -869,5 +901,16 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginRight: 10,
+  },
+  viewLoading: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: '#0000008a',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
