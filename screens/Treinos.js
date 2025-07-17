@@ -120,16 +120,10 @@ export default function Treinos({navigation}){
     };
 
     async function deleteTreino(tituloId) {
-<<<<<<< HEAD
         try{
             const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
             const exerciciosRef = collection(treinoRef, 'exercicios');
             const exerciciosSnapshot = await getDocs(exerciciosRef);
-=======
-        const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
-        const exerciciosRef = collection(treinoRef, 'exercicios');
-        const exerciciosSnapshot = await getDocs(exerciciosRef);
->>>>>>> 18c487289e5a3245e461b3f6004ae19021073d6e
 
             const deletePromises = exerciciosSnapshot.docs.map((doc) => 
                 deleteDoc(doc.ref)
