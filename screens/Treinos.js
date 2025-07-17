@@ -77,11 +77,8 @@ export default function Treinos({navigation}){
     
     async function setNewTreino(titulo) {
         try{
-<<<<<<< HEAD
             const treinoRef = collection(db, `users/${user}/treinos`);
             const snapshot = await getDocs(treinoRef);
-=======
->>>>>>> main
 
             let maiorId = -1;
             snapshot.forEach((doc) => {
