@@ -2,6 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet } from 'react-native';
 import Home from './screens/Home';
+// import Login from './screens/Login';
 import DetalhesTreino from './screens/DetalhesTreino';
 import UserArea from './screens/UserArea';
 import { StatusBar } from 'expo-status-bar';

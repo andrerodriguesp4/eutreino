@@ -77,11 +77,9 @@ export default function Treinos({navigation}){
     
     async function setNewTreino(titulo) {
         try{
-<<<<<<< HEAD
             const treinoRef = collection(db, `users/${user}/treinos`);
             const snapshot = await getDocs(treinoRef);
-=======
->>>>>>> main
+
 
             let maiorId = -1;
             snapshot.forEach((doc) => {
@@ -112,7 +110,6 @@ export default function Treinos({navigation}){
     };
 
     async function deleteTreino(tituloId) {
-        const db = getFirestore();
         const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
         const exerciciosRef = collection(treinoRef, 'exercicios');
         const exerciciosSnapshot = await getDocs(exerciciosRef);
