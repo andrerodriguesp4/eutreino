@@ -1,7 +1,7 @@
-import { use, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from "react-native"
-import app from "../firebaseConfig";
-import {collection, doc, Firestore, getDocs, getFirestore, setDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+import {collection, doc, getDocs, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Ionicons} from '@expo/vector-icons'
 
@@ -17,7 +17,6 @@ export default function Login({navigation}){
     const [loadingVisible, setLoadingVisible] = useState(false);
 
     async function fetchUsers() {
-            const db = getFirestore(app);
             const usersCollection = collection(db, 'users')
             const querySnapshot = await getDocs(usersCollection)
     
@@ -58,7 +57,6 @@ export default function Login({navigation}){
                 const testUser = checkUser(user, password)
 
                 if (testUser === true){
-                    const db = getFirestore();
                     const usersRef = collection(db, 'users');
                     const snapshot = await getDocs(usersRef);
                     const snapshotMap = snapshot.docs.map((doc) => ({
@@ -92,7 +90,6 @@ export default function Login({navigation}){
             setEmail(null)
             alert('Digite um e-mail válido!')
         }else{
-            const db = getFirestore();
             const usuarioTeste = listaUsuarios.find(item => item.user == user);
             const emailTeste = listaUsuarios.find(item => item.email == email);
             const userRef = collection(db, 'users');
