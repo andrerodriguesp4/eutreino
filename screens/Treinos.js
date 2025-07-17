@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, Modal, TextInput} from "react-native";
-import app from "../firebaseConfig";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc} from "firebase/firestore";
+import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, TextInput} from "react-native";
+import { db } from "../firebaseConfig";
+import {collection, getDocs, doc, setDoc, deleteDoc} from "firebase/firestore";
 import {useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
@@ -45,8 +45,7 @@ export default function Treinos({navigation}){
         
     const fetchTreinos = async (usuario) => {
         try{
-            if(usuario){            
-                const db = getFirestore(app);
+            if(usuario){
                 const treinosCollection = collection(db, `users/${usuario}/treinos`);
                 const querySnapshot = await getDocs(treinosCollection);
 
@@ -63,7 +62,6 @@ export default function Treinos({navigation}){
 
     const fetchExerciciosSelect = async (usuario, treino) => {
         try{
-            const db = getFirestore(app);
             const treinosCollection = collection(db, `users/${usuario}/treinos/${treino}/exercicios`);
             const querySnapshot = await getDocs(treinosCollection);
 
@@ -79,9 +77,11 @@ export default function Treinos({navigation}){
     
     async function setNewTreino(titulo) {
         try{
-            const db = getFirestore();
+<<<<<<< HEAD
             const treinoRef = collection(db, `users/${user}/treinos`);
             const snapshot = await getDocs(treinoRef);
+=======
+>>>>>>> main
 
             let maiorId = -1;
             snapshot.forEach((doc) => {

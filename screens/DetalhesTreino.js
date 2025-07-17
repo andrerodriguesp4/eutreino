@@ -1,6 +1,6 @@
 import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput } from "react-native";
 import { useRoute } from "@react-navigation/native";
-import app from "../firebaseConfig";
+import {db} from "../firebaseConfig";
 import { getFirestore, collection, getDocs, doc, updateDoc, query, where, addDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -68,7 +68,6 @@ export default function DetalhesTreino({ navigation }) {
   };
   const fetchExercicios = async () => {
     try {
-      const db = getFirestore(app);
       const exerciciosCollection = collection(db, "exercicios");
       const querySnapshot = await getDocs(exerciciosCollection);
 
@@ -84,7 +83,6 @@ export default function DetalhesTreino({ navigation }) {
 
   async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
     try {
-      const db = getFirestore(app);
       const treinosCollection = collection(
         db,
         `users/${user}/treinos/${treino}/exercicios`
