@@ -1,5 +1,6 @@
-import { Modal, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native";
+import { Modal, View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import styles from "../styles/styles";
+import PasswordField from "./Passwordfield";
 
 const PasswordConfirmationModal= ({
         visible,
@@ -21,16 +22,16 @@ const PasswordConfirmationModal= ({
                     <Text style={styles.modalTitle}>Confirmar Exclusão</Text>
                     <Text style={styles.modalText}>Digite sua senha para confirmar:</Text>
 
-                    <TextInput
-                        placeholder="Senha"
-                        secureTextEntry={true}
+                    <PasswordField
                         value={password}
                         onChangeText={onChangePassword}
-                        style={[
-                            styles.modalInput,
-                            errorMessage ? {borderColor: '#e53935'} : {},
-                        ]}
-                        placeholderTextColor="#666"
+                        placeholder="Senha"
+                        secureTextEntry={true}
+                        // style={[
+                        //     styles.modalInput,
+                        //     errorMessage ? {borderColor: '#e53935'} : {},
+                        // ]}
+                        // placeholderTextColor="#666"
                     />
 
                     {errorMessage ? (

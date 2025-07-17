@@ -1,6 +1,6 @@
 import { TextInput, Text, View, TouchableOpacity, Alert, ActivityIndicator, Modal, Image } from "react-native";
-import app from "../../firebaseConfig";
-import { getFirestore, doc, updateDoc, getDoc, deleteDoc } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
+import { doc, updateDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from '../account/styles/styles'
@@ -10,7 +10,7 @@ import PasswordConfirmationModal from "./components/PasswordConfirmationModal";
 export default function EditarPerfil({navigation}){
     const [originalData, setOriginalData] = useState({});
     const [user, setUser] = useState('');
-    // const [nickname, setNickname] = useState('');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -20,6 +20,9 @@ export default function EditarPerfil({navigation}){
     const [confirmPassword, setConfirmPassword] = useState('');
     const [deleting, setDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState('');
+
+    const [passwordError, setPasswordError] = useState(null);
+    const [newPasswordError, setNewPasswordError] = useState(null);
 
     const [loading, setLoading] = useState(false);
 
@@ -34,7 +37,6 @@ export default function EditarPerfil({navigation}){
             if (!userId) return;
             
             try {
-                const db = getFirestore(app);
                 const userRef = doc(db, 'users', userId);
                 const userSnap = await getDoc(userRef);
                 
@@ -42,9 +44,8 @@ export default function EditarPerfil({navigation}){
                     const data = userSnap.data();
                     setOriginalData(data);
                     setUser(data.user || '');
-                    // setSenha(data.senha || '');
                     setEmail(data.email || '');
-                    // setNickname(data.nickname || '');
+                    setUsername(data.username || '');
                 }
             } catch (error) {
                 console.error('Erro ao carregar dados do usuário:', error);
@@ -55,6 +56,9 @@ export default function EditarPerfil({navigation}){
     }, [userId]);
 
     async function atualizarDados() {
+        setPasswordError(null);
+        setNewPasswordError(null);
+
         if(!userId){
             Alert.alert('Erro', 'Usuário não encontrado');
             return;
@@ -65,12 +69,20 @@ export default function EditarPerfil({navigation}){
         }
 
         const dadosAtualizados = {};
-        if (user !== originalData.user) dadosAtualizados.user = user;
-        // if (nickname) dadosAtualizados.nickname = nickname;
+        if (username !== originalData.username) dadosAtualizados.username = username;
         if (email !== originalData.email) dadosAtualizados.email = email;
 
-        // Editar método de autenticação para não salvar senha diretamente
-        if (newPassword) dadosAtualizados.senha = newPassword;
+        if (newPassword) {
+            if(!senha){
+                setPasswordError('Digite sua senha atual para alterar a senha');
+                return;
+            }
+            if (senha.length < 6){
+                setNewPasswordError('A senha deve ter pelo menos 6 caracteres')
+                return;
+            }
+            dadosAtualizados.senha = newPassword;
+        }
 
         if (Object.keys(dadosAtualizados).length === 0){
             Alert.alert('Aviso', 'Nenhum dado foi alterado.');
@@ -79,7 +91,7 @@ export default function EditarPerfil({navigation}){
 
         try {
             setLoading(true);
-            await updateDoc(doc(getFirestore(app), 'users', userId), dadosAtualizados);
+            await updateDoc(doc(db, 'users', userId), dadosAtualizados);
             Alert.alert('Sucesso', 'Dados atualizados!');
             navigation.goBack();
         } catch (error) {
@@ -103,7 +115,6 @@ export default function EditarPerfil({navigation}){
             setDeleting(true);
             setDeleteError('');
 
-            const db = getFirestore(app);
             const userRef = doc(db, 'users', userId);
             const userSnap = await getDoc(userRef);
             
@@ -138,6 +149,7 @@ export default function EditarPerfil({navigation}){
 
     const campos = [
         { label: 'Nome', value: user, setter: setUser, placeholder: 'Digite seu nome' },
+        { label: 'Nome de Usuário', value: username, setter: setUsername, placeholder: 'Digite seu nome de usuário' },
         { label: 'Email', value: email, setter: setEmail, placeholder: 'Digite seu email' },
     ];
 
@@ -174,15 +186,23 @@ export default function EditarPerfil({navigation}){
                     <PasswordField
                         label={"Senha Atual"}
                         value={senha}
-                        onChangeText={setSenha}
+                        onChangeText={(text) => {
+                            setSenha(text);
+                            if(text.length >0) setPasswordError(null)
+                        }}
                         placeholder={"Senha Atual"}
+                        errorMessage={passwordError}
                     />
 
                     <PasswordField
                         label={"Nova Senha"}
                         value={newPassword}
-                        onChangeText={setNewPassword}
+                        onChangeText={(text) => {
+                            setNewPassword(text);
+                            if(text.length >=6) setNewPasswordError(null);
+                        }}
                         placeholder={"Nova Senha"}
+                        errorMessage={newPasswordError}
                     />        
                 </View>
 
