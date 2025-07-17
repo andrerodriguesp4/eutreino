@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from "react-native"
 import app from "../firebaseConfig";
 import {collection, doc, Firestore, getDocs, getFirestore, setDoc } from "firebase/firestore";
@@ -7,14 +7,14 @@ import {Ionicons} from '@expo/vector-icons'
 
 export default function Login({navigation}){
     
-    const [usuario, setUsuario] = useState()
-    const [senha, setSenha] = useState()
-    const [email, setEmail] = useState()
-    const [repSenha, setRepSenha] = useState()
-    const [listaUsuarios, setListaUsuarios] = useState([])
-    const [modalVisible, setModalVisible] = useState(false)
-    const [senhaVisible, setSenhaVisible] = useState(true)
-    const [loadingVisible, setLoadingVisible] = useState(false)
+    const [usuario, setUsuario] = useState();
+    const [senha, setSenha] = useState();
+    const [email, setEmail] = useState();
+    const [repSenha, setRepSenha] = useState();
+    const [listaUsuarios, setListaUsuarios] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [senhaVisible, setSenhaVisible] = useState(true);
+    const [loadingVisible, setLoadingVisible] = useState(false);
 
     async function fetchUsers() {
             const db = getFirestore(app);

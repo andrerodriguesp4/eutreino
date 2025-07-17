@@ -1,21 +1,20 @@
 import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, Modal, TextInput} from "react-native";
 import app from "../firebaseConfig";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, where} from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc} from "firebase/firestore";
 import {useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
     const [treinos, setTreinos] = useState([]);
-    const [exercicios, setExercicios] = useState([]);
-    const [treinoId, setTreinoId] = useState(0);
-    const [treinoSelect, setTreinoSelect] = useState();
-    const [treinoDetalhe, setTreinoDetalhe] = useState([]);
-    const [treinoSelectDetalhe, setTreinoSelectDetalhe] = useState([]);
+    const [campoAdicionando, setCampoAdicionando] = useState(false);
+    const [campoConfimacao, setCampoConfirmacao] = useState(false);
+    const [textNewTreino, setTextNewTreino] = useState();
+    const [treinoId, setTreinoId] = useState();
     
     useEffect(() => {
         getUser();
-        fetchExercicios();
     }, []);
 
     useEffect(() => {
@@ -71,28 +70,61 @@ export default function Treinos({navigation}){
             const exerciciosTreinoList = querySnapshot.docs.map(doc => ({
                 ...doc.data(),
             }));      
-            setTreinoDetalhe(exerciciosTreinoList);
+            
             return exerciciosTreinoList;
         }catch(error){
             console.log('Erro na função fetchExerciciosSelect: ', error)
         }
     };
-
-    const fetchExercicios = async () => {
+    
+    async function setNewTreino(titulo) {
         try{
-            const db = getFirestore(app);
-            const exerciciosCollection = collection(db, 'exercicios');
-            const querySnapshot = await getDocs(exerciciosCollection);
+            const db = getFirestore();
+            const treinoRef = collection(db, `users/${user}/treinos`);
+            const snapshot = await getDocs(treinoRef);
 
-            const exerciciosList = querySnapshot.docs.map(doc => ({
-                ...doc.data(),
-            }))
+            let maiorId = -1;
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                if (typeof data.id === "number" && data.id > maiorId) {
+                maiorId = data.id;
+                }
+            });
 
-            setExercicios(exerciciosList)
+            const novoId = maiorId + 1;
+            await setDoc(doc(treinoRef, novoId.toString()),{
+                titulo,
+                id: novoId,
+            });
+
+            setTreinos((prev) => [
+                ...prev,
+                {
+                    titulo,
+                    id: novoId,
+                }
+            ])
+            setCampoAdicionando(false)
         }catch(error){
-            console.log('Erro na função fetchExercicios: ', error)
+            console.log('Erro na função setNewTreino', error);
         }
+        
     };
+
+    async function deleteTreino(tituloId) {
+        const db = getFirestore();
+        const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
+        const exerciciosRef = collection(treinoRef, 'exercicios');
+        const exerciciosSnapshot = await getDocs(exerciciosRef);
+
+        const deletePromises = exerciciosSnapshot.docs.map((doc) => 
+            deleteDoc(doc.ref)
+        );
+
+        await Promise.all(deletePromises);
+        await deleteDoc(treinoRef);
+        getUser();
+    }
 
     return(
         <View style={styles.container}>
@@ -102,19 +134,85 @@ export default function Treinos({navigation}){
                 getItem={(treinos, index) => treinos[index]}
                 renderItem={({item}) => (
                     <TouchableOpacity onPress={async() => {
-                                    setTreinoId(item.id);
-                                    setTreinoSelect(item.titulo);
                                     const detalhes = await fetchExerciciosSelect(user, item.id);
                                     const treinoRoute = item.id;
                                     navigation.navigate('DetalhesTreino', { treinoDetalhe: detalhes, treino: treinoRoute });
                             }}>
-                        <View style={styles.listaTreinos} key={item.id}>
-                                <Text style={styles.textTituloTreino}>{item.titulo}</Text>
+                        <View style={{...styles.listaTreinos, flexDirection: 'row'}} key={item.id}>
+                                <Text style={{...styles.textTituloTreino, flex: 1}}>{item.titulo}</Text>
+                                <TouchableOpacity onPress={() => (setTreinoId(item.id), setCampoConfirmacao(true))}>
+                                    <FontAwesome5 name="trash-alt" size={20}/>
+                                </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={() => (
+                    <TouchableOpacity
+                    style={{
+                        ...styles.buttonAdicionarTreino,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexDirection: "row",
+                    }}
+                    onPress={() => setCampoAdicionando(true)}
+                    >
+                    <FontAwesome5 name="plus" color={"white"} size={20} />
+                    <Text style={{ ...styles.textAdicionarTreino}}>
+                        Adicionar Treino
+                    </Text>
+                    </TouchableOpacity>
+                )}
             />
+            {campoAdicionando && (
+                <View
+                    style={{
+                        ...StyleSheet.absoluteFill,
+                        backgroundColor: "rgba(0, 0, 0, 0.3)",
+                    }}
+                pointerEvents="auto"
+                >
+                    <View style={styles.slidePanel}>
+                        <View style={{...styles.viewAdicionandoNome, width: "70%"}}>
+                            <TextInput 
+                                placeholder="Digite o nome do treino"
+                                onChangeText={(titulo) => setTextNewTreino(titulo)}    
+                            />
+                        </View>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <TouchableOpacity style={styles.buttonSalvar} onPress={() => setNewTreino(textNewTreino)}>
+                                <Text>Salvar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setCampoAdicionando(false)}>
+                                <FontAwesome5 name="times" size={25}/>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            )}
+            {campoConfimacao && (
+                <View 
+                    style={{
+                            ...StyleSheet.absoluteFill,
+                            backgroundColor: "rgba(0, 0, 0, 0.3)",
+                        }}
+                    pointerEvents="auto"
+                >
+                    <View style={styles.slidePanel}>
+                        <View>
+                            <Text style={{fontSize: 20, bottom: 10}}>Tem certeza que deseja excluir?</Text>
+                        </View>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <TouchableOpacity style={styles.buttonExcluir} onPress={() => (deleteTreino(treinoId), setCampoConfirmacao(false))}>
+                                <Text>Excluir</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{left: 20}} onPress={() => setCampoConfirmacao(false)}>
+                                <FontAwesome5 name="times" size={25}/>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            )}
         </View>
     )
 };
@@ -135,6 +233,55 @@ const styles = StyleSheet.create({
         color: '#000000ff',
         fontSize: 20,
         fontFamily: 'arial',
+    },
+    buttonAdicionarTreino:{
+        backgroundColor: "#923a079a",
+        padding: 10,
+        marginBottom: 2,
+        marginHorizontal: 2,
+    },
+    textAdicionarTreino:{
+        fontSize: 20,
+        padding: 5,
+        color: "#ffffff",
+    },
+    slidePanel: {
+        position: "absolute",
+        height: "50%",
+        left: 5,
+        right: 5,
+        top: 5,
+        backgroundColor: "white",
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+        justifyContent: "center", // centraliza verticalmente
+        alignItems: "center", // centraliza horizontalmente
+    },
+    viewAdicionandoNome:{
+        borderWidth: 1,
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 20,
+    },
+    buttonExcluir: {
+        backgroundColor: '#ff7676',
+        padding: 10,
+        borderRadius: 5,
+        right: 20,
+    },
+    buttonSalvar: {
+        backgroundColor: '#76ff8d',
+        padding: 10,
+        borderRadius: 5,
+        right: 20,
     },
 });
 
