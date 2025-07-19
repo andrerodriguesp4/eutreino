@@ -248,6 +248,3 @@ export default function EditarPerfil({navigation}){
         </View>
     );
 }
-
-// Refatorar com Formulário controlado (ex: com Formik).
-// Adicionar validações com Yup.

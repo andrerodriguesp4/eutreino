@@ -1,11 +1,18 @@
 import { doc, setDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
-
 function isEmailValid(email) {
   return /\S+@\S+\.\S+/.test(email);
 }
 
+/**
+ * Módulo para driação de usuários.
+ * @param {string} user - Nome de usuário.
+ * @param {string} senha - Senha.
+ * @param {string} email - email.
+ * @returns {string} - Nome do usuário autenticado.
+ * @throws {Error} - Em caso de email inválido ou credenciais já em uso.
+ */
 async function createUser(user, senha, email) {
   if (!isEmailValid(email)) {
     throw new Error('Digite um e-mail válido!');

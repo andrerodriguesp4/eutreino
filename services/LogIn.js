@@ -6,10 +6,9 @@ import { db } from '../firebaseConfig';
  * Verifica se o usuário e senha correspondem a um usuário válido no banco.
  * Se válido, salva os dados no AsyncStorage e retorna o ID do usuário.
  *
- * @param {string} username - Nome de usuário.
- * @param {string} password - Senha.
+ * @param {string} user - Nome de usuário.
+ * @param {string} senha - Senha.
  * @returns {string} - ID do usuário autenticado.
- * @throws {Error} - Em caso de campos vazios ou credenciais inválidas.
  */
 async function logIn(user, senha) {
   if (!user || !senha) {

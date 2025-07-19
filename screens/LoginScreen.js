@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native"
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import logIn from "../services/LogIn";
 import RegisterModal from "./components/RegisterModal";
 import PasswordField from "./account/components/Passwordfield";
@@ -24,14 +23,18 @@ export default function Login({navigation}){
 
         try {
             setLoadingVisible(true);
-            await logIn(user, senha);
+            const resultado = await logIn(user, senha);
+            setLoadingVisible(false);
 
-            navegar();
+            if (resultado) {
+                navegar();
+            } else {
+                alert('Usuário ou senha inválidos');
+            }
         } catch (error) {
+            setLoadingVisible(false);
             console.error(error.message);
             alert('Erro ao fazer login');
-        } finally {
-            setLoadingVisible(false);
         }
     }
 
@@ -54,11 +57,11 @@ export default function Login({navigation}){
                         style={styles.inputLogin}
                     />
                     <PasswordField
-                        label="Senha"
+                        // label="Senha"
                         value={senha}
                         onChangeText={setSenha}
                         placeholder="Digite a senha"
-                        style={styles.inputLogin}
+                        style={[styles.inputLogin]}
                     />
                 </View>
                 <View style={styles.viewButtons}>
@@ -92,6 +95,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#000000ff'
     },
     inputLogin: {
+        backgroundColor:'white',
         padding: 10,
         borderWidth: 1,
         marginVertical: 5,
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
     },
     viewForm:{
         alignItems: 'center',
-        backgroundColor: '#cec5ffff',
+        backgroundColor: '#FA801C',
         paddingVertical: 40,
         paddingHorizontal: 20,
         borderRadius: 5,
@@ -137,7 +141,7 @@ const styles = StyleSheet.create({
     viewForm1: {
         paddingVertical: 40,
         paddingHorizontal: 20,
-        backgroundColor: '#cec5ffff',
+        backgroundColor: '#FA801C',
         borderRadius: 25,
     },
     viewLoading: {

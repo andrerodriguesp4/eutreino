@@ -50,7 +50,10 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
       const uid = await createUser( username, senha, email );
       await AsyncStorage.setItem('user', uid);
       resetFields();
-      onSuccess(); // navega para a tela principal
+      if (uid) {
+        alert('Usuário criado')
+        onSuccess();
+      }
     } catch (error) {
       console.error(error);
       alert('Erro ao criar usuário');
@@ -86,14 +89,14 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
                 style={styles.inputLogin}
               />
               <PasswordField
-                label="Senha"
+                // label="Senha"
                 value={senha}
                 onChangeText={setSenha}
                 placeholder="Digite a senha"
                 errorMessage={passwordError}
               />
               <PasswordField
-                label="Confirmar Senha"
+                // label="Confirmar Senha"
                 value={repSenha}
                 onChangeText={setRepSenha}
                 placeholder="Digite a senha novamente"
