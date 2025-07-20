@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Treinos from "./Treinos";
 import Perfil from "./Perfil";
 import Timer from "./Timer";
+import WorkoutScreen from "./WorkoutScreen";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Tab = createBottomTabNavigator();
@@ -44,6 +45,11 @@ export default function UserArea({navigation}){
             <Tab.Screen name="Timer" component={Timer} options={{
                 tabBarIcon: () => (
                     <FontAwesome5 name="hourglass-end" size={20}/>
+                )
+            }}/>
+            <Tab.Screen name="Hoje" component={WorkoutScreen} options={{
+                tabBarIcon: () => (
+                    <FontAwesome5 name="calendar" size={20}/>
                 )
             }}/>
             <Tab.Screen name="Perfil" component={Perfil} options={{

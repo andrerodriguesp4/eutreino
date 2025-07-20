@@ -1,7 +1,7 @@
 import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput, ActivityIndicator } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
-import { getFirestore, collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -156,7 +156,6 @@ export default function DetalhesTreino({ navigation }) {
     if (tituloAdicionar === null) {
       alert("Selecione o exercício!");
     } else {
-      const db = getFirestore();
       const exerciciosRef = collection(
         db,
         `users/${user}/treinos/${treino}/exercicios`
@@ -215,7 +214,6 @@ export default function DetalhesTreino({ navigation }) {
   async function deleteExercicio(user, treino, exercicioId) {
     try{
       setLoadingVisible(true);
-      const db = getFirestore();
       await deleteDoc(doc(db, `users/${user}/treinos/${treino}/exercicios`, exercicioId.toString()));
       fetchListaExercicios(user, treino);
       setLoadingVisible(false);
@@ -226,7 +224,6 @@ export default function DetalhesTreino({ navigation }) {
 
   async function fetchListaExercicios(user, treino) {
     try{
-      const db = getFirestore();
       const exerciciosRef = collection(db, `users/${user}/treinos/${treino}/exercicios`);
       const snapshot = await getDocs(exerciciosRef);
       const novaLista = snapshot.docs.map(doc => doc.data());
