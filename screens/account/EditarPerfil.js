@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from '../account/styles/styles'
 import PasswordField from "./components/Passwordfield";
 import PasswordConfirmationModal from "./components/PasswordConfirmationModal";
+import { getUser } from '../../utils/getUser';
 
 export default function EditarPerfil({navigation}){
     const [originalData, setOriginalData] = useState({});
@@ -27,9 +28,7 @@ export default function EditarPerfil({navigation}){
     const [loading, setLoading] = useState(false);
 
     useEffect(()=>{
-        AsyncStorage.getItem('usuario').then(user =>{
-            if (user) setUserId(user);
-        });
+        getUser(setUserId, navigation);
     }, []);
 
     useEffect(() => {

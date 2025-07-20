@@ -2,8 +2,9 @@ import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, TextInput, A
 import { db } from "../firebaseConfig";
 import {collection, getDocs, doc, setDoc, deleteDoc} from "firebase/firestore";
 import {useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
+import { getUser } from '../utils/getUser';
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -15,8 +16,12 @@ export default function Treinos({navigation}){
     const [loadingVisible, setLoadingVisible] = useState(false);
     
     useEffect(() => {
-        getUser();
+        getUser(setUser, navigation);
     }, []);
+
+    useEffect(() =>{
+        if(user){loadTreinos();}
+    }, [user])
 
     useEffect(() => {
         navigation.setOptions({
@@ -33,53 +38,17 @@ export default function Treinos({navigation}){
     function sleep(ms){
         return new Promise(result => setTimeout(result, ms))
     };
-
-    async function getUser() {
-            try{
-                const usuario = await AsyncStorage.getItem('usuario');                
-                if(!usuario){
-                    navigation.navigate('Home')
-                }else{
-                    setUser(usuario);
-                    fetchTreinos();
-                }
-            }catch{
-                console.log('Erro na função getUser: ', error)
-            }
-    }
         
-    const fetchTreinos = async () => {
+    const loadTreinos = async () => {
         try{
             setLoadingVisible(true);
-            if(user){
-                const treinosCollection = collection(db, `users/${user}/treinos`);
-                const querySnapshot = await getDocs(treinosCollection);
+            const treinosList = await getWorkouts(user);
+            setTreinos(treinosList);
 
-                const treinosList = querySnapshot.docs.map(doc => ({
-                    ...doc.data(),
-                }))
-
-                setTreinos(treinosList);
-            }
             await sleep(200)
             setLoadingVisible(false);
         }catch(error){
-            console.log('Erro na função fetchTreinos: ',error)
-        }
-    };
-
-    const fetchExerciciosSelect = async (treino) => {
-        try{
-            const treinosCollection = collection(db, `users/${user}/treinos/${treino}/exercicios`);
-            const querySnapshot = await getDocs(treinosCollection);
-
-            const exerciciosTreinoList = querySnapshot.docs.map(doc => ({
-                ...doc.data(),
-            }));      
-            
-            return exerciciosTreinoList;
-        }catch(error){
-            console.log('Erro na função fetchExerciciosSelect: ', error)
+            console.log('Erro na função loadTreinos: ',error)
         }
     };
     
@@ -149,13 +118,13 @@ export default function Treinos({navigation}){
             )}
             <VirtualizedList
                 data={treinos}
-                getItemCount={(treinos) => treinos.length}
-                getItem={(treinos, index) => treinos[index]}
+                getItemCount={() => treinos.length}
+                getItem={(data, index) => data[index]}
                 renderItem={({item}) => (
                     <TouchableOpacity onPress={async() => {
-                                    const detalhes = await fetchExerciciosSelect(item.id);
-                                    const treinoRoute = item.id;
-                                    navigation.navigate('DetalhesTreino', { treinoDetalhe: detalhes, treino: treinoRoute });
+                                    const detalhes = await getExerciciosDoTreino(user, item.id);
+                                    navigation.navigate('DetalhesTreino', {
+                                        treinoDetalhe: detalhes, treino: item.id, });
                             }}>
                         <View style={{...styles.listaTreinos, flexDirection: 'row'}} key={item.id}>
                                 <Text style={{...styles.textTituloTreino, flex: 1}}>{item.titulo}</Text>
@@ -165,7 +134,7 @@ export default function Treinos({navigation}){
                         </View>
                     </TouchableOpacity>
                 )}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.id}
                 ListFooterComponent={() => (
                     <TouchableOpacity
                     style={{

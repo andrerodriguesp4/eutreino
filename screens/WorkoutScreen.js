@@ -1,7 +1,7 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Button, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
 import { getExerciciosDoTreino, getTodayWorkout, markWorkoutAsDone } from '../services/workoutService';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getUser } from '../utils/getUser';
 
 const WorkoutScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
@@ -11,7 +11,7 @@ const WorkoutScreen = ({ navigation }) => {
     const [exercicios, setExercicios] = useState([]);
     
     useEffect(() =>{
-        getUser();
+        getUser(setUserId, navigation);
     }, []);
     
     useEffect(() => {
@@ -19,19 +19,6 @@ const WorkoutScreen = ({ navigation }) => {
             loadWorkout();
         }
     }, [userId]);
-    
-    const getUser = async () => {
-        try{
-            const usuario = await AsyncStorage.getItem('usuario');                
-            if(!usuario){
-                navigation.navigate('Home')
-            }else{
-                setUserId(usuario); //setUserId(JSON.parse(usuario));
-            }
-        }catch (error) {
-            console.log('Erro na função getUser: ', error)
-        }
-    };
     
     const loadWorkout = async () => {
         try {
@@ -43,9 +30,6 @@ const WorkoutScreen = ({ navigation }) => {
             const listaExercicios = await getExerciciosDoTreino(userId, workout.id);
             setExercicios(listaExercicios);
         } catch (error) {
-            console.log(userId);
-            console.log(workout.id);
-            console.log(exercicios);
             console.log('Erro ao carregar treino:', error);
             alert('Erro ao carregar treino.');
         } finally {
@@ -94,8 +78,6 @@ export default WorkoutScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // alignItems: 'center',
-        // justifyContent: 'center',
         padding: 20,
         paddingTop: 40
     },
@@ -105,7 +87,6 @@ const styles = StyleSheet.create({
     },
     workout: {
         fontSize: 40,
-        // fontWeight: 'bold',
         marginVertical: 10
     },
     doneText: {

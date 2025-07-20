@@ -1,20 +1,26 @@
-import { doc, getDoc, updateDoc, collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, getDocs, query } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import moment from 'moment';
 
-export async function getTodayWorkout(userId) {
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
-  const today = moment().format('YYYY-MM-DD');
-
-  const treinosRef = collection(db, 'users', userId, 'treinos');
-  const treinosQuery = query(treinosRef, orderBy('titulo'));
+export async function getWorkouts(userId) {
+  const treinosRef = collection(db, 'users', String(userId), 'treinos');
+  const treinosQuery = query(treinosRef);
   const treinosSnap = await getDocs(treinosQuery);
 
   const treinosList = treinosSnap.docs.map((doc) => ({
     id: doc.id,
     ...doc.data()
   }));
+
+  return treinosList;
+}
+
+export async function getTodayWorkout(userId) {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  const today = moment().format('YYYY-MM-DD');
+
+  const treinosList = await getWorkouts(userId);
 
   if (treinosList.length === 0) {
     throw new Error('Nenhum treino encontrado!');
@@ -71,3 +77,62 @@ export async function getExerciciosDoTreino(userId, treinoId) {
     ...doc.data(),
   }));
 }
+
+/*
+export async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
+  try {
+    setLoadingVisible(true);
+    const treinosCollection = collection(
+      db,
+      `users/${user}/treinos/${treino}/exercicios`
+    );
+    const docSelect = query(treinosCollection, where("id", "==", exercicio));
+    const querySnapshot = await getDocs(docSelect);
+    for (const document of querySnapshot.docs) {
+      await updateDoc(doc(db, document.ref.path), {
+        [parametro]: newParametros,
+      });
+    }
+    
+    const atualizarItem = (item) => {
+      if (item.id !== exercicio) return item;
+      if (parametro === "repeticoes.minimo") {
+        return {
+          ...item,
+          repeticoes: {
+            ...item.repeticoes,
+            minimo: newParametros,
+          },
+        };
+      }
+      
+      if (parametro === "repeticoes.maximo") {
+        return {
+          ...item,
+          repeticoes: {
+            ...item.repeticoes,
+            maximo: newParametros,
+          },
+        };
+      }
+      return {
+        ...item,
+        [parametro]: newParametros,
+      };
+    };
+    
+    setListExercicio((prev) => prev.map(atualizarItem));
+    
+    setExercicioSelectDetalhe((prev) => prev.map(atualizarItem));
+    
+    setCampoEditando(null);
+    setNewRepeticoesMaximo(null);
+    setNewRepeticoesMinimo(null);
+    setDisabledSalvar(true);
+    await sleep(50);
+    setLoadingVisible(false);
+  } catch (error) {
+    console.log("Erro na função setNewParametros:", error);
+  }
+};
+*/

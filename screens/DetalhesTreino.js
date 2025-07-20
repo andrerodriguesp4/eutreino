@@ -5,9 +5,10 @@ import { collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } 
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import DropDownPicker from "react-native-dropdown-picker";
+import { getUser } from '../utils/getUser';
+import { getExerciciosDoTreino } from "../services/workoutService";
 
 export default function DetalhesTreino({ navigation }) {
   const route = useRoute();
@@ -34,8 +35,8 @@ export default function DetalhesTreino({ navigation }) {
   const [loadingVisible, setLoadingVisible] = useState(false);
 
   useEffect(() => {
+    getUser(setUser, navigation);
     fetchExercicios();
-    getUser();
   }, []);
   useEffect(() => {
     const itensAtualizados = exercicios.map((item) => ({
@@ -49,18 +50,6 @@ export default function DetalhesTreino({ navigation }) {
     return new Promise(result => setTimeout(result, ms))
   };
 
-  async function getUser() {
-    try {
-      const usuario = await AsyncStorage.getItem("usuario");
-      if (!usuario) {
-        navigation.navigate("Home");
-      } else {
-        setUser(usuario);
-      }
-    } catch (error) {
-      console.log("Erro na função getUser: ", error);
-    }
-  }
   const fetchExerciciosSelectDetalhes = async (exercicio) => {
     try {
       const filterList = listExercicio.filter((item) => item.id === exercicio);
@@ -84,7 +73,7 @@ export default function DetalhesTreino({ navigation }) {
       }));
 
       setExercicios(exerciciosList);
-      await sleep(200);
+      await sleep(500);
       setLoadingVisible(false);
       
     } catch (error) {
@@ -95,10 +84,8 @@ export default function DetalhesTreino({ navigation }) {
   async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
     try {
       setLoadingVisible(true);
-      const treinosCollection = collection(
-        db,
-        `users/${user}/treinos/${treino}/exercicios`
-      );
+      const treinosCollection = getExerciciosDoTreino(user, treino);
+
       const docSelect = query(treinosCollection, where("id", "==", exercicio));
       const querySnapshot = await getDocs(docSelect);
       for (const document of querySnapshot.docs) {
