@@ -53,8 +53,8 @@ export default function Timer (){
                     }}>
                         <FontAwesome5 name="play" size={25}/>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{left: 20}} onPress={() => setIsPlaying(false)}>
-                        <FontAwesome5 name="pause" size={25}/>
+                    <TouchableOpacity style={{left: 20}} onPress={() => (setIsPlaying(false), setTimerKey(prev => prev + 1))}>
+                        <FontAwesome5 name="stop" size={25}/>
                     </TouchableOpacity>
                 </View>
             </View>

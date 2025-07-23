@@ -26,7 +26,7 @@ export default function Treinos({navigation}){
     useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <TouchableOpacity onPress={() => getUser()}>
+                <TouchableOpacity onPress={() => loadTreinos()}>
                     <Text style={{color: 'black', margin: 5, padding: 5, marginTop: '50%'}}>
                         Atualizar
                     </Text>
@@ -45,7 +45,7 @@ export default function Treinos({navigation}){
             const treinosList = await getWorkouts(user);
             setTreinos(treinosList);
 
-            await sleep(200)
+            await sleep(100);
             setLoadingVisible(false);
         }catch(error){
             console.log('Erro na função loadTreinos: ',error)
@@ -97,11 +97,10 @@ export default function Treinos({navigation}){
             const deletePromises = exerciciosSnapshot.docs.map((doc) => 
                 deleteDoc(doc.ref)
             );
-
             
             await Promise.all(deletePromises);
             await deleteDoc(treinoRef);
-            getUser();
+            loadTreinos()
         }catch(error){
             console.log('Erro na função deleteTreino', error);
         }
