@@ -2,23 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Button, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
 import { getExerciciosDoTreino, getTodayWorkout, markWorkoutAsDone } from '../services/workoutService';
 import { getUser } from '../utils/getUser';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const WorkoutScreen = ({ navigation }) => {
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [workout, setWorkout] = useState(null);
     const [alreadyDone, setAlreadyDone] = useState(false);
     const [userId, setUserId] = useState(null);
     const [exercicios, setExercicios] = useState([]);
+    const [workoutVisible, setWorkoutVisible] = useState(false);
     
     useEffect(() =>{
         getUser(setUserId, navigation);
     }, []);
     
-    useEffect(() => {
-        if (userId) {
-            loadWorkout();
-        }
-    }, [userId]);
+    useFocusEffect(
+        useCallback(() => {
+            if (userId) {
+                loadWorkout();
+            }
+        }, [userId])
+    );
     
     const loadWorkout = async () => {
         try {
@@ -29,9 +34,11 @@ const WorkoutScreen = ({ navigation }) => {
 
             const listaExercicios = await getExerciciosDoTreino(userId, workout.id);
             setExercicios(listaExercicios);
+            setWorkoutVisible(true);
         } catch (error) {
             console.log('Erro ao carregar treino:', error);
-            alert('Erro ao carregar treino.');
+            setWorkoutVisible(false);
+            setLoading(false);
         } finally {
             setLoading(false);
         }
@@ -43,32 +50,41 @@ const WorkoutScreen = ({ navigation }) => {
         alert('Treino marcado como feito!');
     };
     
-    if (loading || !workout) return <ActivityIndicator style={{ marginTop: 40 }} />;
+    if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
     
     return (
     <View style={styles.container}>
-        <Text style={styles.title}>Treino do Dia:</Text>
-        <Text style={styles.workout}>{workout?.titulo}</Text>
-        
-        {alreadyDone ? (
-            <Text style={styles.doneText}>✅ Treino já feito hoje!</Text>
-        ) : (
-        <Button title="Marcar como feito" onPress={handleDone} />
-        )}
+        {workoutVisible && (
+            <View>
+                <Text style={styles.title}>Treino do Dia:</Text>
+                <Text style={styles.workout}>{workout?.titulo}</Text>
+                
+                {alreadyDone ? (
+                    <Text style={styles.doneText}>✅ Treino já feito hoje!</Text>
+                ) : (
+                <Button title="Marcar como feito" onPress={handleDone} />
+                )}
 
-        <Text style={styles.subtitle}>Exercícios:</Text>
-        <FlatList
-            data={exercicios}
-            keyExtractor={(item) => item.id}
-            renderItem={({item}) => (
-                <View style={styles.exercicio}>
-                    <Text style={styles.exercicioNome}>{item.titulo}</Text>
-                    {/* Você pode exibir mais dados, como reps, series, etc */}
-                </View>
-            )}
-            ListEmptyComponent={<Text>Nenhum exercicio cadastrado</Text>}
-            contentContainerStyle={{paddingBottom: 40}}
-        />
+                <Text style={styles.subtitle}>Exercícios:</Text>
+                <FlatList
+                    data={exercicios}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({item}) => (
+                        <View style={styles.exercicio}>
+                            <Text style={styles.exercicioNome}>{item.titulo}</Text>
+                            {/* Você pode exibir mais dados, como reps, series, etc */}
+                        </View>
+                    )}
+                    ListEmptyComponent={<Text>Nenhum exercicio cadastrado</Text>}
+                    contentContainerStyle={{paddingBottom: 40}}
+                />
+            </View>
+        )}
+        {!workoutVisible && (
+            <View>
+                <Text>Nenhum treino encontrado!</Text>
+            </View>
+        )}
     </View>
     );
 };

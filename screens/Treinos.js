@@ -5,6 +5,7 @@ import {useEffect, useState } from "react";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
 import { getUser } from '../utils/getUser';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -17,7 +18,7 @@ export default function Treinos({navigation}){
     
     useEffect(() => {
         getUser(setUser, navigation);
-    }, []);
+    }, [user]);
 
     useEffect(() =>{
         if(user){loadTreinos();}
@@ -26,7 +27,7 @@ export default function Treinos({navigation}){
     useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <TouchableOpacity onPress={() => loadTreinos()}>
+                <TouchableOpacity onPress={async () => atualizar()}>
                     <Text style={{color: 'black', margin: 5, padding: 5, marginTop: '50%'}}>
                         Atualizar
                     </Text>
@@ -38,11 +39,12 @@ export default function Treinos({navigation}){
     function sleep(ms){
         return new Promise(result => setTimeout(result, ms))
     };
-        
-    const loadTreinos = async () => {
+
+    const loadTreinos = async (usuario) => {
         try{
             setLoadingVisible(true);
-            const treinosList = await getWorkouts(user);
+            const currentUser = user || usuario;
+            const treinosList = await getWorkouts(currentUser);
             setTreinos(treinosList);
 
             await sleep(100);
@@ -51,6 +53,16 @@ export default function Treinos({navigation}){
             console.log('Erro na função loadTreinos: ',error)
         }
     };
+
+    async function atualizar() {
+        const usuario = await AsyncStorage.getItem('usuario');
+        if (usuario) {
+            setUser(usuario);
+            await loadTreinos(usuario);
+        } else {
+            navigation.navigate('Home');
+        }        
+    }
     
     async function setNewTreino(titulo) {
         try{
@@ -100,7 +112,7 @@ export default function Treinos({navigation}){
             
             await Promise.all(deletePromises);
             await deleteDoc(treinoRef);
-            loadTreinos()
+            await loadTreinos(user);
         }catch(error){
             console.log('Erro na função deleteTreino', error);
         }
@@ -111,7 +123,8 @@ export default function Treinos({navigation}){
             {loadingVisible && (
                 <View style={styles.viewLoading}>
                     <ActivityIndicator
-                    size={"large"}
+                        size={"large"}
+                        color={"black"}
                     />
                 </View>
             )}
@@ -150,6 +163,7 @@ export default function Treinos({navigation}){
                     </Text>
                     </TouchableOpacity>
                 )}
+                
             />
             {campoAdicionando && (
                 <View
@@ -238,7 +252,7 @@ const styles = StyleSheet.create({
         left: 5,
         right: 5,
         top: 5,
-        backgroundColor: "white",
+        backgroundColor: "#ffffff",
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         borderTopLeftRadius: 20,
@@ -277,7 +291,7 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         zIndex: 999,
-        backgroundColor: '#0000008a',
+        backgroundColor: '#ffffff',
         justifyContent: 'center',
         alignItems: 'center',
     },

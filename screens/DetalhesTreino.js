@@ -220,7 +220,7 @@ export default function DetalhesTreino({ navigation }) {
           <View style={styles.containerModal}>
             {loadingVisible && (
               <View style={styles.viewLoading}>
-                <ActivityIndicator size={"large"} />
+                <ActivityIndicator size={"large"} color={"black"} />
               </View>
             )}
             <ModalContent
@@ -339,6 +339,7 @@ export default function DetalhesTreino({ navigation }) {
         <View style={styles.viewLoading}>
           <ActivityIndicator
             size={"large"}
+            color={"black"}
           />
         </View>
       )}
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 999,
-    backgroundColor: '#0000008a',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
   },
