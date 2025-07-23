@@ -1,14 +1,14 @@
-import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, ActivityIndicator } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
 import { collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { Picker } from "@react-native-picker/picker";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import DropDownPicker from "react-native-dropdown-picker";
 import { getUser } from '../utils/getUser';
-import { getExerciciosDoTreino } from "../services/workoutService";
+import ModalContent from "./components/ModalContent";
+import SlidePanelEdicoes from "./components/SlidePanelEdicoes";
+import FormularioAdicionarExercicio from "./components/FormularioAdicionarExercicio";
 
 export default function DetalhesTreino({ navigation }) {
   const route = useRoute();
@@ -81,13 +81,14 @@ export default function DetalhesTreino({ navigation }) {
     }
   };
 
-  async function setNewParametros(user, treino, exercicio, parametro, newParametros) {
+  async function setNewParametros(treino, exercicio, parametro, newParametros) {
     try {
       setLoadingVisible(true);
-      const treinosCollection = getExerciciosDoTreino(user, treino);
+      const treinosCollection = collection(db, `users/${user}/treinos/${treino}/exercicios`);
 
       const docSelect = query(treinosCollection, where("id", "==", exercicio));
       const querySnapshot = await getDocs(docSelect);
+
       for (const document of querySnapshot.docs) {
         await updateDoc(doc(db, document.ref.path), {
           [parametro]: newParametros,
@@ -97,25 +98,17 @@ export default function DetalhesTreino({ navigation }) {
       const atualizarItem = (item) => {
         if (item.id !== exercicio) return item;
 
-        if (parametro === "repeticoes.minimo") {
+        if (parametro.startsWith("repeticoes.")) {
+          const subCampo = parametro.split(".")[1];
           return {
             ...item,
             repeticoes: {
               ...item.repeticoes,
-              minimo: newParametros,
+              [subCampo]: newParametros,
             },
           };
         }
-
-        if (parametro === "repeticoes.maximo") {
-          return {
-            ...item,
-            repeticoes: {
-              ...item.repeticoes,
-              maximo: newParametros,
-            },
-          };
-        }
+        
         return {
           ...item,
           [parametro]: newParametros,
@@ -137,10 +130,10 @@ export default function DetalhesTreino({ navigation }) {
     }
   };
 
-  async function setNewExercicio(user, treino, titulo, carga, minimo, maximo, series, descanso) {
+  async function setNewExercicio(treino, titulo, carga, minimo, maximo, series, descanso) {
   try {
     setLoadingVisible(true);
-    if (tituloAdicionar === null) {
+    if (!titulo) {
       alert("Selecione o exercício!");
     } else {
       const exerciciosRef = collection(
@@ -222,338 +215,40 @@ export default function DetalhesTreino({ navigation }) {
   
   return (
     <View style={styles.container}>
-      <Modal visible={modalVisible}>
-        <View style={styles.containerModal}>
-          {loadingVisible && (
-            <View style={styles.viewLoading}>
-              <ActivityIndicator
-                size={"large"}
-              />
-            </View>
-          )}
-          <View style={styles.modalContent}>
-            <Text>Clique no ítem para editar</Text>
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={{ padding: 20 }}
-            >
-              <Ionicons name="close" size={50} color="black" />
-            </TouchableOpacity>
-            {exercicioSelectDetalhe.map((item, index) => (
-              <View key={index}>
-                <TouchableOpacity onPress={() => setCampoEditando("titulo")}>
-                  <Text style={styles.modalText}>Exercício: {item.titulo}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setCampoEditando("carga")}>
-                  <Text style={styles.modalText}>Carga: {item.carga} kg</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => (
-                    setCampoEditando("repeticoes"),
-                    setNewRepeticoesMaximo(null),
-                    setNewRepeticoesMinimo(null)
-                  )}
-                >
-                  <Text style={styles.modalText}>
-                    Repetições: {item.repeticoes.minimo} -{" "}
-                    {item.repeticoes.maximo}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setCampoEditando("series")}>
-                  <Text style={styles.modalText}>Séries: {item.series}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setCampoEditando("descanso")}>
-                  <Text style={styles.modalText}>
-                    Descanso: {item.descanso} segundos
-                  </Text>
-                </TouchableOpacity>
+      {modalVisible && (
+        <View style={styles.overlay}>
+          <View style={styles.containerModal}>
+            {loadingVisible && (
+              <View style={styles.viewLoading}>
+                <ActivityIndicator size={"large"} />
               </View>
-            ))}
-          </View>
-        </View>
-        {campoEditando && (
-          <>
-            <View
-              style={{
-                ...StyleSheet.absoluteFill,
-                backgroundColor: "rgba(0, 0, 0, 0.3)",
-              }}
-              pointerEvents="auto"
+            )}
+            <ModalContent
+              exercicioSelectDetalhe={exercicioSelectDetalhe}
+              setCampoEditando={setCampoEditando}
+              setModalVisible={setModalVisible}
             />
-            <View style={styles.slidePanel}>
-              {campoEditando === "titulo" && (
-                <View style={styles.viewEditando}>
-                  <Text style={styles.textTituloEditando}>
-                    Selecione o exercício:
-                  </Text>
-                  <Picker
-                    selectedValue={newExercicioSelect}
-                    onValueChange={(itemValue) => {
-                      setNewExercicioSelect(itemValue);
-                      setDisabledSalvar(false);
-                    }}
-                    style={{ height: 50, width: 300, paddingBottom: 200 }}
-                    itemStyle={{ color: "black" }}
-                  >
-                    {exercicios.map((item) => (
-                      <Picker.Item
-                        key={item.id}
-                        label={item.titulo}
-                        value={item.titulo}
-                      />
-                    ))}
-                  </Picker>
-                  <View style={styles.viewSalvarFechar}>
-                    <TouchableOpacity
-                      style={{
-                        ...styles.touchableOpacitySalvar,
-                        opacity: disabledSalvar ? 0.5 : 1,
-                      }}
-                      disabled={disabledSalvar}
-                      onPress={() => (
-                        setNewParametros(
-                          user,
-                          treino,
-                          exercicioSelectDetalhe[0].id,
-                          campoEditando,
-                          newExercicioSelect
-                        ),
-                        setDisabledSalvar(true)
-                      )}
-                    >
-                      <Text style={styles.textSalvar}>Salvar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => (
-                        setCampoEditando(null),
-                        setDisabledSalvar(true),
-                        setNewExercicioSelect(listExercicio[0].titulo)
-                      )}
-                      style={{ padding: 20 }}
-                    >
-                      <Ionicons name="close" size={40} color="black" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-              {campoEditando === "carga" && (
-                <View style={styles.viewEditando}>
-                  <Text style={styles.textTituloEditando}>
-                    Insira a nova carga:{" "}
-                  </Text>
-                  <View style={styles.viewSalvarFechar}>
-                    <TextInput
-                      style={styles.textInputEditando}
-                      placeholder={listExercicio[0].carga}
-                      placeholderTextColor={"#0000006e"}
-                      keyboardType="numeric"
-                      onChange={(itemValue) => (
-                        setNewExercicioSelect(itemValue.nativeEvent.text),
-                        setDisabledSalvar(false)
-                      )}
-                    />
-                    <Text style={{ marginLeft: 15, fontSize: 20 }}>Kg</Text>
-                  </View>
-                  <View style={styles.viewSalvarFechar}>
-                    <TouchableOpacity
-                      style={{
-                        ...styles.touchableOpacitySalvar,
-                        opacity: disabledSalvar ? 0.5 : 1,
-                      }}
-                      disabled={disabledSalvar}
-                      onPress={() => (
-                        setNewParametros(
-                          user,
-                          treino,
-                          exercicioSelectDetalhe[0].id,
-                          campoEditando,
-                          newExercicioSelect
-                        ),
-                        setDisabledSalvar(true)
-                      )}
-                    >
-                      <Text style={styles.textSalvar}>Salvar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => (
-                        setCampoEditando(null), setDisabledSalvar(true)
-                      )}
-                    >
-                      <Ionicons name="close" size={40} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-              {campoEditando === "repeticoes" && (
-                <View style={styles.viewEditando}>
-                  <Text style={styles.textTituloEditando}>
-                    Insira o novo intervalo de repetições:{" "}
-                  </Text>
-                  <View style={styles.viewSalvarFechar}>
-                    <TextInput
-                      style={styles.textInputEditando}
-                      placeholder={listExercicio[0].repeticoes.minimo.toString()}
-                      placeholderTextColor={"#0000006e"}
-                      keyboardType="numeric"
-                      onChange={(itemValue) => (
-                        setNewRepeticoesMinimo(itemValue.nativeEvent.text),
-                        setDisabledSalvar(false)
-                      )}
-                    />
-                    <Text style={{ marginHorizontal: 20 }}>-</Text>
-                    <TextInput
-                      style={styles.textInputEditando}
-                      placeholder={listExercicio[0].repeticoes.maximo.toString()}
-                      placeholderTextColor={"#0000006e"}
-                      keyboardType="numeric"
-                      onChange={(itemValue) => (
-                        setNewRepeticoesMaximo(itemValue.nativeEvent.text),
-                        setDisabledSalvar(false)
-                      )}
-                    />
-                  </View>
-                  <View style={styles.viewSalvarFechar}>
-                    <TouchableOpacity
-                      style={{
-                        ...styles.touchableOpacitySalvar,
-                        opacity: disabledSalvar ? 0.5 : 1,
-                      }}
-                      disabled={disabledSalvar}
-                      onPress={() => {
-                        newRepeticoesMinimo &&
-                          setNewParametros(
-                            user,
-                            treino,
-                            exercicioSelectDetalhe[0].id,
-                            "repeticoes.minimo",
-                            newRepeticoesMinimo
-                          );
-                        newRepeticoesMaximo &&
-                          setNewParametros(
-                            user,
-                            treino,
-                            exercicioSelectDetalhe[0].id,
-                            "repeticoes.maximo",
-                            newRepeticoesMaximo
-                          );
-                        setNewRepeticoesMinimo(null);
-                        setNewRepeticoesMaximo(null);
-                        setDisabledSalvar(true);
-                      }}
-                    >
-                      <Text style={styles.textSalvar}>Salvar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => (
-                        setCampoEditando(null),
-                        setDisabledSalvar(true),
-                        setNewRepeticoesMaximo(null),
-                        setNewRepeticoesMinimo(null)
-                      )}
-                    >
-                      <Ionicons name="close" size={40} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-              {campoEditando === "series" && (
-                <View style={styles.viewEditando}>
-                  <Text style={styles.textTituloEditando}>
-                    Insira a nova quantidade de séries:
-                  </Text>
-                  <TextInput
-                    style={styles.textInputEditando}
-                    placeholder={listExercicio[0].series}
-                    placeholderTextColor={"#0000006e"}
-                    keyboardType="numeric"
-                    onChange={(itemValue) => (
-                      setNewExercicioSelect(itemValue.nativeEvent.text),
-                      setDisabledSalvar(false)
-                    )}
-                  />
-                  <View style={styles.viewSalvarFechar}>
-                    <TouchableOpacity
-                      style={{
-                        ...styles.touchableOpacitySalvar,
-                        opacity: disabledSalvar ? 0.5 : 1,
-                      }}
-                      disabled={disabledSalvar}
-                      onPress={() =>
-                        setNewParametros(
-                          user,
-                          treino,
-                          exercicioSelectDetalhe[0].id,
-                          campoEditando,
-                          newExercicioSelect
-                        )
-                      }
-                    >
-                      <Text style={styles.textSalvar}>Salvar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => (
-                        setDisabledSalvar(true), setCampoEditando(null)
-                      )}
-                    >
-                      <Ionicons name="close" size={30} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-              {campoEditando === "descanso" && (
-                <View style={styles.viewEditando}>
-                  <Text style={styles.textTituloEditando}>
-                    Insira o novo tempo de descanso:
-                  </Text>
-                  <View style={styles.viewSalvarFechar}>
-                    <TextInput
-                      style={styles.textInputEditando}
-                      placeholder={listExercicio[0].descanso.toString()}
-                      placeholderTextColor={"#0000006e"}
-                      keyboardType="numeric"
-                      onChange={(itemValue) => (
-                        setNewExercicioSelect(itemValue.nativeEvent.text),
-                        setDisabledSalvar(false)
-                      )}
-                    />
-                    <Text style={{ marginLeft: 15, fontSize: 20 }}>
-                      segundos
-                    </Text>
-                  </View>
-                  <View style={styles.viewSalvarFechar}>
-                    <TouchableOpacity
-                      style={{
-                        ...styles.touchableOpacitySalvar,
-                        opacity: disabledSalvar ? 0.5 : 1,
-                      }}
-                      disabled={disabledSalvar}
-                      onPress={() =>
-                        setNewParametros(
-                          user,
-                          treino,
-                          exercicioSelectDetalhe[0].id,
-                          campoEditando,
-                          newExercicioSelect
-                        )
-                      }
-                    >
-                      <Text style={styles.textSalvar}>Salvar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => (
-                        setDisabledSalvar(true), setCampoEditando(null)
-                      )}
-                    >
-                      <Ionicons name="close" size={30} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-            </View>
-          </>
-        )}
-      </Modal>
-      <VirtualizedList
+          </View>
+          <SlidePanelEdicoes
+          campoEditando={campoEditando}
+          disabledSalvar={disabledSalvar}
+          setDisabledSalvar={setDisabledSalvar}
+          newExercicioSelect={newExercicioSelect}
+          setNewExercicioSelect={setNewExercicioSelect}
+          setCampoEditando={setCampoEditando}
+          setNewParametros={setNewParametros}
+          listExercicio={listExercicio}
+          exercicios={exercicios}
+          treino={treino}
+          exercicioSelectDetalhe={exercicioSelectDetalhe}
+          newRepeticoesMinimo={newRepeticoesMinimo}
+          setNewRepeticoesMinimo={setNewRepeticoesMinimo}
+          newRepeticoesMaximo={newRepeticoesMaximo}
+          setNewRepeticoesMaximo={setNewRepeticoesMaximo}
+        />
+      </View>
+    )}
+    <VirtualizedList
         style={styles.viewVirtualizedList}
         data={listExercicio}
         getItemCount={(treinoDetalhe) => treinoDetalhe.length}
@@ -574,7 +269,6 @@ export default function DetalhesTreino({ navigation }) {
               <View style={{ flexDirection: "row" }}>
                 <TouchableOpacity onPress={() => 
                   setNewParametros(
-                    user,
                     treino,
                     item.id,
                     'checkButton',
@@ -617,120 +311,30 @@ export default function DetalhesTreino({ navigation }) {
           </TouchableOpacity>
         )}
       />
-      {campoAdicionando && (
-        <View
-          style={{
-            ...StyleSheet.absoluteFill,
-            backgroundColor: "rgba(0, 0, 0, 0.3)",
-          }}
-          pointerEvents="auto"
-        >
-          <View style={styles.slidePanel2}>
-            <View style={{ justifyContent: "space-between" }}>
-              <View style={styles.viewAdicionando}>
-                <Text style={styles.textAdicionando}>Exercício:</Text>
-                <DropDownPicker
-                  open={open}
-                  value={tituloAdicionar}
-                  items={items}
-                  setOpen={setOpen}
-                  setValue={(val) => {
-                    setTituloAdicionar(val);
-                    setDisabledSalvar(false);
-                  }}
-                  setItems={setItems}
-                  placeholder="-"
-                  style={{ width: 150 }}
-                  dropDownContainerStyle={{ width: 150 }}
-                />
-              </View>
-              <View style={styles.viewAdicionando}>
-                <Text style={styles.textAdicionando}>Carga: </Text>
-                <TextInput
-                  onChangeText={(carga) => (
-                    setCargaAdicionar(carga), setDisabledSalvar(false)
-                  )}
-                  style={styles.textInputEditando2}
-                  keyboardType="numeric"
-                  returnKeyType="done"
-                />
-                <Text>Kg</Text>
-              </View>
-              <View style={styles.viewAdicionando}>
-                <Text style={styles.textAdicionando}>Repetições:</Text>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <TextInput
-                    onChangeText={(repsmin) => (
-                      setRepeticoesMinimoAdicionar(repsmin),
-                      setDisabledSalvar(false)
-                    )}
-                    style={styles.textInputEditando2}
-                    keyboardType="numeric"
-                    returnKeyType="done"
-                  />
-                  <Text>-</Text>
-                  <TextInput
-                    onChangeText={(repsmax) => (
-                      setRepeticoesMaximoAdicionar(repsmax),
-                      setDisabledSalvar(false)
-                    )}
-                    style={styles.textInputEditando2}
-                    keyboardType="numeric"
-                    returnKeyType="done"
-                  />
-                </View>
-              </View>
-              <View style={styles.viewAdicionando}>
-                <Text style={styles.textAdicionando}>Séries:</Text>
-                <TextInput
-                  onChangeText={(series) => (
-                    setSeriesAdicionar(series), setDisabledSalvar(false)
-                  )}
-                  style={styles.textInputEditando2}
-                  keyboardType="numeric"
-                  returnKeyType="done"
-                />
-              </View>
-              <View style={styles.viewAdicionando}>
-                <Text style={styles.textAdicionando}>Descanso:</Text>
-                <TextInput
-                  onChangeText={(desc) => (
-                    setDescansoAdicionar(desc), setDisabledSalvar(false)
-                  )}
-                  style={styles.textInputEditando2}
-                  keyboardType="numeric"
-                  returnKeyType="done"
-                />
-                <Text>segundos</Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <TouchableOpacity 
-                style={{...styles.buttonAdicionar, opacity: disabledSalvar ? 0.5 : 1,}}
-                disabled={disabledSalvar}
-                onPress={() => setNewExercicio(user, treino, tituloAdicionar, cargaAdicionar, repeticoesMinimoAdicionar, repeticoesMaximoAdicionar, seriesAdicionar, descansoAdicionar)}  
-              >
-                <Text style={{color: 'white', fontWeight: 'bold'}}>Adicionar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => (
-                  setCampoAdicionando(false), 
-                  setOpen(false), 
-                  setDisabledSalvar(true), 
-                  setTituloAdicionar(null),
-                  setCargaAdicionar(null),
-                  setRepeticoesMinimoAdicionar(null),
-                  setRepeticoesMaximoAdicionar(null),
-                  setSeriesAdicionar(null),
-                  setDescansoAdicionar(null)
-                )}
-              >
-                <FontAwesome5 name="times" size={25} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      )}
+      <FormularioAdicionarExercicio
+      open={open}
+      setOpen={setOpen}
+      items={items}
+      setItems={setItems}
+      tituloAdicionar={tituloAdicionar}
+      setTituloAdicionar={setTituloAdicionar}
+      cargaAdicionar={cargaAdicionar}
+      setCargaAdicionar={setCargaAdicionar}
+      repeticoesMinimoAdicionar={repeticoesMinimoAdicionar}
+      setRepeticoesMinimoAdicionar={setRepeticoesMinimoAdicionar}
+      repeticoesMaximoAdicionar={repeticoesMaximoAdicionar}
+      setRepeticoesMaximoAdicionar={setRepeticoesMaximoAdicionar}
+      seriesAdicionar={seriesAdicionar}
+      setSeriesAdicionar={setSeriesAdicionar}
+      descansoAdicionar={descansoAdicionar}
+      setDescansoAdicionar={setDescansoAdicionar}
+      disabledSalvar={disabledSalvar}
+      setDisabledSalvar={setDisabledSalvar}
+      setCampoAdicionando={setCampoAdicionando}
+      setNewExercicio={setNewExercicio}
+      treino={treino}
+      campoAdicionando={campoAdicionando}
+      />
       {loadingVisible && (
         <View style={styles.viewLoading}>
           <ActivityIndicator
@@ -745,18 +349,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
   containerModal: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "stretch",
     justifyContent: "center",
+    width:'95%'
   },
   modalContent: {
     alignItems: "center",
-  },
-  modalText: {
-    fontSize: 20,
-    marginVertical: 10,
-  },
+  },  
   textListExercicio: {
     fontSize: 20,
     padding: 5,
@@ -771,104 +379,9 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     marginHorizontal: 2,
   },
-  slidePanel: {
-    position: "absolute",
-    height: "50%",
-    bottom: "25%",
-    left: 5,
-    right: 5,
-    backgroundColor: "white",
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    alignItems: "center",
-  },
-  slidePanel2: {
-    position: "absolute",
-    height: "50%",
-    left: 5,
-    right: 5,
-    backgroundColor: "white",
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    justifyContent: "center", // centraliza verticalmente
-    alignItems: "center", // centraliza horizontalmente
-  },
-  viewSalvarFechar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  textSalvar: {
-    fontSize: 20,
-    padding: 10,
-  },
-  touchableOpacitySalvar: {
-    backgroundColor: "#00ce005e",
-  },
   viewVirtualizedList: {
     marginTop: 2,
-  },
-  viewEditando: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  viewAdicionando: {
-    flexDirection: "row",
-    alignItems: "center", // alinha verticalmente texto e input
-    justifyContent: "flex-start",
-    marginBottom: 12, // espaço entre os campos
-    width: "100%",
-    maxWidth: 350,
-  },
-  textAdicionando: {
-    width: 90,
-    textAlign: "left", // alinha texto à esquerda
-    marginRight: 10,
-    fontSize: 16,
-  },
-  textInputEditando: {
-    borderWidth: 1,
-    borderColor: "#000",
-    width: 60,
-    height: 60,
-    padding: 10,
-    marginBottom: 20,
-    color: "black",
-    textAlign: "center",
-    fontSize: 20,
-  },
-  textInputEditando2: {
-    borderWidth: 1,
-    borderRadius: 5,
-    width: 120,
-    height: 40,
-    paddingHorizontal: 10,
-    marginVertical: 5,
-    fontSize: 16,
-    color: "black",
-    backgroundColor: "#f5f5f5",
-  },
-  textTituloEditando: {
-    marginBottom: 20,
-    fontSize: 15,
-  },
+  },  
   textAdicionarExercicio: {
     fontSize: 20,
     padding: 5,
@@ -879,13 +392,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 2,
     marginHorizontal: 2,
-  },
-  buttonAdicionar: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 5,
-    marginRight: 10,
-  },
+  },  
   viewLoading: {
     position: 'absolute',
     top: 0,
