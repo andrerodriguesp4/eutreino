@@ -5,21 +5,28 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#000000ff'
+        backgroundColor: '#000000ff',
     },
     inputLogin: {
         backgroundColor:'white',
         padding: 10,
+        borderRadius: 10,
         borderWidth: 1,
         marginVertical: 5,
+        width: 250,
+    },
+    inputLoginPassword: {
+        backgroundColor:'white',
+        borderColor: 'black',
         width: 250,
     },
     viewInputs:{
         justifyContent: 'center',
         alignItems: 'center',
-        
     },
     buttonLogin: {
+        backgroundColor: 'white',
+        borderRadius: 10,
         borderWidth: 1,
         paddingHorizontal: 30,
         paddingVertical: 10,
@@ -29,6 +36,7 @@ const styles = StyleSheet.create({
     },
     viewButtons: {
         flexDirection: 'row',
+        alignSelf: 'center',
         marginTop: 15,
     },
     viewModal: {
@@ -38,24 +46,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     viewForm:{
-        alignItems: 'center',
         backgroundColor: '#FA801C',
         paddingVertical: 40,
         paddingHorizontal: 20,
-        borderRadius: 5,
+        borderRadius: 25,
     },
     voltarButton: {
+        borderRadius: 10,
         borderWidth: 1,
+        backgroundColor: 'white',
         paddingHorizontal: 10,
         paddingVertical: 10,
         alignItems: 'center',
         margin: 5,
-    },
-    viewForm1: {
-        paddingVertical: 40,
-        paddingHorizontal: 20,
-        backgroundColor: '#FA801C',
-        borderRadius: 25,
     },
     viewLoading: {
         position: 'absolute',

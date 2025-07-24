@@ -147,8 +147,6 @@ const styles = StyleSheet.create({
     errorText: {
         color: '#e53935',
         fontSize: 13,
-        // marginBottom: 10,
-        // marginTop: -12,
     },
 
 });

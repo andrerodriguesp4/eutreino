@@ -11,9 +11,6 @@ import { db } from '../firebaseConfig';
  * @returns {string} - ID do usuário autenticado.
  */
 async function logIn(user, senha) {
-  if (!user || !senha) {
-    alert('Usuário e senha obrigatórios!');
-  }
 
   const snapshot = await getDocs(collection(db, 'users'));
 
@@ -21,7 +18,7 @@ async function logIn(user, senha) {
   const matchedUser = users.find(item => item.user === user && item.senha === senha);
 
   if (!matchedUser) {
-    alert('Usuário ou senha inválidos!');
+    alert('Usuário ou senha incorretos!');
   }
   
   await AsyncStorage.setItem('usuario', matchedUser.id.toString());

@@ -82,17 +82,17 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
                 style={styles.inputLogin}
               />
               <PasswordField
-                // label="Senha"
                 value={senha}
                 onChangeText={setSenha}
                 placeholder="Digite a senha"
+                style={[styles.inputLoginPassword]}
                 errorMessage={passwordError}
               />
               <PasswordField
-                // label="Confirmar Senha"
                 value={repSenha}
                 onChangeText={setRepSenha}
                 placeholder="Digite a senha novamente"
+                style={[styles.inputLoginPassword]}
                 errorMessage={repSenhaError}
               />
             </View>

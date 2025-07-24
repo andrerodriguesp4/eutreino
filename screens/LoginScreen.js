@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native"
 import logIn from "../services/LogIn";
 import RegisterModal from "./components/RegisterModal";
 import PasswordField from "./account/components/Passwordfield";
@@ -34,8 +34,6 @@ export default function Login({navigation}){
             }
         } catch (error) {
             setLoadingVisible(false);
-            console.error(error.message);
-            alert('Erro ao fazer login');
         }
     }
 
@@ -48,7 +46,7 @@ export default function Login({navigation}){
                     />
                 </View>
             )}
-            <View style={styles.viewForm1}>                
+            <View style={styles.viewForm}>                
                 <View style={styles.viewInputs}>
                     <TextInput
                         value={user}
@@ -58,11 +56,10 @@ export default function Login({navigation}){
                         style={styles.inputLogin}
                     />
                     <PasswordField
-                        // label="Senha"
                         value={senha}
                         onChangeText={setSenha}
                         placeholder="Digite a senha"
-                        style={[styles.inputLogin]}
+                        style={[styles.inputLoginPassword]}
                     />
                 </View>
                 <View style={styles.viewButtons}>

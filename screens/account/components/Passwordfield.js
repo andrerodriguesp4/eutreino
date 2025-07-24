@@ -23,7 +23,7 @@ const PasswordField = ({
                 placeholder={placeholder}
                 placeholderTextColor="#666"
                 secureTextEntry={!visible}
-                style={[styles.inputPassword, style]}
+                style={styles.inputPassword}
                 autoCapitalize='none'
             />
             <TouchableOpacity onPress={() => setVisible(!visible)}>
