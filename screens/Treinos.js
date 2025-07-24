@@ -5,7 +5,6 @@ import {useEffect, useState } from "react";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
 import { getUser } from '../utils/getUser';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -18,33 +17,34 @@ export default function Treinos({navigation}){
     
     useEffect(() => {
         getUser(setUser, navigation);
-    }, [user]);
+    }, []);
 
     useEffect(() =>{
         if(user){loadTreinos();}
     }, [user])
 
     useEffect(() => {
-        navigation.setOptions({
-            headerRight: () => (
-                <TouchableOpacity onPress={async () => atualizar()}>
-                    <Text style={{color: 'black', margin: 5, padding: 5, marginTop: '50%'}}>
+        if (user) {
+            navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity onPress={loadTreinos}>
+                    <Text style={{backgroundColor: 'black', padding: 5}}>
                         Atualizar
                     </Text>
                 </TouchableOpacity>
             ),           
         });
-    }, [navigation])
+    }
+    }, [navigation, user]);
 
     function sleep(ms){
         return new Promise(result => setTimeout(result, ms))
     };
 
-    const loadTreinos = async (usuario) => {
+    const loadTreinos = async () => {
         try{
             setLoadingVisible(true);
-            const currentUser = user || usuario;
-            const treinosList = await getWorkouts(currentUser);
+            const treinosList = await getWorkouts(user);
             setTreinos(treinosList);
 
             await sleep(100);
@@ -53,16 +53,6 @@ export default function Treinos({navigation}){
             console.log('Erro na função loadTreinos: ',error)
         }
     };
-
-    async function atualizar() {
-        const usuario = await AsyncStorage.getItem('usuario');
-        if (usuario) {
-            setUser(usuario);
-            await loadTreinos(usuario);
-        } else {
-            navigation.navigate('Home');
-        }        
-    }
     
     async function setNewTreino(titulo) {
         try{

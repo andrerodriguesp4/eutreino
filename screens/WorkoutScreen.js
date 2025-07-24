@@ -38,7 +38,6 @@ const WorkoutScreen = ({ navigation }) => {
         } catch (error) {
             console.log('Erro ao carregar treino:', error);
             setWorkoutVisible(false);
-            setLoading(false);
         } finally {
             setLoading(false);
         }
