@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     inputLogin: {
         backgroundColor:'white',
         padding: 10,
-        borderRadius: 10,
+        borderRadius: 8,
         borderWidth: 1,
         marginVertical: 5,
         width: 250,

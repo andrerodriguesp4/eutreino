@@ -16,6 +16,7 @@ export default function EditarPerfil({navigation}){
     const [senha, setSenha] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [userId, setUserId] = useState('');
+    const [perfilName, setPerfilName] = useState('');
 
     const [ShowDeleteModal, setShowDeleteModal] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,6 +46,7 @@ export default function EditarPerfil({navigation}){
                     setUser(data.user || '');
                     setEmail(data.email || '');
                     setUsername(data.username || '');
+                    setPerfilName(data.username || '');
                 }
             } catch (error) {
                 console.error('Erro ao carregar dados do usuário:', error);
@@ -91,6 +93,7 @@ export default function EditarPerfil({navigation}){
         try {
             setLoading(true);
             await updateDoc(doc(db, 'users', userId), dadosAtualizados);
+            setPerfilName(username);
             Alert.alert('Sucesso', 'Dados atualizados!');
             navigation.goBack();
         } catch (error) {
@@ -167,6 +170,13 @@ export default function EditarPerfil({navigation}){
         <View style={{flex:1}}>
             <View style={styles.imageContainer}>
                 <Image source={require('../../source/perfil.png')} style={styles.image} />
+            </View>
+            <View>
+                <View style={styles.viewUserName}>
+                    <View>
+                        <Text style={styles.textUserName}>{perfilName}</Text>
+                    </View>
+                </View>
             </View>
             <View style={styles.container}>
                 <View>

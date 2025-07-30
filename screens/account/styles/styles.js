@@ -43,8 +43,9 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 8,
         paddingRight: 10,
-        marginHorizontal:5,
+        // marginHorizontal:5,
         marginVertical: 5,
+        padding: 10,
     },
     inputPassword: {
         flex: 1,
@@ -148,7 +149,14 @@ const styles = StyleSheet.create({
         color: '#e53935',
         fontSize: 13,
     },
-
+    viewUserName: {
+        alignItems: 'center',
+        backgroundColor: 'white',
+    },
+    textUserName:{
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
 });
 
 export default styles;

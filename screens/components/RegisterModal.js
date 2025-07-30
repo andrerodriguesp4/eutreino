@@ -10,8 +10,8 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [repSenha, setRepSenha] = useState('');
+  const [user, setUser] = useState('');
   const [loadingVisible, setLoadingVisible] = useState(false);
-
   const [passwordError, setPasswordError] = useState(null);
   const [repSenhaError, setRepSenhaError] = useState(null);
 
@@ -20,12 +20,13 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
     setEmail('');
     setSenha('');
     setRepSenha('');
+    setUser('');
   }
 
   async function handleRegister() {
     setPasswordError(null);
     setRepSenhaError(null);
-    if (!username || !email || !senha || !repSenha) {
+    if (!username || !email || !senha || !repSenha || !user) {
       alert('Preencha todos os campos!');
       return;
     }
@@ -40,7 +41,7 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
 
     try {
       setLoadingVisible(true);
-      const uid = await createUser( username, senha, email );
+      const uid = await createUser( username, senha, email, user );
       await AsyncStorage.setItem('user', uid);
       resetFields();
       if (uid) {
@@ -66,6 +67,13 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
         <View style={styles.viewModal}>
           <View style={styles.viewForm}>
             <View>
+              <TextInput
+                value={user}
+                onChangeText={setUser}
+                placeholder="Digite seu nome"
+                placeholderTextColor="#666"
+                style={styles.inputLogin}
+              />
               <TextInput
                 value={username}
                 onChangeText={setUsername}
