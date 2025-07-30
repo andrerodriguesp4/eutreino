@@ -6,11 +6,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import PasswordField from '../account/components/Passwordfield';
 
 export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
-  const [username, setUsername] = useState('');
+  const [user, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [repSenha, setRepSenha] = useState('');
-  const [user, setUser] = useState('');
+  const [nickname, setUser] = useState('');
   const [loadingVisible, setLoadingVisible] = useState(false);
   const [passwordError, setPasswordError] = useState(null);
   const [repSenhaError, setRepSenhaError] = useState(null);
@@ -26,7 +26,7 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
   async function handleRegister() {
     setPasswordError(null);
     setRepSenhaError(null);
-    if (!username || !email || !senha || !repSenha || !user) {
+    if (!user || !email || !senha || !repSenha || !nickname) {
       alert('Preencha todos os campos!');
       return;
     }
@@ -41,7 +41,7 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
 
     try {
       setLoadingVisible(true);
-      const uid = await createUser( username, senha, email, user );
+      const uid = await createUser( user, senha, email, nickname );
       await AsyncStorage.setItem('user', uid);
       resetFields();
       if (uid) {
@@ -68,14 +68,14 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
           <View style={styles.viewForm}>
             <View>
               <TextInput
-                value={user}
+                value={nickname}
                 onChangeText={setUser}
                 placeholder="Digite seu nome"
                 placeholderTextColor="#666"
                 style={styles.inputLogin}
               />
               <TextInput
-                value={username}
+                value={user}
                 onChangeText={setUsername}
                 placeholder="Digite o nome de usuário"
                 placeholderTextColor="#666"

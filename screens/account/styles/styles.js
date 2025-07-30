@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
@@ -43,9 +44,8 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 8,
         paddingRight: 10,
-        // marginHorizontal:5,
-        marginVertical: 5,
-        padding: 10,
+        margin: 5,
+        padding: Platform.OS === "android" ? 0 : 10,
     },
     inputPassword: {
         flex: 1,
@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
         fontSize: 22,
     },
 
-
     modalBackground: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
@@ -107,15 +106,6 @@ const styles = StyleSheet.create({
     modalText: {
         fontSize: 14,
         marginBottom: 10,
-    },
-    modalInput: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        marginBottom: 20,
-        color: '#000',
     },
     modalButtons: {
         flexDirection: 'row',
@@ -148,10 +138,7 @@ const styles = StyleSheet.create({
     errorText: {
         color: '#e53935',
         fontSize: 13,
-    },
-    viewUserName: {
-        alignItems: 'center',
-        backgroundColor: 'white',
+        marginLeft: 5,
     },
     textUserName:{
         fontSize: 20,

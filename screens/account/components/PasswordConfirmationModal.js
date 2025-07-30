@@ -15,7 +15,7 @@ const PasswordConfirmationModal= ({
         <Modal
             visible={visible}
             transparent={true}
-            animationType="slide"
+            animationType="fade"
         >
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContainer}>
@@ -27,11 +27,10 @@ const PasswordConfirmationModal= ({
                         onChangeText={onChangePassword}
                         placeholder="Senha"
                         secureTextEntry={true}
-                        // style={[
-                        //     styles.modalInput,
-                        //     errorMessage ? {borderColor: '#e53935'} : {},
-                        // ]}
-                        // placeholderTextColor="#666"
+                        style={[
+                            errorMessage ? {borderColor: '#e53935'} : {},
+                        ]}
+                        placeholderTextColor="#666"
                     />
 
                     {errorMessage ? (

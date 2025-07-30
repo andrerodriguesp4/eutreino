@@ -13,7 +13,7 @@ function isEmailValid(email) {
  * @returns {string} - Nome do usuário autenticado.
  * @throws {Error} - Em caso de email inválido ou credenciais já em uso.
  */
-async function createUser(user, senha, email, name) {
+async function createUser(user, senha, email, nickname) {
   if (!isEmailValid(email)) {
     throw new Error('Digite um e-mail válido!');
   }
@@ -41,7 +41,7 @@ async function createUser(user, senha, email, name) {
 
   const novoId = maiorId +1;
 
-  await setDoc(doc(db, 'users', novoId.toString()), {id: novoId, username: name, user: user, senha: senha, email: email });
+  await setDoc(doc(db, 'users', novoId.toString()), {id: novoId, nickname: nickname, user: user, senha: senha, email: email });
   return user;
 }
 

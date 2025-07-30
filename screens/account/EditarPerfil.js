@@ -11,11 +11,11 @@ import { getUser } from '../../utils/getUser';
 export default function EditarPerfil({navigation}){
     const [originalData, setOriginalData] = useState({});
     const [user, setUser] = useState('');
-    const [username, setUsername] = useState('');
+    const [nickname, setNickname] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    const [userId, setUserId] = useState('');
+    const [userId, setUserId] = useState('');    
     const [perfilName, setPerfilName] = useState('');
 
     const [ShowDeleteModal, setShowDeleteModal] = useState(false);
@@ -45,8 +45,8 @@ export default function EditarPerfil({navigation}){
                     setOriginalData(data);
                     setUser(data.user || '');
                     setEmail(data.email || '');
-                    setUsername(data.username || '');
-                    setPerfilName(data.username || '');
+                    setNickname(data.nickname || '');
+                    setPerfilName(data.nickname || '');
                 }
             } catch (error) {
                 console.error('Erro ao carregar dados do usuário:', error);
@@ -64,13 +64,14 @@ export default function EditarPerfil({navigation}){
             Alert.alert('Erro', 'Usuário não encontrado');
             return;
         }
-        if (newPassword && !senha) {
-            Alert.alert('Erro', 'Digite sua senha atual para alterar a senha.');
-            return;
-        }
+        // if (newPassword && !senha) {
+        //     Alert.alert('Erro', 'Digite sua senha atual para alterar a senha.');
+        //     return;
+        // }
 
         const dadosAtualizados = {};
-        if (username !== originalData.username) dadosAtualizados.username = username;
+        if (user !== originalData.user) dadosAtualizados.user = user;
+        if (nickname !== originalData.nickname) dadosAtualizados.nickname = nickname;
         if (email !== originalData.email) dadosAtualizados.email = email;
 
         if (newPassword) {
@@ -78,7 +79,11 @@ export default function EditarPerfil({navigation}){
                 setPasswordError('Digite sua senha atual para alterar a senha');
                 return;
             }
-            if (senha.length < 6){
+            if (senha !== originalData.senha){
+                setPasswordError('Senha Incorreta');
+                return;
+            }
+            if (newPassword.length < 6){
                 setNewPasswordError('A senha deve ter pelo menos 6 caracteres')
                 return;
             }
@@ -93,7 +98,6 @@ export default function EditarPerfil({navigation}){
         try {
             setLoading(true);
             await updateDoc(doc(db, 'users', userId), dadosAtualizados);
-            setPerfilName(username);
             Alert.alert('Sucesso', 'Dados atualizados!');
             navigation.goBack();
         } catch (error) {
@@ -124,10 +128,8 @@ export default function EditarPerfil({navigation}){
                 setDeleteError('Usuário não encontrado.');
                 return;
             }
-            const userData = userSnap.data();
-            const senhaBanco = userData.senha;
 
-            if (confirmPassword !== senhaBanco) {
+            if (confirmPassword !== originalData.senha) {
                 setDeleteError('Senha incorreta.');
                 return;
             }
@@ -150,8 +152,8 @@ export default function EditarPerfil({navigation}){
     }
 
     const campos = [
-        { label: 'Nome', value: user, setter: setUser, placeholder: 'Digite seu nome' },
-        { label: 'Nome de Usuário', value: username, setter: setUsername, placeholder: 'Digite seu nome de usuário' },
+        { label: 'Nome', value: nickname, setter: setNickname, placeholder: 'Digite seu nome' },
+        { label: 'Nome de Usuário', value: user, setter: setUser, placeholder: 'Digite seu nome de usuário' },
         { label: 'Email', value: email, setter: setEmail, placeholder: 'Digite seu email' },
     ];
 
@@ -170,12 +172,8 @@ export default function EditarPerfil({navigation}){
         <View style={{flex:1}}>
             <View style={styles.imageContainer}>
                 <Image source={require('../../source/perfil.png')} style={styles.image} />
-            </View>
-            <View>
-                <View style={styles.viewUserName}>
-                    <View>
-                        <Text style={styles.textUserName}>{perfilName}</Text>
-                    </View>
+                <View>
+                    <Text style={styles.textUserName}>{perfilName}</Text>
                 </View>
             </View>
             <View style={styles.container}>
