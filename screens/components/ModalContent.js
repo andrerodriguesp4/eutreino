@@ -50,7 +50,6 @@ export default function ModalContent({
 
 const styles = StyleSheet.create({
   slidePanel: {
-    // // position: "absolute",
     backgroundColor: "white",
     borderRadius: 20,
     padding: 20,

@@ -1,4 +1,4 @@
-import { View, Text, VirtualizedList, TouchableOpacity, Modal, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, VirtualizedList, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
 import { collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } from "firebase/firestore";
