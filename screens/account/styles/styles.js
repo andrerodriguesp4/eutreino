@@ -149,7 +149,14 @@ const styles = StyleSheet.create({
         color: '#e53935',
         fontSize: 13,
     },
-
+    viewUserName: {
+        alignItems: 'center',
+        backgroundColor: 'white',
+    },
+    textUserName:{
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
 });
 
 export default styles;
