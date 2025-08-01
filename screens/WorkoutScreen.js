@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
 import { getExerciciosDoTreino, getTodayWorkout, markWorkoutAsDone } from '../services/workoutService';
-import { getUser } from '../utils/getUser';
+import { getUser } from '../services/getUser';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 

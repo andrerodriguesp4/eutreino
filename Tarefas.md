@@ -1,13 +1,15 @@
 # To Do List
 Lista de tarefas a serem implementadas no app.
 ### Concluídas:
-### Em andamento:
 
  - Separar a atualização de senha em nova tela (Ruan)
 
+### Em andamento:
+
+
 ### Por fazer:
 
-- Ajustar tela *WorkoutScreen* para permitir editar informações do exercício
+ - Ajustar tela *WorkoutScreen* para permitir editar informações do exercício
  - Implementar funcionalidades à tela *Academia*
  - Implementar funcionalidades à tela *Informações*
  - Criar opção de perfil *Personal Trainer*

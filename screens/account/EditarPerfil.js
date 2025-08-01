@@ -3,10 +3,9 @@ import { db } from "../../firebaseConfig";
 import { doc, updateDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import styles from '../account/styles/styles'
-import PasswordField from "./components/Passwordfield";
+import styles from '../account/styles/styles';
 import PasswordConfirmationModal from "./components/PasswordConfirmationModal";
-import { getUser } from '../../utils/getUser';
+import { getUser } from '../../services/getUser';
 
 export default function EditarPerfil({navigation}){
     const [originalData, setOriginalData] = useState({});
@@ -14,7 +13,6 @@ export default function EditarPerfil({navigation}){
     const [nickname, setNickname] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
-    const [newPassword, setNewPassword] = useState('');
     const [userId, setUserId] = useState('');    
     const [perfilName, setPerfilName] = useState('');
 
@@ -23,10 +21,9 @@ export default function EditarPerfil({navigation}){
     const [deleting, setDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState('');
 
-    const [passwordError, setPasswordError] = useState(null);
-    const [newPasswordError, setNewPasswordError] = useState(null);
-
     const [loading, setLoading] = useState(false);
+
+    const senhaOculta = "●".repeat(senha.length);
 
     useEffect(()=>{
         getUser(setUserId, navigation);
@@ -44,6 +41,7 @@ export default function EditarPerfil({navigation}){
                     const data = userSnap.data();
                     setOriginalData(data);
                     setUser(data.user || '');
+                    setSenha(data.senha || '');
                     setEmail(data.email || '');
                     setNickname(data.nickname || '');
                     setPerfilName(data.nickname || '');
@@ -64,31 +62,27 @@ export default function EditarPerfil({navigation}){
             Alert.alert('Erro', 'Usuário não encontrado');
             return;
         }
-        // if (newPassword && !senha) {
-        //     Alert.alert('Erro', 'Digite sua senha atual para alterar a senha.');
-        //     return;
-        // }
 
         const dadosAtualizados = {};
         if (user !== originalData.user) dadosAtualizados.user = user;
         if (nickname !== originalData.nickname) dadosAtualizados.nickname = nickname;
         if (email !== originalData.email) dadosAtualizados.email = email;
 
-        if (newPassword) {
-            if(!senha){
-                setPasswordError('Digite sua senha atual para alterar a senha');
-                return;
-            }
-            if (senha !== originalData.senha){
-                setPasswordError('Senha Incorreta');
-                return;
-            }
-            if (newPassword.length < 6){
-                setNewPasswordError('A senha deve ter pelo menos 6 caracteres')
-                return;
-            }
-            dadosAtualizados.senha = newPassword;
-        }
+        // if (newPassword) {
+        //     if(!senha){
+        //         setPasswordError('Digite sua senha atual para alterar a senha');
+        //         return;
+        //     }
+        //     if (senha !== originalData.senha){
+        //         setPasswordError('Senha Incorreta');
+        //         return;
+        //     }
+        //     if (newPassword.length < 6){
+        //         setNewPasswordError('A senha deve ter pelo menos 6 caracteres')
+        //         return;
+        //     }
+        //     dadosAtualizados.senha = newPassword;
+        // }
 
         if (Object.keys(dadosAtualizados).length === 0){
             Alert.alert('Aviso', 'Nenhum dado foi alterado.');
@@ -190,27 +184,19 @@ export default function EditarPerfil({navigation}){
                             />
                         </View>
                     ))}
-                    <PasswordField
-                        label={"Senha Atual"}
-                        value={senha}
-                        onChangeText={(text) => {
-                            setSenha(text);
-                            if(text.length >0) setPasswordError(null)
-                        }}
-                        placeholder={"Senha Atual"}
-                        errorMessage={passwordError}
-                    />
 
-                    <PasswordField
-                        label={"Nova Senha"}
-                        value={newPassword}
-                        onChangeText={(text) => {
-                            setNewPassword(text);
-                            if(text.length >=6) setNewPasswordError(null);
-                        }}
-                        placeholder={"Nova Senha"}
-                        errorMessage={newPasswordError}
-                    />        
+                    <Text style={styles.label}>{'Senha'}</Text>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('PasswordUpdate', {userId})}>
+                            <TextInput
+                                placeholder={senhaOculta}
+                                editable={false}
+                                secureTextEntry={true}
+                                pointerEvents="none"
+                                placeholderTextColor="#666"
+                                style={styles.inputProfile}
+                            />
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.footContainer}>

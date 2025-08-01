@@ -4,7 +4,7 @@ import {collection, getDocs, doc, setDoc, deleteDoc} from "firebase/firestore";
 import {useEffect, useState } from "react";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
-import { getUser } from '../utils/getUser';
+import { getUser } from '../services/getUser';
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();

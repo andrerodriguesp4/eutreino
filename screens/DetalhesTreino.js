@@ -5,7 +5,7 @@ import { collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } 
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
-import { getUser } from '../utils/getUser';
+import { getUser } from '../services/getUser';
 import ModalContent from "./components/ModalContent";
 import SlidePanelEdicoes from "./components/SlidePanelEdicoes";
 import FormularioAdicionarExercicio from "./components/FormularioAdicionarExercicio";
