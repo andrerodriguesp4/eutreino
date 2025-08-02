@@ -7,22 +7,17 @@ import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getUser } from '../services/getUser';
 import ModalContent from "./components/ModalContent";
-import SlidePanelEdicoes from "./components/SlidePanelEdicoes";
 import FormularioAdicionarExercicio from "./components/FormularioAdicionarExercicio";
 
 export default function DetalhesTreino({ navigation }) {
   const route = useRoute();
   const [exercicioSelectDetalhe, setExercicioSelectDetalhe] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [campoEditando, setCampoEditando] = useState(null);
-  const [newExercicioSelect, setNewExercicioSelect] = useState();
   const [exercicios, setExercicios] = useState([]);
   const [user, setUser] = useState();
   const treino = route.params.treino;
   const [listExercicio, setListExercicio] = useState(route.params.treinoDetalhe);
   const [disabledSalvar, setDisabledSalvar] = useState(true);
-  const [newRepeticoesMinimo, setNewRepeticoesMinimo] = useState();
-  const [newRepeticoesMaximo, setNewRepeticoesMaximo] = useState();
   const [campoAdicionando, setCampoAdicionando] = useState(false);
   const [tituloAdicionar, setTituloAdicionar] = useState(null);
   const [cargaAdicionar, setCargaAdicionar] = useState(null);
@@ -50,18 +45,6 @@ export default function DetalhesTreino({ navigation }) {
     return new Promise(result => setTimeout(result, ms))
   };
 
-  const fetchExerciciosSelectDetalhes = async (exercicio) => {
-    try {
-      const filterList = listExercicio.filter((item) => item.id === exercicio);
-
-      setExercicioSelectDetalhe(filterList);
-    } catch {
-      console.log(error)(
-        "Erro na função fetchExerciciosSelectDetalhes: ",
-        error
-      );
-    }
-  };
   const fetchExercicios = async () => {
     try {
       setLoadingVisible(true);
@@ -224,28 +207,12 @@ export default function DetalhesTreino({ navigation }) {
               </View>
             )}
             <ModalContent
-              exercicioSelectDetalhe={exercicioSelectDetalhe}
-              setCampoEditando={setCampoEditando}
+              userId={user}
+              treinoId={treino}
+              exercicioId={exercicioSelectDetalhe}
               setModalVisible={setModalVisible}
             />
           </View>
-          <SlidePanelEdicoes
-          campoEditando={campoEditando}
-          disabledSalvar={disabledSalvar}
-          setDisabledSalvar={setDisabledSalvar}
-          newExercicioSelect={newExercicioSelect}
-          setNewExercicioSelect={setNewExercicioSelect}
-          setCampoEditando={setCampoEditando}
-          setNewParametros={setNewParametros}
-          listExercicio={listExercicio}
-          exercicios={exercicios}
-          treino={treino}
-          exercicioSelectDetalhe={exercicioSelectDetalhe}
-          newRepeticoesMinimo={newRepeticoesMinimo}
-          setNewRepeticoesMinimo={setNewRepeticoesMinimo}
-          newRepeticoesMaximo={newRepeticoesMaximo}
-          setNewRepeticoesMaximo={setNewRepeticoesMaximo}
-        />
       </View>
     )}
     <VirtualizedList
@@ -258,9 +225,8 @@ export default function DetalhesTreino({ navigation }) {
             <TouchableOpacity
               style={{ ...styles.buttonListExercicio, flexDirection: "row" }}
               onPress={() => (
-                fetchExerciciosSelectDetalhes(item.id),
-                setModalVisible(true),
-                setNewExercicioSelect(item.titulo)
+                setExercicioSelectDetalhe(item.id),
+                setModalVisible(true)
               )}
             >
               <Text style={{ ...styles.textListExercicio, flex: 1 }}>

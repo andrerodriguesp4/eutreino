@@ -33,6 +33,8 @@ const WorkoutScreen = ({ navigation }) => {
             setAlreadyDone(alreadyDone);
 
             const listaExercicios = await getExerciciosDoTreino(userId, workout.id);
+            console.log(workout);
+            console.log(listaExercicios);
             setExercicios(listaExercicios);
             setWorkoutVisible(true);
         } catch (error) {
