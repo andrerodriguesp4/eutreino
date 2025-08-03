@@ -6,22 +6,27 @@ export default function CampoBox({
     placeholder,
     setter,
     editable,
-    setDisabledSalvar,
+    setDisabledSave,
+    customComponent,
 }){
     
     return(
         <View style={styles.campoBox}>
             <Text style={styles.label}>{label}</Text>
-            <TextInput
-                value={value}
-                placeholder={placeholder}
-                editable={editable}
-                pointerEvents="none"
-                placeholderTextColor="#666"
-                style={styles.inputProfile}
-                onChange={() => setDisabledSalvar(false)}
-                onChangeText={setter}
-            />
+
+            {customComponent ? (
+                customComponent
+            ) :(
+                <TextInput
+                    value={value}
+                    placeholder={placeholder}
+                    editable={editable}
+                    placeholderTextColor="#666"
+                    style={styles.inputProfile}
+                    onChange={() => setDisabledSave(false)}
+                    onChangeText={setter}
+                />
+            )}
         </View>
     );
 };

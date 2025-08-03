@@ -1,130 +1,101 @@
-import { View, Text, VirtualizedList, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, VirtualizedList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
-import { collection, getDocs, doc, updateDoc, query, where, setDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getUser } from '../services/getUser';
-import ModalContent from "./components/ModalContent";
-import FormularioAdicionarExercicio from "./components/FormularioAdicionarExercicio";
+import SetExerciseForm from "./components/SetExerciseForm";
+import { fetchUserExercises } from "../services/fetchUserExercises";
 
 export default function DetalhesTreino({ navigation }) {
   const route = useRoute();
   const [exercicioSelectDetalhe, setExercicioSelectDetalhe] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [exercicios, setExercicios] = useState([]);
   const [user, setUser] = useState();
   const treino = route.params.treino;
   const [listExercicio, setListExercicio] = useState(route.params.treinoDetalhe);
-  const [disabledSalvar, setDisabledSalvar] = useState(true);
-  const [campoAdicionando, setCampoAdicionando] = useState(false);
-  const [tituloAdicionar, setTituloAdicionar] = useState(null);
-  const [cargaAdicionar, setCargaAdicionar] = useState(null);
-  const [repeticoesMinimoAdicionar, setRepeticoesMinimoAdicionar] = useState(null);
-  const [repeticoesMaximoAdicionar, setRepeticoesMaximoAdicionar] = useState(null);
-  const [seriesAdicionar, setSeriesAdicionar] = useState(null);
-  const [descansoAdicionar, setDescansoAdicionar] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [items, setItems] = useState([]);
+  
+  const [addExerciseVisible, setAddExerciseVisible] = useState(false);
+  const [updateVisible, setUpdateVisible] = useState(false);
   const [loadingVisible, setLoadingVisible] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     getUser(setUser, navigation);
-    fetchExercicios();
   }, []);
-  useEffect(() => {
-    const itensAtualizados = exercicios.map((item) => ({
-      label: item.titulo,
-      value: item.titulo,
-    }));
-    setItems(itensAtualizados);
-  }, [exercicios]);
 
   function sleep(ms){
     return new Promise(result => setTimeout(result, ms))
   };
-
-  const fetchExercicios = async () => {
-    try {
-      setLoadingVisible(true);
-      const exerciciosCollection = collection(db, "exercicios");
-      const querySnapshot = await getDocs(exerciciosCollection);
-
-      const exerciciosList = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-      }));
-
-      setExercicios(exerciciosList);
-      await sleep(500);
-      setLoadingVisible(false);
-      
-    } catch (error) {
-      console.log("Erro na função fetchExercicios: ", error);
-    }
-  };
-
-  async function setNewParametros(treino, exercicio, parametro, newParametros) {
-    try {
-      setLoadingVisible(true);
-      const treinosCollection = collection(db, `users/${user}/treinos/${treino}/exercicios`);
-
-      const docSelect = query(treinosCollection, where("id", "==", exercicio));
-      const querySnapshot = await getDocs(docSelect);
-
-      for (const document of querySnapshot.docs) {
-        await updateDoc(doc(db, document.ref.path), {
-          [parametro]: newParametros,
-        });
+  
+  const handleUpdateExercise = async (titulo, carga, series, descanso, modoRepeticoes, valorFixoReps, valorMinimoReps, valorMaximoReps) => {
+    const exercise = await fetchUserExercises(user, treino, exercicioSelectDetalhe);
+    setIsUpdating(true);
+    
+    const dadosAtualizados = {};
+    if (carga !== exercise.carga) dadosAtualizados.carga = carga;
+    if (series !== exercise.series) dadosAtualizados.series = series;
+    if (descanso !== exercise.descanso) dadosAtualizados.descanso = descanso;
+    
+    if (modoRepeticoes === 'fixo') {
+      if (!valorFixoReps) {
+        Alert.alert('Erro', 'Informe o valor fixo das repetições.');
+        setIsUpdating(false);
+        return;
       }
-
-      const atualizarItem = (item) => {
-        if (item.id !== exercicio) return item;
-
-        if (parametro.startsWith("repeticoes.")) {
-          const subCampo = parametro.split(".")[1];
-          return {
-            ...item,
-            repeticoes: {
-              ...item.repeticoes,
-              [subCampo]: newParametros,
-            },
-          };
-        }
-        
-        return {
-          ...item,
-          [parametro]: newParametros,
-        };
+      dadosAtualizados.repeticoes = {
+        tipo: 'fixo',
+        valor: valorFixoReps,
       };
-
-      setListExercicio((prev) => prev.map(atualizarItem));
-
-      setExercicioSelectDetalhe((prev) => prev.map(atualizarItem));
-
-      setCampoEditando(null);
-      setNewRepeticoesMaximo(null);
-      setNewRepeticoesMinimo(null);
-      setDisabledSalvar(true);
-      await sleep(50);
-      setLoadingVisible(false);
+    } else if (modoRepeticoes === 'intervalo') {
+      if (!valorMinimoReps || !valorMaximoReps) {
+        Alert.alert('Erro', 'Informe o mínimo e máximo de repetições.');
+        setIsUpdating(false);
+        return;
+      }
+      dadosAtualizados.repeticoes = {
+        tipo: 'intervalo',
+        minimo: valorMinimoReps,
+        maximo: valorMaximoReps,
+      };
+    }
+    
+    try {
+      await updateDoc(doc(db, 'users', String(user), 'treinos', String(treino), 'exercicios', String(exercicioSelectDetalhe)), dadosAtualizados);
+      Alert.alert('Sucesso', 'Dados atualizados!');
+      setUpdateVisible(false);
     } catch (error) {
-      console.log("Erro na função setNewParametros:", error);
+      console.log(error)
+      Alert.alert('Erro', 'Não foi possível atualizar os dados.')
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  async function setNewExercicio(treino, titulo, carga, minimo, maximo, series, descanso) {
-  try {
+  const handleNewExercise = async (titulo, carga, series, descanso, modoRepeticoes, valorFixoReps, valorMinimoReps, valorMaximoReps) => {
     setLoadingVisible(true);
+    
     if (!titulo) {
-      alert("Selecione o exercício!");
-    } else {
-      const exerciciosRef = collection(
-        db,
-        `users/${user}/treinos/${treino}/exercicios`
-      );
+      Alert.alert("Selecione o exercício!");
+      setLoadingVisible(false);
+      return;
+    }
+    if (modoRepeticoes === 'fixo' && !valorFixoReps) {
+      Alert.alert('Erro', 'Informe o valor fixo das repetições.');
+      setLoadingVisible(false);
+      return;
+    }
+    if (modoRepeticoes === 'intervalo' && (!valorMinimoReps || !valorMaximoReps)) {
+      Alert.alert('Erro', 'Informe o mínimo e máximo de repetições.');
+      setLoadingVisible(false);
+      return;
+    }
+    
+    try {      
+      const exerciciosRef = collection(db, `users/${user}/treinos/${treino}/exercicios`);
       const snapshot = await getDocs(exerciciosRef);
-
+      
       let maiorId = -1;
       snapshot.forEach((doc) => {
         const data = doc.data();
@@ -132,46 +103,63 @@ export default function DetalhesTreino({ navigation }) {
           maiorId = data.id;
         }
       });
-
+      
       const novoId = maiorId + 1;
-
+      
+      let repeticoes = {};
+      if (modoRepeticoes === 'fixo') {
+        repeticoes = { tipo: 'fixo', valor: valorFixoReps };
+      } else if (modoRepeticoes === 'intervalo') {
+        repeticoes = { tipo: 'intervalo', minimo: valorMinimoReps, maximo: valorMaximoReps };
+      }
+      
       await setDoc(doc(exerciciosRef, novoId.toString()), {
         titulo,
         carga,
-        repeticoes: { minimo, maximo },
         series,
         descanso,
+        repeticoes,
         id: novoId,
         checkButton: 0,
       });
-
+      
       setListExercicio((prev) => [
         ...prev,
         {
           titulo,
           carga,
-          repeticoes: { minimo, maximo },
           series,
           descanso,
+          repeticoes,
           id: novoId,
           checkButton: 0,
         },
       ]);
-
-      setCampoAdicionando(false);
-      setOpen(false);
-      setDisabledSalvar(true);
-      setTituloAdicionar(null);
-      setCargaAdicionar(null);
-      setRepeticoesMinimoAdicionar(null);
-      setRepeticoesMaximoAdicionar(null);
-      setSeriesAdicionar(null);
-      setDescansoAdicionar(null);
+    } catch (error) {
+      console.log("Erro na função handleNewExercise", error);
+      setLoadingVisible(false);
+    } finally {
       setLoadingVisible(false);
     }
-  } catch (error) {
-    console.log("Erro na função setNewExercicio", error);
   }
+
+  async function setCheckButton(exercicioId, newValor) {
+    try {
+      setLoadingVisible(true);
+      
+      await updateDoc(doc(db, 'users', String(user), 'treinos', String(treino), 'exercicios', String(exercicioId)), {checkButton: newValor});
+      setListExercicio((prev) =>
+        prev.map((item) =>
+          item.id === exercicioId ? {...item, checkButton: newValor} : item
+        )
+      );
+
+      await sleep(50);
+    } catch (error) {
+      console.log("Erro na função setCheckButton:", error);
+    } finally {
+      setLoadingVisible(false);
+    }
   };
 
   async function deleteExercicio(user, treino, exercicioId) {
@@ -196,9 +184,10 @@ export default function DetalhesTreino({ navigation }) {
     }
   }
   
+  if (isUpdating){ <ActivityIndicator size="large" color="#FA801C" style={{ marginTop: 20 }} />}
   return (
     <View style={styles.container}>
-      {modalVisible && (
+      {updateVisible && (
         <View style={styles.overlay}>
           <View style={styles.containerModal}>
             {loadingVisible && (
@@ -206,11 +195,12 @@ export default function DetalhesTreino({ navigation }) {
                 <ActivityIndicator size={"large"} color={"black"} />
               </View>
             )}
-            <ModalContent
+            <SetExerciseForm
               userId={user}
               treinoId={treino}
               exercicioId={exercicioSelectDetalhe}
-              setModalVisible={setModalVisible}
+              setVisible={setUpdateVisible}
+              setExerciseFunction={handleUpdateExercise}
             />
           </View>
       </View>
@@ -226,7 +216,7 @@ export default function DetalhesTreino({ navigation }) {
               style={{ ...styles.buttonListExercicio, flexDirection: "row" }}
               onPress={() => (
                 setExercicioSelectDetalhe(item.id),
-                setModalVisible(true)
+                setUpdateVisible(true)
               )}
             >
               <Text style={{ ...styles.textListExercicio, flex: 1 }}>
@@ -234,10 +224,8 @@ export default function DetalhesTreino({ navigation }) {
               </Text>
               <View style={{ flexDirection: "row" }}>
                 <TouchableOpacity onPress={() => 
-                  setNewParametros(
-                    treino,
+                  setCheckButton(
                     item.id,
-                    'checkButton',
                     item.checkButton === 0 ? 1 : 0
                 )}>
                   <Ionicons
@@ -268,7 +256,7 @@ export default function DetalhesTreino({ navigation }) {
               alignItems: "center",
               flexDirection: "row",
             }}
-            onPress={() => setCampoAdicionando(true)}
+            onPress={() => setAddExerciseVisible(true)}
           >
             <FontAwesome5 name="plus" color={"white"} size={20} />
             <Text style={{ ...styles.textAdicionarExercicio, marginLeft: 5 }}>
@@ -277,30 +265,26 @@ export default function DetalhesTreino({ navigation }) {
           </TouchableOpacity>
         )}
       />
-      <FormularioAdicionarExercicio
-      open={open}
-      setOpen={setOpen}
-      items={items}
-      setItems={setItems}
-      tituloAdicionar={tituloAdicionar}
-      setTituloAdicionar={setTituloAdicionar}
-      cargaAdicionar={cargaAdicionar}
-      setCargaAdicionar={setCargaAdicionar}
-      repeticoesMinimoAdicionar={repeticoesMinimoAdicionar}
-      setRepeticoesMinimoAdicionar={setRepeticoesMinimoAdicionar}
-      repeticoesMaximoAdicionar={repeticoesMaximoAdicionar}
-      setRepeticoesMaximoAdicionar={setRepeticoesMaximoAdicionar}
-      seriesAdicionar={seriesAdicionar}
-      setSeriesAdicionar={setSeriesAdicionar}
-      descansoAdicionar={descansoAdicionar}
-      setDescansoAdicionar={setDescansoAdicionar}
-      disabledSalvar={disabledSalvar}
-      setDisabledSalvar={setDisabledSalvar}
-      setCampoAdicionando={setCampoAdicionando}
-      setNewExercicio={setNewExercicio}
-      treino={treino}
-      campoAdicionando={campoAdicionando}
-      />
+      {addExerciseVisible && (
+        <View style={styles.overlay}>
+          <View style={styles.containerModal}>
+            {loadingVisible && (
+              <View style={styles.viewLoading}>
+                <ActivityIndicator size={"large"} color={"black"} />
+              </View>
+            )}
+            <SetExerciseForm
+              userId={user}
+              treinoId={treino}
+              exercicioId={exercicioSelectDetalhe}
+              setVisible={setAddExerciseVisible}
+              setExerciseFunction={handleNewExercise}
+              isNew={true}
+            />
+          </View>
+      </View>
+    )}
+
       {loadingVisible && (
         <View style={styles.viewLoading}>
           <ActivityIndicator
