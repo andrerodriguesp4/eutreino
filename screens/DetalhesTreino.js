@@ -1,4 +1,4 @@
-import { View, Text, VirtualizedList, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, FlatList } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
 import { collection, getDocs, doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
@@ -64,12 +64,12 @@ export default function DetalhesTreino({ navigation }) {
     try {
       await updateDoc(doc(db, 'users', String(user), 'treinos', String(treino), 'exercicios', String(exercicioSelectDetalhe)), dadosAtualizados);
       Alert.alert('Sucesso', 'Dados atualizados!');
-      setUpdateVisible(false);
     } catch (error) {
       console.log(error)
       Alert.alert('Erro', 'Não foi possível atualizar os dados.')
     } finally {
       setIsUpdating(false);
+      setUpdateVisible(false);
     }
   };
 
@@ -140,13 +140,12 @@ export default function DetalhesTreino({ navigation }) {
       setLoadingVisible(false);
     } finally {
       setLoadingVisible(false);
+      setAddExerciseVisible(false);
     }
   }
 
   async function setCheckButton(exercicioId, newValor) {
     try {
-      setLoadingVisible(true);
-      
       await updateDoc(doc(db, 'users', String(user), 'treinos', String(treino), 'exercicios', String(exercicioId)), {checkButton: newValor});
       setListExercicio((prev) =>
         prev.map((item) =>
@@ -157,8 +156,6 @@ export default function DetalhesTreino({ navigation }) {
       await sleep(50);
     } catch (error) {
       console.log("Erro na função setCheckButton:", error);
-    } finally {
-      setLoadingVisible(false);
     }
   };
 
@@ -189,99 +186,94 @@ export default function DetalhesTreino({ navigation }) {
     <View style={styles.container}>
       {updateVisible && (
         <View style={styles.overlay}>
-          <View style={styles.containerModal}>
-            {loadingVisible && (
-              <View style={styles.viewLoading}>
-                <ActivityIndicator size={"large"} color={"black"} />
-              </View>
-            )}
-            <SetExerciseForm
-              userId={user}
-              treinoId={treino}
-              exercicioId={exercicioSelectDetalhe}
-              setVisible={setUpdateVisible}
-              setExerciseFunction={handleUpdateExercise}
-            />
-          </View>
+          {loadingVisible && (
+            <View style={styles.viewLoading}>
+              <ActivityIndicator size={"large"} color={"black"} />
+            </View>
+          )}
+          <SetExerciseForm
+            userId={user}
+            treinoId={treino}
+            exercicioId={exercicioSelectDetalhe}
+            setVisible={setUpdateVisible}
+            setExerciseFunction={handleUpdateExercise}
+          />
       </View>
     )}
-    <VirtualizedList
-        style={styles.viewVirtualizedList}
-        data={listExercicio}
-        getItemCount={(treinoDetalhe) => treinoDetalhe.length}
-        getItem={(treinoDetalhe, index) => treinoDetalhe[index]}
-        renderItem={({ item, index }) => (
-          <View key={index}>
-            <TouchableOpacity
-              style={{ ...styles.buttonListExercicio, flexDirection: "row" }}
-              onPress={() => (
-                setExercicioSelectDetalhe(item.id),
-                setUpdateVisible(true)
-              )}
-            >
-              <Text style={{ ...styles.textListExercicio, flex: 1 }}>
-                {item.titulo}
-              </Text>
-              <View style={{ flexDirection: "row" }}>
-                <TouchableOpacity onPress={() => 
-                  setCheckButton(
-                    item.id,
-                    item.checkButton === 0 ? 1 : 0
-                )}>
-                  <Ionicons
-                    name={item.checkButton === 1 ? 'checkmark-outline' : 'stop-outline'}
-                    size={22}
-                    color={"#ffffff"}
-                    style={styles.buttonListExercicio}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteExercicio(user, treino, item.id)}>
-                  <FontAwesome5
-                    name="trash-alt"
-                    size={20}
-                    color={"#ffffff"}
-                    style={styles.buttonListExercicio}
-                  />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-        ListFooterComponent={() => (
+    <FlatList
+      style={styles.viewVirtualizedList}
+      data={listExercicio}
+      renderItem={({ item, index }) => (
+        <View key={index}>
           <TouchableOpacity
-            style={{
-              ...styles.buttonAdicionarExercicio,
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
+            style={{ ...styles.buttonListExercicio, flexDirection: "row" }}
+            onPress={() => {
+              setExercicioSelectDetalhe(item.id);
+              setUpdateVisible(true);
             }}
-            onPress={() => setAddExerciseVisible(true)}
           >
-            <FontAwesome5 name="plus" color={"white"} size={20} />
-            <Text style={{ ...styles.textAdicionarExercicio, marginLeft: 5 }}>
-              Adicionar Exercício
+            <Text style={{ ...styles.textListExercicio, flex: 1 }}>
+              {item.titulo}
             </Text>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity onPress={() => 
+                setCheckButton(
+                  item.id,
+                  item.checkButton === 0 ? 1 : 0
+                )}
+              >
+                <Ionicons
+                  name={item.checkButton === 1 ? 'checkmark-outline' : 'stop-outline'}
+                  size={22}
+                  color={"#ffffff"}
+                  style={styles.buttonListExercicio}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteExercicio(user, treino, item.id)}>
+                <FontAwesome5
+                  name="trash-alt"
+                  size={20}
+                  color={"#ffffff"}
+                  style={styles.buttonListExercicio}
+                />
+              </TouchableOpacity>
+            </View>
           </TouchableOpacity>
-        )}
-      />
+        </View>
+      )}
+      keyExtractor={(item, index) => index.toString()}
+      ListFooterComponent={() => (
+        <TouchableOpacity
+          style={{
+            ...styles.buttonAdicionarExercicio,
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+          onPress={() => setAddExerciseVisible(true)}
+        >
+          <FontAwesome5 name="plus" color={"white"} size={20} />
+          <Text style={{ ...styles.textAdicionarExercicio, marginLeft: 5 }}>
+            Adicionar Exercício
+          </Text>
+        </TouchableOpacity>
+      )}
+    />
       {addExerciseVisible && (
         <View style={styles.overlay}>
-          <View style={styles.containerModal}>
-            {loadingVisible && (
-              <View style={styles.viewLoading}>
-                <ActivityIndicator size={"large"} color={"black"} />
-              </View>
-            )}
-            <SetExerciseForm
-              userId={user}
-              treinoId={treino}
-              exercicioId={exercicioSelectDetalhe}
-              setVisible={setAddExerciseVisible}
-              setExerciseFunction={handleNewExercise}
-              isNew={true}
-            />
-          </View>
+          {loadingVisible && (
+            <View style={styles.viewLoading}>
+              <ActivityIndicator size={"large"} color={"black"} />
+            </View>
+          )}
+          <SetExerciseForm
+            userId={user}
+            treinoId={treino}
+            exercicioId={exercicioSelectDetalhe}
+            setVisible={setAddExerciseVisible}
+            setExerciseFunction={handleNewExercise}
+            isNew={true}
+          />
       </View>
     )}
 
@@ -303,19 +295,9 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
   },
-  containerModal: {
-    flex: 1,
-    alignItems: "stretch",
-    justifyContent: "center",
-    width:'95%'
-  },
-  modalContent: {
-    alignItems: "center",
-  },  
   textListExercicio: {
     fontSize: 20,
     padding: 5,
@@ -352,7 +334,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 999,
     backgroundColor: '#ffffff',
-    justifyContent: 'center',
     alignItems: 'center',
   },
 });
