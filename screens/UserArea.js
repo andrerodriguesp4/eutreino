@@ -4,7 +4,7 @@ import Treinos from "./Treinos";
 import Perfil from "./Perfil";
 import Timer from "./Timer";
 import WorkoutScreen from "./WorkoutScreen";
-import TrainingHistory from "./TrainingHistory";
+import TrainingHistory from "./account/TrainingHistory";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 const Tab = createBottomTabNavigator();

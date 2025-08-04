@@ -9,7 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import EditarPerfil from './screens/account/EditarPerfil';
 import MostrarAcademia from './screens/account/MostrarAcademia';
 import MostrarInformacoes from './screens/account/MostrarInformacoes';
-
+import TrainingHistory from './screens/account/TrainingHistory';
 import Login from './screens/LoginScreen';
 import PasswordUpdateScreen from './screens/account/components/PasswordUpdateScreen';
 
@@ -40,6 +40,7 @@ export default function App() {
           <Stack.Screen name='PasswordUpdate' component={PasswordUpdateScreen} options={{title: 'Senha'}}/>
           <Stack.Screen name='MostrarAcademia' component={MostrarAcademia} options={{ title: 'Academia' }} />
           <Stack.Screen name='MostrarInformacoes' component={MostrarInformacoes} options={{ title: 'Informações' }} />
+          <Stack.Screen name='TrainingHistory' component={TrainingHistory} options={{ title: 'Histórico de Treinos' }} />
         </Stack.Navigator>
         
       </NavigationContainer>

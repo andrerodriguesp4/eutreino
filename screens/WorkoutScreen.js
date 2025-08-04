@@ -44,7 +44,7 @@ const WorkoutScreen = ({ navigation }) => {
     };
     
     const handleDone = async () => {
-        await markWorkoutAsDone(userId, workout.index);
+        await markWorkoutAsDone(userId, workout.index, workout?.id);
         setAlreadyDone(true);
         alert('Treino marcado como feito!');
     };

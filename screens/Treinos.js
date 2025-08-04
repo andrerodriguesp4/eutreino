@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, TextInput, ActivityIndicator} from "react-native";
 import { db } from "../firebaseConfig";
 import {collection, getDocs, doc, setDoc, deleteDoc} from "firebase/firestore";
-import {useEffect, useState } from "react";
+import {useEffect, useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
 import { getUser } from '../services/getUser';
@@ -19,9 +20,15 @@ export default function Treinos({navigation}){
         getUser(setUser, navigation);
     }, []);
 
-    useEffect(() =>{
-        if(user){loadTreinos();}
-    }, [user])
+    // useEffect(() =>{
+    //     if(user){loadTreinos();}
+    // }, [user])
+
+    useFocusEffect(
+        useCallback(() => {
+            if(user){loadTreinos();}
+        }, [user])
+    );
 
     useEffect(() => {
         if (user) {
@@ -122,20 +129,24 @@ export default function Treinos({navigation}){
                 data={treinos}
                 getItemCount={() => treinos.length}
                 getItem={(data, index) => data[index]}
-                renderItem={({item}) => (
-                    <TouchableOpacity onPress={async() => {
-                                    const detalhes = await getExerciciosDoTreino(user, item.id);
-                                    navigation.navigate('DetalhesTreino', {
-                                        treinoDetalhe: detalhes, treino: item.id, });
-                            }}>
-                        <View style={{...styles.listaTreinos, flexDirection: 'row'}} key={item.id}>
-                                <Text style={{...styles.textTituloTreino, flex: 1}}>{item.titulo}</Text>
-                                <TouchableOpacity onPress={() => (setTreinoId(item.id), setCampoConfirmacao(true))}>
-                                    <FontAwesome5 name="trash-alt" size={20}/>
-                                </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                )}
+                renderItem={({item}) => {
+                    if(!item.workoutDone){
+                        return (
+                            <TouchableOpacity onPress={async() => {
+                                        const detalhes = await getExerciciosDoTreino(user, item.id);
+                                        navigation.navigate('DetalhesTreino', {
+                                            treinoDetalhe: detalhes, treino: item.id, });
+                                }}>
+                            <View style={{...styles.listaTreinos, flexDirection: 'row'}} key={item.id}>
+                                    <Text style={{...styles.textTituloTreino, flex: 1}}>{item.titulo}</Text>
+                                    <TouchableOpacity onPress={() => (setTreinoId(item.id), setCampoConfirmacao(true))}>
+                                        <FontAwesome5 name="trash-alt" size={20}/>
+                                    </TouchableOpacity>
+                            </View>
+                        </TouchableOpacity>
+                            )
+                    }
+                }}
                 keyExtractor={(item) => item.id}
                 ListFooterComponent={() => (
                     <TouchableOpacity

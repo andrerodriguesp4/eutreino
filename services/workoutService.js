@@ -56,14 +56,18 @@ export async function getTodayWorkout(userId) {
   };
 }
 
-export async function markWorkoutAsDone(userId, workoutIndex) {
+export async function markWorkoutAsDone(userId, workoutIndex, treinoId) {
   const userRef = doc(db, 'users', userId);
+  const treinoRef = doc(db, `users/${userId}/treinos/${treinoId}`)
   const today = moment().format('YYYY-MM-DD');
 
   await updateDoc(userRef, {
     lastWorkoutIndex: workoutIndex,
     lastWorkoutDate: today
   });
+  await updateDoc(treinoRef, {
+    workoutDone: today,
+  })
 
   return true;
 }

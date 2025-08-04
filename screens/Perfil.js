@@ -36,6 +36,7 @@ export default function Perfil({navigation}){
               <MenuItem label="Conta" icon="user" screen="EditarPerfil" />
               <MenuItem label="Academia" icon="dumbbell" screen="MostrarAcademia" />
               <MenuItem label="Informações" icon="info-circle" screen="MostrarInformacoes" />
+              <MenuItem label="Histórico de Treinos" icon="history" screen="TrainingHistory" />
           </View>
           <TouchableOpacity style={styles.logoutButton} onPress={() => sair()}>
               <FontAwesome5 name="sign-out-alt" size={22} color="#FA801C" style={styles.logoutIcon} />
