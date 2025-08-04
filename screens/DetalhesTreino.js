@@ -14,7 +14,7 @@ export default function DetalhesTreino({ navigation }) {
   const [exercicioSelectDetalhe, setExercicioSelectDetalhe] = useState([]);
   const [user, setUser] = useState();
   const treino = route.params.treino;
-  const [listExercicio, setListExercicio] = useState(route.params.treinoDetalhe);
+  const [listExercicio, setListExercicio] = useState([]);
   
   const [addExerciseVisible, setAddExerciseVisible] = useState(false);
   const [updateVisible, setUpdateVisible] = useState(false);
@@ -25,8 +25,17 @@ export default function DetalhesTreino({ navigation }) {
     getUser(setUser, navigation);
   }, []);
 
+  useEffect(() => {
+    if (user) {handleUserExercises();}
+  }, [user, treino]);
+
   function sleep(ms){
     return new Promise(result => setTimeout(result, ms))
+  };
+
+  async function handleUserExercises(){
+    const listaExercicios = await fetchUserExercises(user, treino);
+    setListExercicio(listaExercicios);
   };
   
   const handleUpdateExercise = async (titulo, carga, series, descanso, modoRepeticoes, valorFixoReps, valorMinimoReps, valorMaximoReps) => {
@@ -123,18 +132,7 @@ export default function DetalhesTreino({ navigation }) {
         checkButton: 0,
       });
       
-      setListExercicio((prev) => [
-        ...prev,
-        {
-          titulo,
-          carga,
-          series,
-          descanso,
-          repeticoes,
-          id: novoId,
-          checkButton: 0,
-        },
-      ]);
+      await handleUserExercises();
     } catch (error) {
       console.log("Erro na função handleNewExercise", error);
       setLoadingVisible(false);
@@ -163,23 +161,13 @@ export default function DetalhesTreino({ navigation }) {
     try{
       setLoadingVisible(true);
       await deleteDoc(doc(db, `users/${user}/treinos/${treino}/exercicios`, exercicioId.toString()));
-      fetchListaExercicios(user, treino);
-      setLoadingVisible(false);
+      await handleUserExercises();
     }catch(error){
       console.log('Erro na função deleteExercicio', error);
+    } finally{
+      setLoadingVisible(false);
     }
   };
-
-  async function fetchListaExercicios(user, treino) {
-    try{
-      const exerciciosRef = collection(db, `users/${user}/treinos/${treino}/exercicios`);
-      const snapshot = await getDocs(exerciciosRef);
-      const novaLista = snapshot.docs.map(doc => doc.data());
-      setListExercicio(novaLista);    
-    }catch(error){
-      console.log('Erro na função fetchListaExercicio', error);
-    }
-  }
   
   if (isUpdating){ <ActivityIndicator size="large" color="#FA801C" style={{ marginTop: 20 }} />}
   return (

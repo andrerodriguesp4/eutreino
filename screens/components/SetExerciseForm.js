@@ -66,7 +66,8 @@ export default function SetExerciseForm({
   };
 
   const handleFetchUserExercises = async () => {
-    const exercicioSelecionado = await fetchUserExercises(userId, treinoId, exercicioId);
+    const listaExercicios = await fetchUserExercises(userId, treinoId, exercicioId);
+    const exercicioSelecionado = listaExercicios[exercicioId];
     setTitulo(exercicioSelecionado.titulo || '');
     setCarga(exercicioSelecionado.carga || '');
     setSeries(exercicioSelecionado.series || '');
@@ -96,167 +97,162 @@ export default function SetExerciseForm({
       keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 80} // Não sei no Iphone, não tenho um pra testar
     >
       <Pressable onPress={Keyboard.dismiss}>
-        <ScrollView
-          contentContainerStyle={{flexGrow: 1, justifyContent: 'center'}}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.slidePanel}>
-            <View style={{flexDirection:'row', width: '98%', justifyContent:'flex-end', marginBottom: '20'}}>
-              <TouchableOpacity onPress={() => setVisible(false)}>
-                <FontAwesome5 name="times" size={25} />
-              </TouchableOpacity>
-            </View>
+        <View style={styles.slidePanel}>
+          <View style={{flexDirection:'row', width: '98%', justifyContent:'flex-end', marginBottom: '20'}}>
+            <TouchableOpacity onPress={() => setVisible(false)}>
+              <FontAwesome5 name="times" size={25} />
+            </TouchableOpacity>
+          </View>
 
-            {isLoading ? (
-              <ActivityIndicator size={"large"} color={"black"}/>
-            ) : (
-              <>
-                <View>
-                  {isNew ? (
-                    <CampoBox
-                      label="Exercício:"
-                      value={titulo}
-                      setter={setTitulo}
-                      setDisabledSave={setDisabledSave}
-                      customComponent={
-                        <View style={{width:'60%'}}>
-                          <DropDownPicker
-                            open={open}
-                            setOpen={setOpen}
-                            value={titulo}
-                            setValue={setTitulo}
-                            items={filteredItens}
-                            searchable={true}
-                            searchPlaceholder="Buscar exercício"
-                            placeholder="-"
-                            style={styles.dropdown}
-                            dropDownContainerStyle={styles.dropdownContainer}
-                            onChangeSearchText={setSearchText}
-                          />
-                        </View>
-                      }
-                    />
-                  ) : (
-                    <CampoBox
-                      label={"Exercício:"}
-                      value={titulo}
-                      placeholder={titulo}
-                      setter={setTitulo}
-                      editable={false}
-                      setDisabledSave={setDisabledSave}
-                    />
-                  )}
-
+          {isLoading ? (
+            <ActivityIndicator size={"large"} color={"black"}/>
+          ) : (
+            <>
+              <View>
+                {isNew ? (
                   <CampoBox
-                    label={'Carga:'}
-                    value={carga}
-                    placeholder={`${carga ? carga : '10'} Kg`}
-                    setter={setCarga}
+                    label="Exercício:"
+                    value={titulo}
+                    setter={setTitulo}
+                    setDisabledSave={setDisabledSave}
+                    customComponent={
+                      <View style={{width:'60%'}}>
+                        <DropDownPicker
+                          open={open}
+                          setOpen={setOpen}
+                          value={titulo}
+                          setValue={setTitulo}
+                          items={filteredItens}
+                          searchable={true}
+                          searchPlaceholder="Buscar exercício"
+                          placeholder="-"
+                          style={styles.dropdown}
+                          dropDownContainerStyle={styles.dropdownContainer}
+                          onChangeSearchText={setSearchText}
+                        />
+                      </View>
+                    }
+                  />
+                ) : (
+                  <CampoBox
+                    label={"Exercício:"}
+                    value={titulo}
+                    placeholder={titulo}
+                    setter={setTitulo}
+                    editable={false}
+                    setDisabledSave={setDisabledSave}
+                  />
+                )}
+                
+                <CampoBox
+                  label={'Carga:'}
+                  value={carga}
+                  placeholder={`${carga ? carga : '10'} Kg`}
+                  setter={setCarga}
+                  editable={editable}
+                  setDisabledSave={setDisabledSave}
+                />
+
+                <Text style={styles.label}>Modo de Repetições:</Text>
+                <View style={{ flexDirection: 'row', marginVertical: 10, justifyContent:'space-evenly'}}>
+                  <TouchableOpacity
+                    onPress={() => setModoRepeticoes('fixo')}
+                    style={{
+                      backgroundColor: modoRepeticoes === 'fixo' ? '#ccc' : '#eee',
+                      padding: 10,
+                      borderRadius: 5,
+                      marginRight: 5,
+                    }}
+                  >
+                    <Text>Fixo</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setModoRepeticoes('intervalo')}
+                    style={{
+                      backgroundColor: modoRepeticoes === 'intervalo' ? '#ccc' : '#eee',
+                      padding: 10,
+                      borderRadius: 5,
+                    }}
+                  >
+                    <Text>Intervalo</Text>
+                  </TouchableOpacity>
+                </View>
+                {modoRepeticoes === 'fixo' ? (
+                  <CampoBox
+                    label="Repetições:"
+                    value={valorFixoReps}
+                    placeholder="12"
+                    setter={setValorFixoReps}
                     editable={editable}
                     setDisabledSave={setDisabledSave}
                   />
-
-                  <Text style={styles.label}>Modo de Repetições:</Text>
-                  <View style={{ flexDirection: 'row', marginVertical: 10, justifyContent:'space-evenly'}}>
-                    <TouchableOpacity
-                      onPress={() => setModoRepeticoes('fixo')}
-                      style={{
-                        backgroundColor: modoRepeticoes === 'fixo' ? '#ccc' : '#eee',
-                        padding: 10,
-                        borderRadius: 5,
-                        marginRight: 5,
-                      }}
-                    >
-                      <Text>Fixo</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => setModoRepeticoes('intervalo')}
-                      style={{
-                        backgroundColor: modoRepeticoes === 'intervalo' ? '#ccc' : '#eee',
-                        padding: 10,
-                        borderRadius: 5,
-                      }}
-                    >
-                      <Text>Intervalo</Text>
-                    </TouchableOpacity>
-                  </View>
-                  {modoRepeticoes === 'fixo' ? (
+                ) : (
+                  <>
                     <CampoBox
-                      label="Repetições:"
-                      value={valorFixoReps}
-                      placeholder="12"
-                      setter={setValorFixoReps}
+                      label="Minimo:"
+                      value={valorMinimoReps}
+                      placeholder="8"
+                      setter={setValorMinimoReps}
                       editable={editable}
                       setDisabledSave={setDisabledSave}
                     />
-                  ) : (
-                    <>
-                      <CampoBox
-                        label="Minimo:"
-                        value={valorMinimoReps}
-                        placeholder="8"
-                        setter={setValorMinimoReps}
-                        editable={editable}
-                        setDisabledSave={setDisabledSave}
-                      />
-                      <CampoBox
-                        label="Máximo"
-                        value={valorMaximoReps}
-                        placeholder="12"
-                        setter={setValorMaximoReps}
-                        editable={editable}
-                        setDisabledSave={setDisabledSave}
-                      />
-                    </>
-                  )}
+                    <CampoBox
+                      label="Máximo"
+                      value={valorMaximoReps}
+                      placeholder="12"
+                      setter={setValorMaximoReps}
+                      editable={editable}
+                      setDisabledSave={setDisabledSave}
+                    />
+                  </>
+                )}
 
-                  <CampoBox
-                    label={'Séries:'}
-                    value={series}
-                    placeholder={series ? series : "4"}
-                    setter={setSeries}
-                    editable={editable}
-                    setDisabledSave={setDisabledSave}
-                  />
-                  <CampoBox
-                    label={'Descanso:'}
-                    value={descanso}
-                    placeholder={`${descanso ? descanso : 30} segundos`}
-                    setter={setDescanso}
-                    editable={editable}
-                    setDisabledSave={setDisabledSave}
-                  />
+                <CampoBox
+                  label={'Séries:'}
+                  value={series}
+                  placeholder={series ? series : "4"}
+                  setter={setSeries}
+                  editable={editable}
+                  setDisabledSave={setDisabledSave}
+                />
+                <CampoBox
+                  label={'Descanso:'}
+                  value={descanso}
+                  placeholder={`${descanso ? descanso : 30} segundos`}
+                  setter={setDescanso}
+                  editable={editable}
+                  setDisabledSave={setDisabledSave}
+                />
 
-                  <View style={styles.campoBox}>
-                    {!isNew ? (
-                      <TouchableOpacity
-                        style={styles.actionButton}     
-                        onPress={() => setEditable(true)}
-                      >
-                        <Text style={{color: '#FA801C', fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Editar</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      null
-                    )}
+                <View style={styles.campoBox}>
+                  {!isNew ? (
                     <TouchableOpacity
-                      style={{
-                        ...styles.saveButton,
-                        opacity: disabledSave ? 0.5 : 1,
-                      }}
-                      disabled={disabledSave}
-                      onPress={() => {
-                        handleSetExercise();
-                        setEditable(false);
-                      }}
+                      style={styles.actionButton}     
+                      onPress={() => setEditable(true)}
                     >
-                      <Text style={{color: "#016401ef", fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Salvar</Text>
+                      <Text style={{color: '#FA801C', fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Editar</Text>
                     </TouchableOpacity>
-                  </View>
+                  ) : (
+                    null
+                  )}
+                  <TouchableOpacity
+                    style={{
+                      ...styles.saveButton,
+                      opacity: disabledSave ? 0.5 : 1,
+                    }}
+                    disabled={disabledSave}
+                    onPress={() => {
+                      handleSetExercise();
+                      setEditable(false);
+                    }}
+                  >
+                    <Text style={{color: "#016401ef", fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Salvar</Text>
+                  </TouchableOpacity>
                 </View>
-              </>
-            )}
-          </View>
-        </ScrollView>
+              </View>
+            </>
+          )}
+        </View>
       </Pressable>
     </KeyboardAvoidingView>
   );
