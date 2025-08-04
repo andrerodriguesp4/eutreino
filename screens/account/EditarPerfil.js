@@ -16,7 +16,7 @@ export default function EditarPerfil({navigation}){
     const [userId, setUserId] = useState('');    
     const [perfilName, setPerfilName] = useState('');
 
-    const [ShowDeleteModal, setShowDeleteModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
     const [deleting, setDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState('');
@@ -225,7 +225,7 @@ export default function EditarPerfil({navigation}){
                     </View>
                 </Modal>
                 <PasswordConfirmationModal
-                    visible={ShowDeleteModal}
+                    visible={showDeleteModal}
                     password={confirmPassword}
                     onChangePassword={setConfirmPassword}
                     onCancel={()=>{
