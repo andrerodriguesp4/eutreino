@@ -68,22 +68,6 @@ export default function EditarPerfil({navigation}){
         if (nickname !== originalData.nickname) dadosAtualizados.nickname = nickname;
         if (email !== originalData.email) dadosAtualizados.email = email;
 
-        // if (newPassword) {
-        //     if(!senha){
-        //         setPasswordError('Digite sua senha atual para alterar a senha');
-        //         return;
-        //     }
-        //     if (senha !== originalData.senha){
-        //         setPasswordError('Senha Incorreta');
-        //         return;
-        //     }
-        //     if (newPassword.length < 6){
-        //         setNewPasswordError('A senha deve ter pelo menos 6 caracteres')
-        //         return;
-        //     }
-        //     dadosAtualizados.senha = newPassword;
-        // }
-
         if (Object.keys(dadosAtualizados).length === 0){
             Alert.alert('Aviso', 'Nenhum dado foi alterado.');
             return;
