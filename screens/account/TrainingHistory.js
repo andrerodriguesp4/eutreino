@@ -1,4 +1,4 @@
-import { View, Text, VirtualizedList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, VirtualizedList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { getExerciciosDoTreino, getWorkouts } from '../../services/workoutService';
 import { useCallback, useEffect, useState } from 'react';
 import { getUser } from '../../services/getUser';
@@ -37,6 +37,14 @@ export default function TrainingHistory({navigation}){
 
     return (
         <View style={styles.container}>
+            {loadingVisible && (
+                <View style={styles.viewLoading}>
+                    <ActivityIndicator
+                        size={"large"}
+                        color={"black"}
+                    />
+                </View>
+            )}
             <VirtualizedList
                 data={treinos}
                 getItemCount={() => treinos.length}
@@ -71,5 +79,16 @@ const styles = StyleSheet.create({
     },
     textTraining:{
         padding: 10,
+    },
+    viewLoading: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 999,
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 })
