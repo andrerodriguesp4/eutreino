@@ -205,7 +205,7 @@ export default function EditarPerfil({navigation}){
                     animationType="fade"
                 >
                     <View style={styles.modalBackground}>
-                        <ActivityIndicator size="large" color="#007BFF" />  
+                        <ActivityIndicator size="large" color="black" />  
                     </View>
                 </Modal>
                 <PasswordConfirmationModal

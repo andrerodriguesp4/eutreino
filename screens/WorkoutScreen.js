@@ -4,6 +4,7 @@ import { getExerciciosDoTreino, getTodayWorkout, markWorkoutAsDone } from '../se
 import { getUser } from '../services/getUser';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import DisplayExercises from './components/DisplayExercises';
 
 const WorkoutScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
@@ -12,6 +13,8 @@ const WorkoutScreen = ({ navigation }) => {
     const [userId, setUserId] = useState(null);
     const [exercicios, setExercicios] = useState([]);
     const [workoutVisible, setWorkoutVisible] = useState(false);
+    const [selectedExercise, setSelectedExercise] = useState([]);
+    const [updateVisible, setUpdateVisible] = useState(false);
     
     useEffect(() =>{
         getUser(setUserId, navigation);
@@ -44,7 +47,7 @@ const WorkoutScreen = ({ navigation }) => {
     };
     
     const handleDone = async () => {
-        await markWorkoutAsDone(userId, workout.index, workout?.id);
+        await markWorkoutAsDone(userId, workout.index);
         setAlreadyDone(true);
         alert('Treino marcado como feito!');
     };
@@ -65,17 +68,15 @@ const WorkoutScreen = ({ navigation }) => {
                 )}
 
                 <Text style={styles.subtitle}>Exercícios:</Text>
-                <FlatList
-                    data={exercicios}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({item}) => (
-                        <View style={styles.exercicio}>
-                            <Text style={styles.exercicioNome}>{item.titulo}</Text>
-                            {/* Você pode exibir mais dados, como reps, series, etc */}
-                        </View>
-                    )}
-                    ListEmptyComponent={<Text>Nenhum exercicio cadastrado</Text>}
-                    contentContainerStyle={{paddingBottom: 40}}
+                <DisplayExercises
+                    user={userId}
+                    treino={workout.id}
+                    styles={styles}
+                    listExercicios={exercicios}
+                    setListExercicio={setExercicios}
+                    setExercicioSelectDetalhe={setSelectedExercise}
+                    setUpdateVisible={setUpdateVisible}
+                    deleteVisible={false}
                 />
             </View>
         )}
@@ -113,13 +114,5 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginTop: 20,
         marginBottom: 10,
-    },
-    exercicio: {
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc'
-    },
-    exercicioNome: {
-        fontSize:16
     },
 });

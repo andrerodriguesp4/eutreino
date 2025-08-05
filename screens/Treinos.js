@@ -20,13 +20,9 @@ export default function Treinos({navigation}){
         getUser(setUser, navigation);
     }, []);
 
-    // useEffect(() =>{
-    //     if(user){loadTreinos();}
-    // }, [user])
-
     useFocusEffect(
         useCallback(() => {
-            if(user){loadTreinos();}
+            loadTreinos();
         }, [user])
     );
 

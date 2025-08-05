@@ -1,13 +1,14 @@
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Modal } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
-import { collection, getDocs, doc, updateDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getUser } from '../services/getUser';
 import SetExerciseForm from "./components/SetExerciseForm";
 import { fetchUserExercises } from "../services/fetchUserExercises";
+import DisplayExercises from "./components/DisplayExercises";
+import { updateExercise } from "../services/updateExercise";
 
 export default function DetalhesTreino({ navigation }) {
   const route = useRoute();
@@ -19,7 +20,6 @@ export default function DetalhesTreino({ navigation }) {
   const [addExerciseVisible, setAddExerciseVisible] = useState(false);
   const [updateVisible, setUpdateVisible] = useState(false);
   const [loadingVisible, setLoadingVisible] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     getUser(setUser, navigation);
@@ -29,58 +29,23 @@ export default function DetalhesTreino({ navigation }) {
     if (user) {handleUserExercises();}
   }, [user, treino]);
 
-  function sleep(ms){
-    return new Promise(result => setTimeout(result, ms))
-  };
-
   async function handleUserExercises(){
     const listaExercicios = await fetchUserExercises(user, treino);
     setListExercicio(listaExercicios);
   };
   
   const handleUpdateExercise = async (titulo, carga, series, descanso, modoRepeticoes, valorFixoReps, valorMinimoReps, valorMaximoReps) => {
-    const exercise = await fetchUserExercises(user, treino, exercicioSelectDetalhe);
-    setIsUpdating(true);
-    
-    const dadosAtualizados = {};
-    if (carga !== exercise.carga) dadosAtualizados.carga = carga;
-    if (series !== exercise.series) dadosAtualizados.series = series;
-    if (descanso !== exercise.descanso) dadosAtualizados.descanso = descanso;
-    
-    if (modoRepeticoes === 'fixo') {
-      if (!valorFixoReps) {
-        Alert.alert('Erro', 'Informe o valor fixo das repetições.');
-        setIsUpdating(false);
-        return;
-      }
-      dadosAtualizados.repeticoes = {
-        tipo: 'fixo',
-        valor: valorFixoReps,
-      };
-    } else if (modoRepeticoes === 'intervalo') {
-      if (!valorMinimoReps || !valorMaximoReps) {
-        Alert.alert('Erro', 'Informe o mínimo e máximo de repetições.');
-        setIsUpdating(false);
-        return;
-      }
-      dadosAtualizados.repeticoes = {
-        tipo: 'intervalo',
-        minimo: valorMinimoReps,
-        maximo: valorMaximoReps,
-      };
-    }
-    
+    setLoadingVisible(true);
     try {
-      await updateDoc(doc(db, 'users', String(user), 'treinos', String(treino), 'exercicios', String(exercicioSelectDetalhe)), dadosAtualizados);
-      Alert.alert('Sucesso', 'Dados atualizados!');
-    } catch (error) {
-      console.log(error)
-      Alert.alert('Erro', 'Não foi possível atualizar os dados.')
+      await updateExercise(user, treino, exercicioSelectDetalhe, carga, series, descanso, modoRepeticoes, valorFixoReps, valorMinimoReps, valorMaximoReps);
+    } catch (error){
+      console.log(error);
     } finally {
-      setIsUpdating(false);
+      setLoadingVisible(false);
       setUpdateVisible(false);
     }
   };
+  
 
   const handleNewExercise = async (titulo, carga, series, descanso, modoRepeticoes, valorFixoReps, valorMinimoReps, valorMaximoReps) => {
     setLoadingVisible(true);
@@ -142,21 +107,6 @@ export default function DetalhesTreino({ navigation }) {
     }
   }
 
-  async function setCheckButton(exercicioId, newValor) {
-    try {
-      await updateDoc(doc(db, 'users', String(user), 'treinos', String(treino), 'exercicios', String(exercicioId)), {checkButton: newValor});
-      setListExercicio((prev) =>
-        prev.map((item) =>
-          item.id === exercicioId ? {...item, checkButton: newValor} : item
-        )
-      );
-
-      await sleep(50);
-    } catch (error) {
-      console.log("Erro na função setCheckButton:", error);
-    }
-  };
-
   async function deleteExercicio(user, treino, exercicioId) {
     try{
       setLoadingVisible(true);
@@ -168,17 +118,19 @@ export default function DetalhesTreino({ navigation }) {
       setLoadingVisible(false);
     }
   };
-  
-  if (isUpdating){ <ActivityIndicator size="large" color="#FA801C" style={{ marginTop: 20 }} />}
   return (
     <View style={styles.container}>
+      <Modal
+        transparent={true}
+        visible={loadingVisible}
+        animationType="fade"
+      >
+        <View style={styles.modalBackground}>
+          <ActivityIndicator size="large" color="black" />
+        </View>
+      </Modal>
       {updateVisible && (
         <View style={styles.overlay}>
-          {loadingVisible && (
-            <View style={styles.viewLoading}>
-              <ActivityIndicator size={"large"} color={"black"} />
-            </View>
-          )}
           <SetExerciseForm
             userId={user}
             treinoId={treino}
@@ -188,72 +140,30 @@ export default function DetalhesTreino({ navigation }) {
           />
       </View>
     )}
-    <FlatList
-      style={styles.viewVirtualizedList}
-      data={listExercicio}
-      renderItem={({ item, index }) => (
-        <View key={index}>
-          <TouchableOpacity
-            style={{ ...styles.buttonListExercicio, flexDirection: "row" }}
-            onPress={() => {
-              setExercicioSelectDetalhe(item.id);
-              setUpdateVisible(true);
-            }}
-          >
-            <Text style={{ ...styles.textListExercicio, flex: 1 }}>
-              {item.titulo}
-            </Text>
-            <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity onPress={() => 
-                setCheckButton(
-                  item.id,
-                  item.checkButton === 0 ? 1 : 0
-                )}
-              >
-                <Ionicons
-                  name={item.checkButton === 1 ? 'checkmark-outline' : 'stop-outline'}
-                  size={22}
-                  color={"#ffffff"}
-                  style={styles.buttonListExercicio}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteExercicio(user, treino, item.id)}>
-                <FontAwesome5
-                  name="trash-alt"
-                  size={20}
-                  color={"#ffffff"}
-                  style={styles.buttonListExercicio}
-                />
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </View>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-      ListFooterComponent={() => (
-        <TouchableOpacity
-          style={{
-            ...styles.buttonAdicionarExercicio,
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-          onPress={() => setAddExerciseVisible(true)}
-        >
-          <FontAwesome5 name="plus" color={"white"} size={20} />
-          <Text style={{ ...styles.textAdicionarExercicio, marginLeft: 5 }}>
-            Adicionar Exercício
-          </Text>
-        </TouchableOpacity>
-      )}
+    <DisplayExercises
+      user={user}
+      treino={treino}
+      listExercicios={listExercicio}
+      setListExercicio={setListExercicio}
+      setExercicioSelectDetalhe={setExercicioSelectDetalhe}
+      setUpdateVisible={setUpdateVisible}
+      deleteExercicio={deleteExercicio}
     />
+    <TouchableOpacity
+      style={{
+        ...styles.buttonAdicionarExercicio,
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
+        marginBottom:80,
+      }}
+      onPress={() => setAddExerciseVisible(true)}
+    >
+      <FontAwesome5 name="plus" color={"white"} size={20} />
+      <Text style={{ ...styles.textAdicionarExercicio, marginLeft: 5 }}>Adicionar Exercício</Text>
+    </TouchableOpacity>
       {addExerciseVisible && (
         <View style={styles.overlay}>
-          {loadingVisible && (
-            <View style={styles.viewLoading}>
-              <ActivityIndicator size={"large"} color={"black"} />
-            </View>
-          )}
           <SetExerciseForm
             userId={user}
             treinoId={treino}
@@ -264,15 +174,6 @@ export default function DetalhesTreino({ navigation }) {
           />
       </View>
     )}
-
-      {loadingVisible && (
-        <View style={styles.viewLoading}>
-          <ActivityIndicator
-            size={"large"}
-            color={"black"}
-          />
-        </View>
-      )}
     </View>
   );
 }
@@ -285,24 +186,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     alignItems: 'center',
     zIndex: 1000,
-  },
-  textListExercicio: {
-    fontSize: 20,
-    padding: 5,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: "#ffffff50",
-    color: "#ffffff",
-  },
-  buttonListExercicio: {
-    backgroundColor: "#ff8585",
-    padding: 10,
-    marginBottom: 2,
-    marginHorizontal: 2,
-  },
-  viewVirtualizedList: {
-    marginTop: 2,
-  },  
+  }, 
   textAdicionarExercicio: {
     fontSize: 20,
     padding: 5,
@@ -313,15 +197,11 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 2,
     marginHorizontal: 2,
-  },  
-  viewLoading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 999,
-    backgroundColor: '#ffffff',
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
 });
