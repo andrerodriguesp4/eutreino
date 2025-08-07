@@ -1,13 +1,16 @@
 import { View, Text, VirtualizedList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { getExerciciosDoTreino, getWorkouts } from '../../services/workoutService';
-import { useCallback, useEffect, useState } from 'react';
+import { getWorkouts } from '../../services/workoutService';
+import { useEffect, useState } from 'react';
 import { getUser } from '../../services/getUser';
-import { useFocusEffect } from '@react-navigation/native';
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+
 
 export default function TrainingHistory({navigation}){
     const [user, setUser] = useState();
     const [loadingVisible, setLoadingVisible] = useState(false);
     const [treinos, setTreinos] = useState([]);
+    const [repeatTraining, setRepeatTraining] = useState(false);
+    const [treinoSelect, setTreinoSelect] = useState();
 
     useEffect(() => {
         getUser(setUser, navigation);
@@ -25,7 +28,6 @@ export default function TrainingHistory({navigation}){
             try{
                 setLoadingVisible(true);
                 const treinosList = await getWorkouts(user);
-                console.log(treinosList)
                 setTreinos(treinosList);
     
                 await sleep(100);
@@ -56,7 +58,10 @@ export default function TrainingHistory({navigation}){
                         const [year, month, day] = data.split("-");
                         const newData = `${day}-${month}-${year}`;
                         return(
-                            <TouchableOpacity style={styles.buttonTraining}>
+                            <TouchableOpacity style={styles.buttonTraining} onPress={() => (
+                                setTreinoSelect(item.titulo),
+                                setRepeatTraining(true)
+                            )}>
                                 <Text style={{...styles.textTraining, fontSize: 20}}>{item.titulo}</Text>
                                 <Text style={{...styles.textTraining, fontStyle: 'italic'}}>Realizado dia {newData}</Text>
                             </TouchableOpacity>
@@ -65,6 +70,25 @@ export default function TrainingHistory({navigation}){
                 }
                 }
             />
+            {repeatTraining && (
+                <View style={{...StyleSheet.absoluteFill, backgroundColor: "rgba(0, 0, 0, 0.3)",}}pointerEvents="auto">
+                    <View style={styles.viewRepeatTraining}>
+                        <View style={styles.viewTextRepeatTraining}>
+                            <Text>{treinoSelect}</Text>
+                            <View style={{flexDirection: 'row'}}>
+                                <TouchableOpacity style={styles.buttonRepeatTraining}>
+                                    <FontAwesome5 style={{right: 5}} name='redo'/>
+                                    <Text>Refazer Treino</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.buttonDeleteTraining}>
+                                    <FontAwesome5 style={{right: 5}} name='trash-alt'/>
+                                    <Text>Apagar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            )}
         </View>
     )
 }
@@ -76,6 +100,7 @@ const styles = StyleSheet.create({
     buttonTraining:{
         backgroundColor: '#79ff79',
         marginHorizontal: 2,
+        marginVertical: 1
     },
     textTraining:{
         padding: 10,
@@ -91,4 +116,27 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    viewRepeatTraining: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    viewTextRepeatTraining:{
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 10
+    },
+    buttonRepeatTraining:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#79ff79',
+        padding: 10,
+        right: 5,
+    },
+    buttonDeleteTraining:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#ff5959',
+        padding: 10,
+    }
 })
