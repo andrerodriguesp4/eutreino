@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Pressable, Keyboard } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Keyboard } from "react-native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import CampoBox from "../../utils/CampoBox";
 import DropDownPicker from "react-native-dropdown-picker";
 import { fetchExercises } from "../../services/fetchExercises";
 import { fetchUserExercises } from "../../services/fetchUserExercises";
-import { COLORS } from "../styles/default";
+import ModernButton from "../../utils/ModernButton";
 
 export default function SetExerciseForm({
   userId,
@@ -227,28 +227,23 @@ export default function SetExerciseForm({
 
                 <View style={styles.campoBox}>
                   {!isNew ? (
-                    <TouchableOpacity
-                      style={styles.actionButton}     
+                    <ModernButton
+                      text="Editar"
                       onPress={() => setEditable(true)}
-                    >
-                      <Text style={{color: COLORS.primary, fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Editar</Text>
-                    </TouchableOpacity>
+                      icon="user-edit"
+                    />
                   ) : (
                     null
                   )}
-                  <TouchableOpacity
-                    style={{
-                      ...styles.saveButton,
-                      opacity: disabledSave ? 0.5 : 1,
-                    }}
-                    disabled={disabledSave}
+                  <ModernButton
+                    text="Salvar"
                     onPress={() => {
                       handleSetExercise();
                       setEditable(false);
                     }}
-                  >
-                    <Text style={{color: COLORS.buttons, fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Salvar</Text>
-                  </TouchableOpacity>
+                    icon="save"
+                    disabled={disabledSave}
+                  />
                 </View>
               </View>
             </>
@@ -279,20 +274,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
   },
-  saveButton: {
-    width: 120,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: "#00ce005e",
-  },
-  actionButton: {
-    width: 120,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: '#ddd',
-  },
+
   dropdown: {
     backgroundColor: '#f5f4f4ff',
     padding: 5,

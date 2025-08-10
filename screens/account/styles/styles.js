@@ -1,6 +1,5 @@
 import { Platform } from "react-native";
 import { StyleSheet } from "react-native";
-import { COLORS } from "../../styles/default";
 
 const styles = StyleSheet.create({
     container: {
@@ -14,6 +13,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     image: {
+        borderWidth: 1,
+        borderColor: 'black',
         height: 130,
         width: 130,
         borderRadius: 65,
@@ -63,26 +64,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 10,
-    },
-    actionButton: {
-        flexDirection: 'row',
-        alignSelf: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        backgroundColor: '#ddd',
         marginBottom: 65,
-    },
-    saveText: {
-        color: COLORS.buttons,
-        fontWeight: 'bold',
-        fontSize: 22,
-    },
-
-    deleteText: {
-        color: '#e9210fff',
-        fontWeight: 'bold',
-        fontSize: 22,
     },
 
     loadingBackground: {

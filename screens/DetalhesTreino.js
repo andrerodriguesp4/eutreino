@@ -149,11 +149,13 @@ export default function DetalhesTreino({ navigation }) {
       setUpdateVisible={setUpdateVisible}
       deleteExercicio={deleteExercicio}
     />
-    <ModernButton
-      text="Adicionar Exercício"
-      onPress={() => setAddExerciseVisible(true)}
-      icon="plus"
-    />    
+    <View style={{width: '60%', alignSelf: 'center', marginBottom: 65}}>
+      <ModernButton
+        text="Adicionar Exercício"
+        onPress={() => setAddExerciseVisible(true)}
+        icon="plus"
+      />    
+    </View>
       {addExerciseVisible && (
         <View style={styles.overlay}>
           <SetExerciseForm

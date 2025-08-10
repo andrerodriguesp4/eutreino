@@ -147,11 +147,13 @@ export default function Treinos({navigation}){
                 }}
                 keyExtractor={(item) => item.id}
             />
-            <ModernButton
-                text="Adicionar Treino"
-                onPress={() => setCampoAdicionando(true)}
-                icon="plus"
-            />
+            <View style={{width: '60%', alignSelf: 'center'}}>
+                <ModernButton
+                    text="Adicionar Treino"
+                    onPress={() => setCampoAdicionando(true)}
+                    icon="plus"
+                />
+            </View>
             {campoAdicionando && (
                 <View
                     style={{

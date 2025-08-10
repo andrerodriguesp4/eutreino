@@ -1,8 +1,8 @@
-import { Pressable, View, Text, StyleSheet, TouchableOpacity } from "react-native"
+import { Pressable, View, Text, StyleSheet } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useEffect } from "react";
-import { COLORS } from "./styles/default";
+import ModernButton from "../utils/ModernButton";
 
 export default function Perfil({navigation}){
   useEffect(() => {
@@ -39,10 +39,14 @@ export default function Perfil({navigation}){
               <MenuItem label="Informações" icon="info-circle" screen="MostrarInformacoes" />
               <MenuItem label="Histórico de Treinos" icon="history" screen="TrainingHistory" />
           </View>
-          <TouchableOpacity style={styles.logoutButton} onPress={() => sair()}>
-              <FontAwesome5 name="sign-out-alt" size={22} color={COLORS.buttons} style={styles.logoutIcon} />
-              <Text style={styles.logoutText}>Sair</Text>
-          </TouchableOpacity>
+          <View style={{width: '50%', alignSelf: 'center'}}>
+            <ModernButton
+              text="Sair"
+              onPress={sair}
+              icon="sign-out-alt"
+              colors={["#D30000","#FF2800"]}
+            />
+          </View>
       </View>
   )
 }
@@ -63,23 +67,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
   },
   menuText: {
-    fontSize: 22,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 48,
-    borderRadius: 8,
-    backgroundColor: '#ddd',
-    marginBottom: 10,
-  },
-  logoutIcon: {
-    marginRight: 8,
-  },
-  logoutText: {
-    color: COLORS.buttons,
-    fontWeight: 'bold',
     fontSize: 22,
   },
 });

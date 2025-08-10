@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from '../account/styles/styles';
 import PasswordConfirmationModal from "./components/PasswordConfirmationModal";
 import { getUser } from '../../services/getUser';
+import ModernButton from "../../utils/ModernButton";
 
 export default function EditarPerfil({navigation}){
     const [originalData, setOriginalData] = useState({});
@@ -55,8 +56,6 @@ export default function EditarPerfil({navigation}){
     }, [userId]);
 
     async function atualizarDados() {
-        setPasswordError(null);
-        setNewPasswordError(null);
 
         if(!userId){
             Alert.alert('Erro', 'Usuário não encontrado');
@@ -149,7 +148,7 @@ export default function EditarPerfil({navigation}){
     return (
         <View style={{flex:1}}>
             <View style={styles.imageContainer}>
-                <Image source={require('../../source/perfil.png')} style={styles.image} />
+                <Image source={require('../../source/random_guy.jpg')} style={styles.image} />
                 <View>
                     <Text style={styles.textUserName}>{perfilName}</Text>
                 </View>
@@ -184,19 +183,17 @@ export default function EditarPerfil({navigation}){
                 </View>
 
                 <View style={styles.footContainer}>
-                    <TouchableOpacity
-                        style={styles.actionButton}
+                    <ModernButton
+                        text="Salvar Dados"
                         onPress={atualizarDados}
-                        disabled={loading}
-                    >
-                        <Text style={styles.saveText}>Salvar Dados</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.actionButton}
+                        icon="save"
+                    />
+                    <ModernButton
+                        text="Excluir Conta"
                         onPress={() => setShowDeleteModal(true)}
-                    >
-                        <Text style={styles.deleteText}>Excluir Conta</Text>
-                    </TouchableOpacity>
+                        icon="trash"
+                        colors={["#D30000","#FF2800"]}
+                    />
                 </View>
 
                 <Modal

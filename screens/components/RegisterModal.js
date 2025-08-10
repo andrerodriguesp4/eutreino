@@ -107,6 +107,7 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
                 text="Voltar"
                 onPress={() => { resetFields(); onClose(); }}
                 icon="backspace"
+                colors={["#CF2502","#F4320B"]}
               />
             </View>
           

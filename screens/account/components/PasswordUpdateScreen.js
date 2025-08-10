@@ -1,8 +1,9 @@
-import { View, TouchableOpacity, Text } from "react-native"
+import { View } from "react-native"
 import PasswordField from "./Passwordfield"
 import { useState } from "react";
 import styles from '../../account/styles/styles';
 import { updatePassword } from "../../../services/updatePassword";
+import ModernButton from "../../../utils/ModernButton";
 
 export default function PasswordUpdateScreen({navigation, route}){
     const {userId} = route.params;
@@ -52,13 +53,12 @@ export default function PasswordUpdateScreen({navigation, route}){
                     errorMessage={confirmPasswordError}
                 />
             </View>
-            <View style={{justifyContent:'center', paddingBottom:20}}>
-                <TouchableOpacity
-                    style={styles.actionButton}
+            <View style={{...styles.footContainer, alignSelf: 'center'}}>
+                <ModernButton
+                    text="Salvar Dados"
                     onPress={handleUpdatePassword}
-                >
-                    <Text style={styles.saveText}>Atualizar</Text>
-                </TouchableOpacity>
+                    icon="save"
+                />
             </View>
         </View>
     )
