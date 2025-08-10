@@ -3,6 +3,7 @@ import { getExerciciosDoTreino, getWorkouts } from '../../services/workoutServic
 import { useCallback, useEffect, useState } from 'react';
 import { getUser } from '../../services/getUser';
 import { useFocusEffect } from '@react-navigation/native';
+import { COLORS } from '../styles/default';
 
 export default function TrainingHistory({navigation}){
     const [user, setUser] = useState();
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
         top: 2,
     },
     buttonTraining:{
-        backgroundColor: '#79ff79',
+        backgroundColor: COLORS.list_2,
         marginHorizontal: 2,
     },
     textTraining:{

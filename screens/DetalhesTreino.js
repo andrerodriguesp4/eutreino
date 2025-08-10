@@ -1,14 +1,14 @@
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Modal } from "react-native";
+import { View, StyleSheet, ActivityIndicator, Alert, Modal } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
 import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getUser } from '../services/getUser';
 import SetExerciseForm from "./components/SetExerciseForm";
 import { fetchUserExercises } from "../services/fetchUserExercises";
 import DisplayExercises from "./components/DisplayExercises";
 import { updateExercise } from "../services/updateExercise";
+import ModernButton from "../utils/ModernButton";
 
 export default function DetalhesTreino({ navigation }) {
   const route = useRoute();
@@ -149,19 +149,11 @@ export default function DetalhesTreino({ navigation }) {
       setUpdateVisible={setUpdateVisible}
       deleteExercicio={deleteExercicio}
     />
-    <TouchableOpacity
-      style={{
-        ...styles.buttonAdicionarExercicio,
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row",
-        marginBottom:80,
-      }}
+    <ModernButton
+      text="Adicionar Exercício"
       onPress={() => setAddExerciseVisible(true)}
-    >
-      <FontAwesome5 name="plus" color={"white"} size={20} />
-      <Text style={{ ...styles.textAdicionarExercicio, marginLeft: 5 }}>Adicionar Exercício</Text>
-    </TouchableOpacity>
+      icon="plus"
+    />    
       {addExerciseVisible && (
         <View style={styles.overlay}>
           <SetExerciseForm
@@ -186,17 +178,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     alignItems: 'center',
     zIndex: 1000,
-  }, 
-  textAdicionarExercicio: {
-    fontSize: 20,
-    padding: 5,
-    color: "#ffffff",
-  },
-  buttonAdicionarExercicio: {
-    backgroundColor: "#ff4949",
-    padding: 10,
-    marginBottom: 2,
-    marginHorizontal: 2,
   },
   modalBackground: {
     flex: 1,

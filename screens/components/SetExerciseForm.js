@@ -5,6 +5,7 @@ import CampoBox from "../../utils/CampoBox";
 import DropDownPicker from "react-native-dropdown-picker";
 import { fetchExercises } from "../../services/fetchExercises";
 import { fetchUserExercises } from "../../services/fetchUserExercises";
+import { COLORS } from "../styles/default";
 
 export default function SetExerciseForm({
   userId,
@@ -97,7 +98,7 @@ export default function SetExerciseForm({
       keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 80} // Não sei no Iphone, não tenho um pra testar
     >
       <Pressable onPress={Keyboard.dismiss}>
-        <View style={styles.slidePanel}>
+        <View style={styles.modalContainer}>
           <View style={{flexDirection:'row', width: '98%', justifyContent:'flex-end', marginBottom: '20'}}>
             <TouchableOpacity onPress={() => setVisible(false)}>
               <FontAwesome5 name="times" size={25} />
@@ -230,7 +231,7 @@ export default function SetExerciseForm({
                       style={styles.actionButton}     
                       onPress={() => setEditable(true)}
                     >
-                      <Text style={{color: '#FA801C', fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Editar</Text>
+                      <Text style={{color: COLORS.primary, fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Editar</Text>
                     </TouchableOpacity>
                   ) : (
                     null
@@ -246,7 +247,7 @@ export default function SetExerciseForm({
                       setEditable(false);
                     }}
                   >
-                    <Text style={{color: "#016401ef", fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Salvar</Text>
+                    <Text style={{color: COLORS.buttons, fontWeight: 'bold', fontSize: 22, alignSelf: 'center'}}>Salvar</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -259,15 +260,11 @@ export default function SetExerciseForm({
 }
 
 const styles = StyleSheet.create({
-  slidePanel: {
-    backgroundColor: "white",
+  modalContainer: {
+    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
+    elevation: 10,
   },
   campoBox: {
     flexDirection:'row',

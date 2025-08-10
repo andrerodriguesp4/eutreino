@@ -17,6 +17,7 @@
     "@react-navigation/native-stack": "^7.3.12",
     "AsyncStorage": "^0.1.5",
     "expo": "~53.0.7",
+    "expo-linear-gradient": "^14.1.5",
     "expo-status-bar": "~2.2.3",
     "firebase": "^11.10.0",
     "lucide-react": "^0.510.0",

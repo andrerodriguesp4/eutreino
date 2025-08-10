@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
         paddingHorizontal:30,
         borderRadius: 25,
         backgroundColor: '#ffffff1f',
-
+        marginBottom: 40,
     },
     whitetext:{
         fontFamily: 'impact',
@@ -23,18 +23,6 @@ const styles = StyleSheet.create({
         fontFamily: 'impact',
         fontSize: 80,
         color: '#fa801c',
-    },
-    button: {
-        backgroundColor: '#008000b0',
-        paddingVertical: 12,
-        paddingHorizontal: 30,
-        borderRadius: 10,
-        marginTop: 50,
-    },
-    textbutton: {
-        color: 'white',
-        fontSize: 20,
-        textAlign: 'center',
     },
     imageBg:{
         height: "100%",

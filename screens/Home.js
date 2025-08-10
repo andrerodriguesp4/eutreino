@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./styles/HomeStyles";
+import ModernButton from "../utils/ModernButton";
 
 export default function Home({navigation}){
     async function manterconectado(){
@@ -25,9 +26,11 @@ export default function Home({navigation}){
                 <Text style={styles.whitetext}>EU</Text>
                 <Text style={styles.redtext}>TREINO</Text>
             </View>
-            <TouchableOpacity onPress={() => manterconectado()} style={styles.button}>
-                <Text style={styles.textbutton}>Entrar</Text>
-            </TouchableOpacity>   
+            <ModernButton
+                text="Entrar"
+                onPress={() => manterconectado()}
+                icon="sign-in-alt"
+            /> 
         </View>
         </ImageBackground>
     )

@@ -2,6 +2,7 @@ import { Pressable, View, Text, StyleSheet, TouchableOpacity } from "react-nativ
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { useEffect } from "react";
+import { COLORS } from "./styles/default";
 
 export default function Perfil({navigation}){
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function Perfil({navigation}){
               <MenuItem label="Histórico de Treinos" icon="history" screen="TrainingHistory" />
           </View>
           <TouchableOpacity style={styles.logoutButton} onPress={() => sair()}>
-              <FontAwesome5 name="sign-out-alt" size={22} color="#FA801C" style={styles.logoutIcon} />
+              <FontAwesome5 name="sign-out-alt" size={22} color={COLORS.buttons} style={styles.logoutIcon} />
               <Text style={styles.logoutText}>Sair</Text>
           </TouchableOpacity>
       </View>
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   logoutText: {
-    color: '#FA801C',
+    color: COLORS.buttons,
     fontWeight: 'bold',
     fontSize: 22,
   },

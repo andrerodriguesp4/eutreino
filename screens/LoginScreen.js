@@ -1,9 +1,11 @@
 import { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from "react-native"
+import { View, ActivityIndicator } from "react-native"
 import logIn from "../services/LogIn";
 import RegisterModal from "./components/RegisterModal";
 import PasswordField from "./account/components/Passwordfield";
 import styles from "./styles/loginStyles";
+import ModernButton from "../utils/ModernButton";
+import ModernInput from "../utils/ModernInput";
 
 export default function Login({navigation}){
 
@@ -47,13 +49,11 @@ export default function Login({navigation}){
                 </View>
             )}
             <View style={styles.viewForm}>                
-                <View style={styles.viewInputs}>
-                    <TextInput
+                <View style={{alignItems: 'center'}}>
+                    <ModernInput
                         value={user}
                         onChangeText={setUser}
                         placeholder="Digite o usuário"
-                        placeholderTextColor='#666'
-                        style={styles.inputLogin}
                     />
                     <PasswordField
                         value={senha}
@@ -63,15 +63,17 @@ export default function Login({navigation}){
                     />
                 </View>
                 <View style={styles.viewButtons}>
-                    <TouchableOpacity onPress={handleLogin} style={styles.buttonLogin}>
-                        <Text>Login</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.buttonLogin}>
-                        <Text>
-                            Criar Conta
-                        </Text>
-                    </TouchableOpacity>
-                </View>                    
+                      <ModernButton
+                        text="Login"
+                        onPress={handleLogin}
+                        icon="sign-in-alt"
+                      />
+                      <ModernButton
+                        text="Criar Conta"
+                        onPress={() => setModalVisible(true)}
+                        icon="user-plus"
+                      />
+                    </View>
             </View>
             <View>
                 <RegisterModal

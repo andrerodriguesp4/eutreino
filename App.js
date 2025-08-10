@@ -22,7 +22,8 @@ export default function App() {
         <StatusBar style='auto'/>
         <Stack.Navigator initialRouteName='Home'>
           <Stack.Screen name='DetalhesTreino' component={DetalhesTreino} options={{
-            headerStyle: {backgroundColor: '#FA801C'},
+            title: "Treino"
+            // headerStyle: {backgroundColor: '#1a7431'},
           }}/>
           <Stack.Screen name='Home' component={Home} options={{
             ...styles.optionsnv,

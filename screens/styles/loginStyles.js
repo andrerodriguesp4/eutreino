@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { COLORS } from "./default";
 
 const styles = StyleSheet.create({
     container:{
@@ -20,45 +21,17 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         width: 250,
     },
-    viewInputs:{
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonLogin: {
-        backgroundColor: 'white',
-        borderRadius: 10,
-        borderWidth: 1,
-        paddingHorizontal: 30,
-        paddingVertical: 10,
-        alignItems: 'center',
-        margin: 5,
-        
-    },
     viewButtons: {
         flexDirection: 'row',
-        alignSelf: 'center',
+        justifyContent: 'space-between',
         marginTop: 15,
     },
-    viewModal: {
-        flex: 1,
-        margin: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     viewForm:{
-        backgroundColor: '#FA801C',
+        backgroundColor: COLORS.list_2,
+        width: '90%',
         paddingVertical: 40,
         paddingHorizontal: 20,
-        borderRadius: 25,
-    },
-    voltarButton: {
-        borderRadius: 10,
-        borderWidth: 1,
-        backgroundColor: 'white',
-        paddingHorizontal: 10,
-        paddingVertical: 10,
-        alignItems: 'center',
-        margin: 5,
+        borderRadius: 20,
     },
     viewLoading: {
         position: 'absolute',

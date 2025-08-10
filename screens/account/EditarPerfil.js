@@ -204,7 +204,7 @@ export default function EditarPerfil({navigation}){
                     visible={loading}
                     animationType="fade"
                 >
-                    <View style={styles.modalBackground}>
+                    <View style={styles.loadingBackground}>
                         <ActivityIndicator size="large" color="black" />  
                     </View>
                 </Modal>

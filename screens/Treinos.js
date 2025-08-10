@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, TextInput, ActivityIndicator} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, VirtualizedList, TextInput, ActivityIndicator, Modal} from "react-native";
 import { db } from "../firebaseConfig";
 import {collection, getDocs, doc, setDoc, deleteDoc} from "firebase/firestore";
 import {useEffect, useState, useCallback } from "react";
@@ -6,6 +6,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
 import { getUser } from '../services/getUser';
+import { COLORS } from "./styles/default";
+import ModernButton from "../utils/ModernButton";
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -26,19 +28,19 @@ export default function Treinos({navigation}){
         }, [user])
     );
 
-    useEffect(() => {
-        if (user) {
-            navigation.setOptions({
-                headerRight: () => (
-                    <TouchableOpacity onPress={loadTreinos}>
-                    <Text style={{Color: 'black', padding: 5, marginTop: 35}}>
-                        Atualizar
-                    </Text>
-                </TouchableOpacity>
-            ),           
-        });
-    }
-    }, [navigation, user]);
+    // useEffect(() => {
+    //     if (user) {
+    //         navigation.setOptions({
+    //             headerRight: () => (
+    //                 <TouchableOpacity onPress={loadTreinos}>
+    //                 <Text style={{Color: 'black', padding: 5, marginTop: 35}}>
+    //                     Atualizar
+    //                 </Text>
+    //             </TouchableOpacity>
+    //         ),           
+    //     });
+    // }
+    // }, [navigation, user]);
 
     function sleep(ms){
         return new Promise(result => setTimeout(result, ms))
@@ -144,23 +146,11 @@ export default function Treinos({navigation}){
                     }
                 }}
                 keyExtractor={(item) => item.id}
-                ListFooterComponent={() => (
-                    <TouchableOpacity
-                    style={{
-                        ...styles.buttonAdicionarTreino,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        flexDirection: "row",
-                    }}
-                    onPress={() => setCampoAdicionando(true)}
-                    >
-                    <FontAwesome5 name="plus" color={"white"} size={20} />
-                    <Text style={{ ...styles.textAdicionarTreino}}>
-                        Adicionar Treino
-                    </Text>
-                    </TouchableOpacity>
-                )}
-                
+            />
+            <ModernButton
+                text="Adicionar Treino"
+                onPress={() => setCampoAdicionando(true)}
+                icon="plus"
             />
             {campoAdicionando && (
                 <View
@@ -170,47 +160,47 @@ export default function Treinos({navigation}){
                     }}
                 pointerEvents="auto"
                 >
-                    <View style={styles.slidePanel}>
-                        <View style={{...styles.viewAdicionandoNome, width: "70%"}}>
-                            <TextInput 
-                                placeholder="Digite o nome do treino"
-                                onChangeText={(titulo) => setTextNewTreino(titulo)}    
-                            />
-                        </View>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContainer}>
+                            <View style={{flexDirection:'row',width: '98%', justifyContent:'flex-end'}}>
+                                <TouchableOpacity onPress={() => setCampoAdicionando(false)}>
+                                    <FontAwesome5 name="times" size={25}/>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.viewAdicionandoNome}>
+                                <TextInput 
+                                    placeholder="Digite o nome do treino"
+                                    onChangeText={(titulo) => setTextNewTreino(titulo)}    
+                                />
+                            </View>
                             <TouchableOpacity style={styles.buttonSalvar} onPress={() => setNewTreino(textNewTreino)}>
-                                <Text>Salvar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setCampoAdicionando(false)}>
-                                <FontAwesome5 name="times" size={25}/>
+                                <Text style={{color:'white'}}>Salvar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </View>
             )}
-            {campoConfimacao && (
-                <View 
-                    style={{
-                            ...StyleSheet.absoluteFill,
-                            backgroundColor: "rgba(0, 0, 0, 0.3)",
-                        }}
-                    pointerEvents="auto"
-                >
-                    <View style={styles.slidePanel}>
+            <Modal
+                visible={campoConfimacao}
+                transparent={true}
+                animationType="fade"
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <View style={{flexDirection:'row',width: '98%', justifyContent:'flex-end', marginBottom: '20'}}>
+                            <TouchableOpacity onPress={() => setCampoConfirmacao(false)}>
+                                <FontAwesome5 name="times" size={25}/>
+                            </TouchableOpacity>
+                        </View>
                         <View>
                             <Text style={{fontSize: 20, bottom: 10}}>Tem certeza que deseja excluir?</Text>
                         </View>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <TouchableOpacity style={styles.buttonExcluir} onPress={() => (deleteTreino(treinoId), setCampoConfirmacao(false))}>
-                                <Text>Excluir</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={{left: 20}} onPress={() => setCampoConfirmacao(false)}>
-                                <FontAwesome5 name="times" size={25}/>
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity style={styles.buttonExcluir} onPress={() => (deleteTreino(treinoId), setCampoConfirmacao(false))}>
+                            <Text style={{color: '#e9210fff', fontWeight: 'bold', fontSize: 18,}}>Excluir</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-            )}
+            </Modal>
         </View>
     )
 };
@@ -225,58 +215,44 @@ const styles = StyleSheet.create({
         marginHorizontal: 2,
         paddingHorizontal: 10,
         paddingVertical: 15,
-        backgroundColor: '#fa801c63',
+        backgroundColor: COLORS.list_2,
     },
     textTituloTreino: {
         color: '#000000ff',
         fontSize: 20,
         fontFamily: 'arial',
     },
-    buttonAdicionarTreino:{
-        backgroundColor: "#923a079a",
-        padding: 10,
-        marginBottom: 2,
-        marginHorizontal: 2,
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    textAdicionarTreino:{
-        fontSize: 20,
-        padding: 5,
-        color: "#ffffff",
-    },
-    slidePanel: {
-        position: "absolute",
-        height: "50%",
-        left: 5,
-        right: 5,
-        top: 5,
-        backgroundColor: "#ffffff",
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+    modalContainer: {
+        width: '85%',
+        height: '25%',
+        backgroundColor: '#fff',
+        borderRadius: 10,
         padding: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
-        justifyContent: "center", // centraliza verticalmente
-        alignItems: "center", // centraliza horizontalmente
+        elevation: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     viewAdicionandoNome:{
+        width: "70%",
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 8,
         padding: 10,
         marginBottom: 20,
     },
     buttonExcluir: {
-        backgroundColor: '#ff7676',
+        backgroundColor: '#ddd',
         padding: 10,
         borderRadius: 5,
         right: 20,
     },
     buttonSalvar: {
-        backgroundColor: '#76ff8d',
+        backgroundColor: COLORS.buttons,
         padding: 10,
         borderRadius: 5,
         right: 20,

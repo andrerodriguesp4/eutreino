@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet,  TouchableOpacity } from 'react-native';
 import { getExerciciosDoTreino, getTodayWorkout, markWorkoutAsDone } from '../services/workoutService';
 import { getUser } from '../services/getUser';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import DisplayExercises from './components/DisplayExercises';
+import { COLORS } from './styles/default';
+import ModernButton from '../utils/ModernButton';
 
 const WorkoutScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
@@ -56,22 +58,25 @@ const WorkoutScreen = ({ navigation }) => {
     
     return (
     <View style={styles.container}>
-        {workoutVisible && (
-            <View>
-                <Text style={styles.title}>Treino do Dia:</Text>
+        {workoutVisible ? (
+            <View style={{flex:1}}>
+                <Text style={styles.title}>Hoje:</Text>
                 <Text style={styles.workout}>{workout?.titulo}</Text>
                 
                 {alreadyDone ? (
                     <Text style={styles.doneText}>✅ Treino já feito hoje!</Text>
                 ) : (
-                <Button title="Marcar como feito" onPress={handleDone} />
+                    <ModernButton
+                        text="Concluir"
+                        onPress={handleDone}
+                        icon="check-circle"
+                    />
                 )}
 
                 <Text style={styles.subtitle}>Exercícios:</Text>
                 <DisplayExercises
                     user={userId}
                     treino={workout.id}
-                    styles={styles}
                     listExercicios={exercicios}
                     setListExercicio={setExercicios}
                     setExercicioSelectDetalhe={setSelectedExercise}
@@ -79,8 +84,7 @@ const WorkoutScreen = ({ navigation }) => {
                     deleteVisible={false}
                 />
             </View>
-        )}
-        {!workoutVisible && (
+        ) : (
             <View>
                 <Text>Nenhum treino encontrado!</Text>
             </View>
@@ -94,8 +98,8 @@ export default WorkoutScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        paddingTop: 40
+        padding: 5,
+        paddingTop: 20,
     },
     title: {
         fontSize: 24,
@@ -104,6 +108,19 @@ const styles = StyleSheet.create({
     workout: {
         fontSize: 40,
         marginVertical: 10
+    },
+    finishButton: {
+        color: 'white',
+        backgroundColor: COLORS.buttons,
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 2,
+        marginHorizontal: 20,
+    },
+    textButton: {
+        color: 'white',
+        fontSize: 20,
+        textAlign: 'center',
     },
     doneText: {
         fontSize: 16,

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, TextInput, Modal, ActivityIndicator } from 'react-native';
 import createUser from '../../services/CreateUser';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PasswordField from '../account/components/Passwordfield';
+import ModernButton from '../../utils/ModernButton';
+import ModernInput from '../../utils/ModernInput';
 
 export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
   const [user, setUsername] = useState('');
@@ -64,30 +65,23 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
             <ActivityIndicator size="large" />
           </View>
         )}
-        <View style={styles.viewModal}>
           <View style={styles.viewForm}>
-            <View>
-              <TextInput
+            <View style={{alignItems: 'center'}}>
+              <ModernInput
                 value={nickname}
                 onChangeText={setUser}
                 placeholder="Digite seu nome"
-                placeholderTextColor="#666"
-                style={styles.inputLogin}
               />
-              <TextInput
+              <ModernInput
                 value={user}
                 onChangeText={setUsername}
                 placeholder="Digite o nome de usuário"
-                placeholderTextColor="#666"
-                style={styles.inputLogin}
               />
-              <TextInput
+              <ModernInput
                 value={email}
                 onChangeText={setEmail}
                 placeholder="Digite o e-mail"
-                placeholderTextColor="#666"
                 keyboardType="email-address"
-                style={styles.inputLogin}
               />
               <PasswordField
                 value={senha}
@@ -105,14 +99,17 @@ export default function RegisterModal({ visible, onClose, onSuccess, styles }) {
               />
             </View>
             <View style={styles.viewButtons}>
-              <TouchableOpacity onPress={handleRegister} style={styles.buttonLogin}>
-                <Text>Cadastrar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { resetFields(); onClose(); }} style={styles.voltarButton}>
-                <Ionicons name="chevron-back" size={17} />
-              </TouchableOpacity>
+              <ModernButton
+                text="Cadastrar"
+                onPress={handleRegister}
+              />
+              <ModernButton
+                text="Voltar"
+                onPress={() => { resetFields(); onClose(); }}
+                icon="backspace"
+              />
             </View>
-          </View>
+          
         </View>
       </View>
     </Modal>

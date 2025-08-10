@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import { COLORS } from "../styles/default";
 
  
 export default function DisplayExercises({
@@ -71,6 +72,7 @@ export default function DisplayExercises({
                 </View>
             )}
             keyExtractor={(item, index) => index.toString()}
+            scrollEnabled={true}
         />
     )
 }
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
     },
     buttonListExercicio: {
         borderRadius: 20,
-        backgroundColor: "#ff8585",
+        backgroundColor: COLORS.list,
         padding: 10,
         marginBottom: 2,
         marginHorizontal: 2,

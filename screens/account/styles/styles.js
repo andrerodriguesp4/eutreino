@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { StyleSheet } from "react-native";
+import { COLORS } from "../../styles/default";
 
 const styles = StyleSheet.create({
     container: {
@@ -19,8 +20,8 @@ const styles = StyleSheet.create({
         resizeMode: 'cover',
     },
     label: {
-        fontSize: 14,
-        color: '#444',
+        fontSize: 16,
+        color: '#333',
         marginHorizontal: 5,
         marginVertical: 0,
         fontWeight: 'bold',
@@ -37,19 +38,25 @@ const styles = StyleSheet.create({
     },
 
     passwordContainer: {
-        backgroundColor: '#f5f4f4ff',
+        backgroundColor: '#fff',
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
+        borderWidth: 2,
+        borderRadius: 12,
         paddingRight: 10,
         margin: 5,
         padding: Platform.OS === "android" ? 0 : 10,
+        paddingHorizontal: 8,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
     },
     inputPassword: {
         flex: 1,
-        color: '#000',
+        fontSize: 16,
+        color: '#333',
     },
 
     footContainer: {
@@ -67,7 +74,7 @@ const styles = StyleSheet.create({
         marginBottom: 65,
     },
     saveText: {
-        color: '#FA801C',
+        color: COLORS.buttons,
         fontWeight: 'bold',
         fontSize: 22,
     },
@@ -78,7 +85,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
     },
 
-    modalBackground: {
+    loadingBackground: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
         justifyContent: 'center',
@@ -137,7 +144,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         color: '#e53935',
-        fontSize: 13,
+        fontSize: 14,
         marginLeft: 5,
     },
     textUserName:{

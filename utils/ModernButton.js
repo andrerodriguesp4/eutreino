@@ -1,0 +1,69 @@
+import { Pressable, Animated, StyleSheet, Text } from "react-native";
+import { useRef } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import { COLORS } from "../screens/styles/default";
+
+export default function ModernButton({ text, onPress, icon, iconColor = "#fff", iconSize = 18 }) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const animatePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      friction: 4,
+    }).start();
+  };
+
+  const animatePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 4,
+    }).start();
+  };
+
+  return (
+    <Pressable onPress={onPress} onPressIn={animatePressIn} onPressOut={animatePressOut}>
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <LinearGradient
+          colors={[COLORS.buttons, COLORS.list]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.button}
+        >
+          {icon && (
+            <FontAwesome5 name={icon} size={iconSize} color={iconColor} style={styles.icon} />
+          )}
+          <Text style={styles.buttonText}>{text}</Text>
+        </LinearGradient>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  button: {
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    marginBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  icon: {
+    marginRight: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+});
