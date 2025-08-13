@@ -1,9 +1,8 @@
 import { FlatList, Text, TouchableOpacity, StyleSheet, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import { COLORS } from "../styles/default";
+import IconButton from "../../utils/IconButton";
 
  
 export default function DisplayExercises({
@@ -36,7 +35,7 @@ export default function DisplayExercises({
             renderItem={({ item, index }) => (
                 <View key={index}>
                     <TouchableOpacity
-                        style={{ ...styles.buttonListExercicio, flexDirection: "row" }}
+                        style={styles.buttonListExercicio}
                         onPress={() => {
                             setExercicioSelectDetalhe(item.id);
                             setUpdateVisible(true);
@@ -44,28 +43,20 @@ export default function DisplayExercises({
                     >
                         <Text style={{ ...styles.textListExercicio, flex: 1 }}>{item.titulo}</Text>
                         <View style={{ flexDirection: "row" }}>
-                            <TouchableOpacity onPress={() =>
-                                setCheckButton(
-                                    item.id,
-                                    item.checkButton === 0 ? 1 : 0
+                            <IconButton
+                                onPress={() =>
+                                    setCheckButton(
+                                        item.id,
+                                        item.checkButton === 0 ? 1 : 0
                                 )}
-                            >
-                                <Ionicons
-                                    name={item.checkButton === 1 ? 'checkmark-outline' : 'stop-outline'}
-                                    size={22}
-                                    color={"#ffffff"}
-                                    style={styles.buttonListExercicio}
-                                />
-                            </TouchableOpacity>
+                                icon={item.checkButton === 1 ? 'check-square' : 'square'}
+                            />
                             {deleteVisible && (
-                                <TouchableOpacity onPress={() => deleteExercicio(user, treino, item.id)}>
-                                    <FontAwesome5
-                                        name="trash-alt"
-                                        size={20}
-                                        color={"#ffffff"}
-                                        style={styles.buttonListExercicio}
-                                    />
-                                </TouchableOpacity>
+                                <IconButton
+                                    onPress={() => deleteExercicio(user, treino, item.id)}
+                                    icon={"trash-alt"}
+                                    backgroundColor = {'#ff2600c0'}
+                                />
                             )}
                         </View>
                     </TouchableOpacity>
@@ -92,8 +83,10 @@ const styles = StyleSheet.create({
     buttonListExercicio: {
         borderRadius: 20,
         backgroundColor: COLORS.list,
+        flexDirection: "row",
         padding: 10,
-        marginBottom: 2,
+        marginBottom: 4,
         marginHorizontal: 2,
+        elevation: 8,
     },
 });

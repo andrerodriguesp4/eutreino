@@ -15,6 +15,14 @@ export async function getWorkouts(userId) {
   return treinosList;
 }
 
+export async function getWorkoutName(userId, treinoId) {
+  const treinosRef = doc(db, 'users', String(userId), 'treinos', String(treinoId));
+  const treinoSnap = await getDoc(treinosRef);
+  const treino = treinoSnap.data();
+  
+  return treino;
+}
+
 export async function getTodayWorkout(userId) {
   const userRef = doc(db, 'users', userId);
   const userSnap = await getDoc(userRef);

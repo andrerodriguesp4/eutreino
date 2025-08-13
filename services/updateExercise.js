@@ -1,10 +1,10 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { fetchUserExercises } from "./fetchUserExercises";
 import { db } from "../firebaseConfig";
 import { Alert } from "react-native";
+import { getExerciciosDoTreino } from "./workoutService";
 
 export async function updateExercise (user, treino, selectedExercise, carga, series, descanso, modoRepeticoes, valorFixoReps, valorMinimoReps, valorMaximoReps) {
-    const listExercises = await fetchUserExercises(user, treino);
+    const listExercises = await getExerciciosDoTreino(user, treino);
     const exercise = listExercises[selectedExercise];
 
     const dadosAtualizados = {};

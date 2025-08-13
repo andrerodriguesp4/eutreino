@@ -1,11 +1,12 @@
 import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Treinos from "./Treinos";
 import Perfil from "./Perfil";
 import Timer from "./Timer";
 import WorkoutScreen from "./WorkoutScreen";
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { COLORS } from "./styles/default";
+import TreinosStack from "./TreinosStack";
+import CustomTabButton from "../utils/CustomTabButton";
 
 const Tab = createBottomTabNavigator();
 
@@ -29,32 +30,43 @@ export default function UserArea({navigation}){
                 border: 0,
                 height: 100,
                 paddingBottom: 40,
-                backgroundColor: "white",
+                backgroundColor: "#000",
             },
-            tabBarActiveTintColor: "black",
-            tabBarActiveBackgroundColor: COLORS.primary,
+            tabBarActiveTintColor: "white",
+            tabBarActiveBackgroundColor: COLORS.buttons,
             tabBarLabelStyle: {
                 fontSize: 15,
             },
+            tabBarButton: (props) => <CustomTabButton {...props} />,
         }}>
-            <Tab.Screen name="Treinos" component={Treinos} options={{
-                tabBarIcon: ({ focused }) => (
-                    <FontAwesome5 name="dumbbell" size={20} color={focused ? 'black' : '#999999ff'}/>
-                )
-            }}/>
+            <Tab.Screen name="Treinos" component={TreinosStack}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <FontAwesome5 name="dumbbell" size={20} color={focused ? 'white' : '#999999ff'}/>
+                    ),
+                }}
+                listeners={({ navigation, route}) => ({
+                    tabPress: e => {
+                        e.preventDefault();
+                        navigation.navigate('Treinos', {
+                            screen: 'TreinosMain',
+                        });
+                    },
+                })}
+            />
             <Tab.Screen name="Timer" component={Timer} options={{
                 tabBarIcon: ({ focused }) => (
-                    <FontAwesome5 name="hourglass-end" size={20} color={focused ? 'black' : '#999999ff'}/>
+                    <FontAwesome5 name="hourglass-end" size={20} color={focused ? 'white' : '#999999ff'}/>
                 )
             }}/>
             <Tab.Screen name="Hoje" component={WorkoutScreen} options={{
                 tabBarIcon: ({ focused }) => (
-                    <FontAwesome5 name="calendar" size={20} color={focused ? 'black' : '#999999ff'}/>
+                    <FontAwesome5 name="calendar" size={20} color={focused ? 'white' : '#999999ff'}/>
                 )
             }}/>
             <Tab.Screen name="Perfil" component={Perfil} options={{
                 tabBarIcon: ({ focused }) => (
-                    <FontAwesome5 name="user-circle" size={20} color={focused ? 'black' : '#999999ff'}/>
+                    <FontAwesome5 name="user-circle" size={20} color={focused ? 'white' : '#999999ff'}/>
                 )
             }}/>
         </Tab.Navigator>

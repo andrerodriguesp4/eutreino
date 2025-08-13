@@ -1,14 +1,14 @@
-import { View, StyleSheet, ActivityIndicator, Alert, Modal } from "react-native";
+import { View, StyleSheet, ActivityIndicator, Text, Alert, Modal } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {db} from "../firebaseConfig";
 import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { getUser } from '../services/getUser';
 import SetExerciseForm from "./components/SetExerciseForm";
-import { fetchUserExercises } from "../services/fetchUserExercises";
 import DisplayExercises from "./components/DisplayExercises";
 import { updateExercise } from "../services/updateExercise";
 import ModernButton from "../utils/ModernButton";
+import { getExerciciosDoTreino, getWorkoutName } from "../services/workoutService";
 
 export default function DetalhesTreino({ navigation }) {
   const route = useRoute();
@@ -16,6 +16,7 @@ export default function DetalhesTreino({ navigation }) {
   const [user, setUser] = useState();
   const treino = route.params.treino;
   const [listExercicio, setListExercicio] = useState([]);
+  const [treinoName, setTreinoName] = useState('');
   
   const [addExerciseVisible, setAddExerciseVisible] = useState(false);
   const [updateVisible, setUpdateVisible] = useState(false);
@@ -29,8 +30,17 @@ export default function DetalhesTreino({ navigation }) {
     if (user) {handleUserExercises();}
   }, [user, treino]);
 
+  useEffect(() => {
+    if (user) {handleWorkouts();}
+  }, [user, treino])
+
+  async function handleWorkouts() {
+    const workout = await getWorkoutName(user, treino);
+    setTreinoName(workout.titulo);
+  }
+
   async function handleUserExercises(){
-    const listaExercicios = await fetchUserExercises(user, treino);
+    const listaExercicios = await getExerciciosDoTreino(user, treino);
     setListExercicio(listaExercicios);
   };
   
@@ -138,36 +148,39 @@ export default function DetalhesTreino({ navigation }) {
             setVisible={setUpdateVisible}
             setExerciseFunction={handleUpdateExercise}
           />
+        </View>
+      )}
+      <View style={{flexDirection: 'row', justifyContent: 'center', padding: 15, marginBottom: 5}}>
+        <Text style={{fontSize: 30, fontWeight: 500}}>{treinoName}</Text>
       </View>
-    )}
-    <DisplayExercises
-      user={user}
-      treino={treino}
-      listExercicios={listExercicio}
-      setListExercicio={setListExercicio}
-      setExercicioSelectDetalhe={setExercicioSelectDetalhe}
-      setUpdateVisible={setUpdateVisible}
-      deleteExercicio={deleteExercicio}
-    />
-    <View style={{width: '60%', alignSelf: 'center', marginBottom: 65}}>
-      <ModernButton
-        text="Adicionar Exercício"
-        onPress={() => setAddExerciseVisible(true)}
-        icon="plus"
-      />    
-    </View>
-      {addExerciseVisible && (
-        <View style={styles.overlay}>
-          <SetExerciseForm
-            userId={user}
-            treinoId={treino}
-            exercicioId={exercicioSelectDetalhe}
-            setVisible={setAddExerciseVisible}
-            setExerciseFunction={handleNewExercise}
-            isNew={true}
-          />
+      <DisplayExercises
+        user={user}
+        treino={treino}
+        listExercicios={listExercicio}
+        setListExercicio={setListExercicio}
+        setExercicioSelectDetalhe={setExercicioSelectDetalhe}
+        setUpdateVisible={setUpdateVisible}
+        deleteExercicio={deleteExercicio}
+      />
+      <View style={{width: '60%', alignSelf: 'center'}}>
+        <ModernButton
+          text="Adicionar Exercício"
+          onPress={() => setAddExerciseVisible(true)}
+          icon="plus"
+        />    
       </View>
-    )}
+        {addExerciseVisible && (
+          <View style={styles.overlay}>
+            <SetExerciseForm
+              userId={user}
+              treinoId={treino}
+              exercicioId={exercicioSelectDetalhe}
+              setVisible={setAddExerciseVisible}
+              setExerciseFunction={handleNewExercise}
+              isNew={true}
+            />
+        </View>
+      )}
     </View>
   );
 }

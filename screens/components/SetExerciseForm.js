@@ -4,8 +4,8 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import CampoBox from "../../utils/CampoBox";
 import DropDownPicker from "react-native-dropdown-picker";
 import { fetchExercises } from "../../services/fetchExercises";
-import { fetchUserExercises } from "../../services/fetchUserExercises";
 import ModernButton from "../../utils/ModernButton";
+import { getExerciciosDoTreino } from "../../services/workoutService";
 
 export default function SetExerciseForm({
   userId,
@@ -67,7 +67,7 @@ export default function SetExerciseForm({
   };
 
   const handleFetchUserExercises = async () => {
-    const listaExercicios = await fetchUserExercises(userId, treinoId, exercicioId);
+    const listaExercicios = await getExerciciosDoTreino(userId, treinoId);
     const exercicioSelecionado = listaExercicios[exercicioId];
     setTitulo(exercicioSelecionado.titulo || '');
     setCarga(exercicioSelecionado.carga || '');

@@ -191,7 +191,7 @@ export default function EditarPerfil({navigation}){
                     <ModernButton
                         text="Excluir Conta"
                         onPress={() => setShowDeleteModal(true)}
-                        icon="trash"
+                        icon="trash-alt"
                         colors={["#D30000","#FF2800"]}
                     />
                 </View>

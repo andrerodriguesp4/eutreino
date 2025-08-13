@@ -8,6 +8,7 @@ import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
 import { getUser } from '../services/getUser';
 import { COLORS } from "./styles/default";
 import ModernButton from "../utils/ModernButton";
+import IconButton from "../utils/IconButton";
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -137,9 +138,11 @@ export default function Treinos({navigation}){
                                 }}>
                             <View style={{...styles.listaTreinos, flexDirection: 'row'}} key={item.id}>
                                     <Text style={{...styles.textTituloTreino, flex: 1}}>{item.titulo}</Text>
-                                    <TouchableOpacity onPress={() => (setTreinoId(item.id), setCampoConfirmacao(true))}>
-                                        <FontAwesome5 name="trash-alt" size={20}/>
-                                    </TouchableOpacity>
+                                    <IconButton
+                                        onPress={() => (setTreinoId(item.id), setCampoConfirmacao(true))}
+                                        icon={"trash-alt"}
+                                        backgroundColor = {'#ff2600c0'}
+                                    />
                             </View>
                         </TouchableOpacity>
                             )
