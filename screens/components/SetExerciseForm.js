@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Keyboard } from "react-native";
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import CampoBox from "../../utils/CampoBox";

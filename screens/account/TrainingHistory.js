@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getUser } from '../../services/getUser';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { COLORS } from '../styles/default';
+import { redoTraining } from '../../services/redoTraining';
 
 export default function TrainingHistory({navigation}){
     const [user, setUser] = useState();
@@ -11,6 +12,7 @@ export default function TrainingHistory({navigation}){
     const [treinos, setTreinos] = useState([]);
     const [repeatTraining, setRepeatTraining] = useState(false);
     const [treinoSelect, setTreinoSelect] = useState();
+    const [treinoIdSelect, setTreinoIdSelect] = useState();
 
     useEffect(() => {
         getUser(setUser, navigation);
@@ -60,6 +62,7 @@ export default function TrainingHistory({navigation}){
                         return(
                             <TouchableOpacity style={styles.buttonTraining} onPress={() => (
                                 setTreinoSelect(item.titulo),
+                                setTreinoIdSelect(item.id),
                                 setRepeatTraining(true)
                             )}>
                                 <Text style={{...styles.textTraining, fontSize: 20}}>{item.titulo}</Text>
@@ -76,7 +79,11 @@ export default function TrainingHistory({navigation}){
                         <View style={styles.viewTextRepeatTraining}>
                             <Text>{treinoSelect}</Text>
                             <View style={{flexDirection: 'row'}}>
-                                <TouchableOpacity style={styles.buttonRepeatTraining}>
+                                <TouchableOpacity style={styles.buttonRepeatTraining} onPress={async() => (
+                                    await redoTraining(user, treinoSelect, treinoIdSelect),
+                                    setRepeatTraining(false),
+                                    navigation.goBack()
+                                    )}>
                                     <FontAwesome5 style={{right: 5}} name='redo'/>
                                     <Text>Refazer Treino</Text>
                                 </TouchableOpacity>
