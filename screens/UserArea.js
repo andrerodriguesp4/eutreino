@@ -45,14 +45,14 @@ export default function UserArea({navigation}){
                         <FontAwesome5 name="dumbbell" size={20} color={focused ? 'white' : '#999999ff'}/>
                     ),
                 }}
-                listeners={({ navigation, route}) => ({
-                    tabPress: e => {
-                        e.preventDefault();
-                        navigation.navigate('Treinos', {
-                            screen: 'TreinosMain',
-                        });
-                    },
-                })}
+                // listeners={({ navigation, route}) => ({
+                //     tabPress: e => {
+                //         e.preventDefault();
+                //         navigation.navigate('Treinos', {
+                //             screen: 'TreinosMain',
+                //         });
+                //     },
+                // })}
             />
             <Tab.Screen name="Timer" component={Timer} options={{
                 tabBarIcon: ({ focused }) => (

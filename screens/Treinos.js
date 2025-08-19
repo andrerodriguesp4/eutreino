@@ -9,6 +9,7 @@ import { getUser } from '../services/getUser';
 import { COLORS } from "./styles/default";
 import ModernButton from "../utils/ModernButton";
 import IconButton from "../utils/IconButton";
+import { deleteTraining } from "../services/deleteTraining"
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -96,23 +97,23 @@ export default function Treinos({navigation}){
         
     };
 
-    async function deleteTreino(tituloId) {
-        try{
-            const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
-            const exerciciosRef = collection(treinoRef, 'exercicios');
-            const exerciciosSnapshot = await getDocs(exerciciosRef);
+    // async function deleteTreino(tituloId) {
+    //     try{
+    //         const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
+    //         const exerciciosRef = collection(treinoRef, 'exercicios');
+    //         const exerciciosSnapshot = await getDocs(exerciciosRef);
 
-            const deletePromises = exerciciosSnapshot.docs.map((doc) => 
-                deleteDoc(doc.ref)
-            );
+    //         const deletePromises = exerciciosSnapshot.docs.map((doc) => 
+    //             deleteDoc(doc.ref)
+    //         );
             
-            await Promise.all(deletePromises);
-            await deleteDoc(treinoRef);
-            await loadTreinos(user);
-        }catch(error){
-            console.log('Erro na função deleteTreino', error);
-        }
-    }
+    //         await Promise.all(deletePromises);
+    //         await deleteDoc(treinoRef);
+    //         await loadTreinos(user);
+    //     }catch(error){
+    //         console.log('Erro na função deleteTreino', error);
+    //     }
+    // }
 
     return(
         <View style={styles.container}>
@@ -200,7 +201,7 @@ export default function Treinos({navigation}){
                         <View>
                             <Text style={{fontSize: 20, bottom: 10}}>Tem certeza que deseja excluir?</Text>
                         </View>
-                        <TouchableOpacity style={styles.buttonExcluir} onPress={() => (deleteTreino(treinoId), setCampoConfirmacao(false))}>
+                        <TouchableOpacity style={styles.buttonExcluir} onPress={async() => (await deleteTraining(treinoId, user), setCampoConfirmacao(false), loadTreinos())}>
                             <Text style={{color: '#e9210fff', fontWeight: 'bold', fontSize: 18,}}>Excluir</Text>
                         </TouchableOpacity>
                     </View>
