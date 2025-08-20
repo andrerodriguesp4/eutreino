@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, Platform} from "react-native";
 import { db } from "../firebaseConfig";
 import {collection, getDocs, doc, setDoc} from "firebase/firestore";
 import {useEffect, useState, useCallback } from "react";
@@ -10,6 +10,8 @@ import ModernButton from "../utils/ModernButton";
 import IconButton from "../utils/IconButton";
 import ModernInput from "../utils/ModernInput";
 import { deleteWorkout } from "../services/deleteWorkout"
+import DateTimePicker from "@react-native-community/datetimepicker";
+
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -19,6 +21,14 @@ export default function Treinos({navigation}){
     const [textNewTreino, setTextNewTreino] = useState();
     const [treinoId, setTreinoId] = useState();
     const [loadingVisible, setLoadingVisible] = useState(false);
+    const [date, setDate] = useState(new Date());
+    const [newDate, setNewDate] = useState();
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setDate(currentDate);
+        atNewDate(currentDate);
+    }
     
     useEffect(() => {
         getUser(setUser, navigation);
@@ -41,37 +51,52 @@ export default function Treinos({navigation}){
             console.log('Erro na função loadTreinos: ',error)
         }
     };
+
+    function atNewDate(date){
+        const dia = date.getDate().toString().padStart(2, "0");
+        const mes = (date.getMonth() + 1).toString().padStart(2, "0");
+        const ano = date.getFullYear();
+
+        setNewDate(`${ano}-${mes}-${dia}`);
+    }
     
-    async function setNewTreino(titulo) {
+    async function setNewTreino(titulo, date) {
         try{
             setLoadingVisible(true);
-            const treinoRef = collection(db, `users/${user}/treinos`);
-            const snapshot = await getDocs(treinoRef);
+            if (titulo == null || titulo == ""){
+                setLoadingVisible(false);
+                alert("Digite o nome do treino!");
+            }else{
+                const treinoRef = collection(db, `users/${user}/treinos`);
+                const snapshot = await getDocs(treinoRef);
 
 
-            let maiorId = -1;
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                if (typeof data.id === "number" && data.id > maiorId) {
-                maiorId = data.id;
-                }
-            });
+                let maiorId = -1;
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (typeof data.id === "number" && data.id > maiorId) {
+                    maiorId = data.id;
+                    }
+                });
 
-            const novoId = maiorId + 1;
-            await setDoc(doc(treinoRef, novoId.toString()),{
-                titulo,
-                id: novoId,
-            });
-
-            setTreinos((prev) => [
-                ...prev,
-                {
+                const novoId = maiorId + 1;
+                await setDoc(doc(treinoRef, novoId.toString()),{
                     titulo,
                     id: novoId,
-                }
-            ])
-            setCampoAdicionando(false);
-            setLoadingVisible(false);
+                    date,
+                });
+
+                setTreinos((prev) => [
+                    ...prev,
+                    {
+                        titulo,
+                        id: novoId,
+                    }
+                ])
+                setCampoAdicionando(false);
+                setLoadingVisible(false);
+            }
+            
         }catch(error){
             console.log('Erro na função setNewTreino', error);
         }
@@ -136,7 +161,7 @@ export default function Treinos({navigation}){
                         <View style={styles.modalContainer}>
                             <View style={{flexDirection:'row', width: '98%', justifyContent:'flex-end'}}>
                                 <IconButton
-                                    onPress={() => setCampoAdicionando(false)}
+                                    onPress={() => (setCampoAdicionando(false), setDate(new Date(), atNewDate(date)))}
                                     icon={"times"}
                                     color="black"
                                     backgroundColor="#fafafaff"
@@ -148,10 +173,18 @@ export default function Treinos({navigation}){
                                     onChangeText={(titulo) => setTextNewTreino(titulo)}
                                 />
                             </View>
+                            <View>
+                            <DateTimePicker
+                                value={date}
+                                mode="date"
+                                display={Platform.OS === "ios" ? "spinner" : "calendar"}
+                                onChange={onChange}
+                            />
+                            </View>
                             <View style={{margin: 5}}>
                                 <ModernButton
                                     text={"Salvar"}
-                                    onPress={() => setNewTreino(textNewTreino)}
+                                    onPress={() => setNewTreino(textNewTreino, newDate)}
                                     icon={"save"}
                                 />
                             </View>
