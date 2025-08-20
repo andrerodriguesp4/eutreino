@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, StyleSheet, Vibration } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import IconButton from "../utils/IconButton";
+// oi
 
 export default function Timer (){
     const [time, setTime] = useState(0);
