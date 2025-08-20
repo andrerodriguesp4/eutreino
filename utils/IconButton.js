@@ -8,7 +8,9 @@ export default function IconButton({
   icon,
   size = 20,
   color = "#fff",
-  backgroundColor = COLORS.list
+  backgroundColor = COLORS.list,
+  style = {},
+  disabled=false
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -33,6 +35,8 @@ export default function IconButton({
       onPress={onPress}
       onPressIn={animatePressIn}
       onPressOut={animatePressOut}
+      disabled={disabled}
+      style={style}
     >
       <Animated.View
         style={[
