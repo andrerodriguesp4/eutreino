@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, Keyboard } from "react-native";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import CampoBox from "../../utils/CampoBox";
 import DropDownPicker from "react-native-dropdown-picker";
 import { fetchExercises } from "../../services/fetchExercises";
-import ModernButton from "../../utils/ModernButton";
 import { getExerciciosDoTreino } from "../../services/workoutService";
+import ModernButton from "../../utils/ModernButton";
+import IconButton from "../../utils/IconButton";
 
 export default function SetExerciseForm({
   userId,
@@ -99,10 +99,13 @@ export default function SetExerciseForm({
     >
       <Pressable onPress={Keyboard.dismiss}>
         <View style={styles.modalContainer}>
-          <View style={{flexDirection:'row', width: '98%', justifyContent:'flex-end', marginBottom: '20'}}>
-            <TouchableOpacity onPress={() => setVisible(false)}>
-              <FontAwesome5 name="times" size={25} />
-            </TouchableOpacity>
+          <View style={{flexDirection:'row', width: '98%', justifyContent:'flex-end'}}>
+            <IconButton
+              onPress={() => setVisible(false)}
+              icon={"times"}
+              color="black"
+              backgroundColor="#fafafaff"
+            />
           </View>
 
           {isLoading ? (
@@ -152,9 +155,9 @@ export default function SetExerciseForm({
                   setter={setCarga}
                   editable={editable}
                   setDisabledSave={setDisabledSave}
+                  type="numeric"
                 />
 
-                <Text style={styles.label}>Modo de Repetições:</Text>
                 <View style={{ flexDirection: 'row', marginVertical: 10, justifyContent:'space-evenly'}}>
                   <TouchableOpacity
                     onPress={() => setModoRepeticoes('fixo')}
@@ -186,6 +189,7 @@ export default function SetExerciseForm({
                     setter={setValorFixoReps}
                     editable={editable}
                     setDisabledSave={setDisabledSave}
+                    type="numeric"
                   />
                 ) : (
                   <>
@@ -196,6 +200,7 @@ export default function SetExerciseForm({
                       setter={setValorMinimoReps}
                       editable={editable}
                       setDisabledSave={setDisabledSave}
+                      type="numeric"
                     />
                     <CampoBox
                       label="Máximo"
@@ -204,6 +209,7 @@ export default function SetExerciseForm({
                       setter={setValorMaximoReps}
                       editable={editable}
                       setDisabledSave={setDisabledSave}
+                      type="numeric"
                     />
                   </>
                 )}
@@ -215,6 +221,7 @@ export default function SetExerciseForm({
                   setter={setSeries}
                   editable={editable}
                   setDisabledSave={setDisabledSave}
+                  type="numeric"
                 />
                 <CampoBox
                   label={'Descanso:'}
@@ -223,6 +230,7 @@ export default function SetExerciseForm({
                   setter={setDescanso}
                   editable={editable}
                   setDisabledSave={setDisabledSave}
+                  type="numeric"
                 />
 
                 <View style={styles.campoBox}>
@@ -265,14 +273,6 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     justifyContent: 'space-evenly',
     marginVertical: 5,
-  },
-  label: {
-    fontSize: 20,
-    color: '#444',
-    marginHorizontal: 5,
-    marginVertical: 0,
-    fontWeight: 'bold',
-    alignSelf: 'center',
   },
 
   dropdown: {
