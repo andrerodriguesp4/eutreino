@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, TextInput, Modal, ActivityIndicator } from 'react-native';
+import { View, Modal, ActivityIndicator } from 'react-native';
 import createUser from '../../services/CreateUser';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PasswordField from '../account/components/Passwordfield';

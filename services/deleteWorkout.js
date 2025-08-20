@@ -1,7 +1,7 @@
 import { db } from "../firebaseConfig";
 import { doc, collection, getDocs, deleteDoc } from "firebase/firestore";
 
-export async function deleteTraining(tituloId, user) {
+export async function deleteWorkout(tituloId, user) {
         try{
             const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
             const exerciciosRef = collection(treinoRef, 'exercicios');
@@ -14,6 +14,6 @@ export async function deleteTraining(tituloId, user) {
             await Promise.all(deletePromises);
             await deleteDoc(treinoRef);
         }catch(error){
-            console.log('Erro na função deleteTreino', error);
+            console.log('Erro na função deleteWorkout', error);
         }
     }

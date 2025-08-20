@@ -8,6 +8,7 @@ export default function CampoBox({
     editable,
     setDisabledSave,
     customComponent,
+    type = "default",
 }){
     
     return(
@@ -25,6 +26,7 @@ export default function CampoBox({
                     style={styles.inputProfile}
                     onChange={() => setDisabledSave(false)}
                     onChangeText={setter}
+                    keyboardType={type}
                 />
             )}
         </View>

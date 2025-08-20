@@ -5,7 +5,7 @@ import { getUser } from '../../services/getUser';
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import { COLORS } from '../styles/default';
 import { redoTraining } from '../../services/redoTraining';
-import { deleteTraining } from '../../services/deleteTraining';
+import { deleteWorkout } from '../../services/deleteWorkout';
 
 export default function TrainingHistory({navigation}){
     const [user, setUser] = useState();
@@ -89,7 +89,7 @@ export default function TrainingHistory({navigation}){
                                     <Text>Refazer Treino</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.buttonDeleteTraining} onPress={async() => (
-                                        await deleteTraining(treinoIdSelect, user),
+                                        await deleteWorkout(treinoIdSelect, user),
                                         loadTreinos(),
                                         setRepeatTraining(false)
                                         )}>
