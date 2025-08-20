@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList} from "react-native";
 import { db } from "../firebaseConfig";
-import {collection, getDocs, doc, setDoc, deleteDoc} from "firebase/firestore";
+import {collection, getDocs, doc, setDoc} from "firebase/firestore";
 import {useEffect, useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
@@ -9,6 +9,7 @@ import { COLORS } from "./styles/default";
 import ModernButton from "../utils/ModernButton";
 import IconButton from "../utils/IconButton";
 import ModernInput from "../utils/ModernInput";
+import { deleteWorkout } from "../services/deleteWorkout"
 
 export default function Treinos({navigation}){
     const [user, setUser] = useState();
@@ -28,20 +29,6 @@ export default function Treinos({navigation}){
             loadTreinos();
         }, [user])
     );
-
-    // useEffect(() => {
-    //     if (user) {
-    //         navigation.setOptions({
-    //             headerRight: () => (
-    //                 <TouchableOpacity onPress={loadTreinos}>
-    //                 <Text style={{Color: 'black', padding: 5, marginTop: 35}}>
-    //                     Atualizar
-    //                 </Text>
-    //             </TouchableOpacity>
-    //         ),           
-    //     });
-    // }
-    // }, [navigation, user]);
 
     const loadTreinos = async () => {
         try{
@@ -91,23 +78,11 @@ export default function Treinos({navigation}){
         
     };
 
-    async function deleteTreino(tituloId) {
-        try{
-            const treinoRef = doc(db, `users/${user}/treinos`, tituloId.toString());
-            const exerciciosRef = collection(treinoRef, 'exercicios');
-            const exerciciosSnapshot = await getDocs(exerciciosRef);
-
-            const deletePromises = exerciciosSnapshot.docs.map((doc) => 
-                deleteDoc(doc.ref)
-            );
-            
-            await Promise.all(deletePromises);
-            await deleteDoc(treinoRef);
-            await loadTreinos(user);
-        }catch(error){
-            console.log('Erro na função deleteTreino', error);
-        }
-    }
+    const handleDeleteWorkout = async () => {
+        await deleteWorkout(treinoId, user);
+        await loadTreinos();        
+        setCampoConfirmacao(false);
+      };
 
     return(
         <View style={styles.container}>
@@ -204,7 +179,7 @@ export default function Treinos({navigation}){
                             <Text style={{fontSize: 20, fontWeight: 500, marginVertical: 10}}>Tem certeza que deseja excluir?</Text>
                             <ModernButton
                                 text="Excluir"
-                                onPress={() => (deleteTreino(treinoId), setCampoConfirmacao(false))}
+                                onPress={handleDeleteWorkout}
                                 icon="trash-alt"
                                 colors={["#D30000","#FF2800"]}
                             />
