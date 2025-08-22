@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Vibration } from "react-native";
+import { View, Text, StyleSheet, Vibration } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
-import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
+import IconButton from "../utils/IconButton";
 
 export default function Timer (){
     const [time, setTime] = useState(0);
@@ -28,34 +28,49 @@ export default function Timer (){
             </CountdownCircleTimer>
             <View>
                 <View style={styles.viewAddTime}>
-                    <TouchableOpacity onPress={() => {
-                        if(time === 0){
-                            return;
-                        }else{
-                            setTime(time-5)
+                    <IconButton
+                        onPress={() => {
+                            if(time === 0){
+                                return;
+                            }else{
+                                setTime(time-5)
+                            }}
                         }
-                        }}
-                        
+                        icon={"minus"}
+                        size={20}
                         disabled={isPlaying}
-                    >
-                        <FontAwesome5 name="minus" size={30}/>
-                    </TouchableOpacity>
+                    />
                     <Text style={{fontSize: 30, marginHorizontal: 20}}>{time}</Text>
-                    <TouchableOpacity onPress={() => setTime(time + 5)} disabled={isPlaying}>
+                    {/* <TouchableOpacity onPress={() => setTime(time + 5)} disabled={isPlaying}>
                         <FontAwesome5 name="plus" size={30}/>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
+                    <IconButton
+                        onPress={() => setTime(time + 5)}
+                        icon={"plus"}
+                        disabled={isPlaying}
+                    />
                 </View>
                 <View style={styles.viewPlayPause}>
-                    <TouchableOpacity style={{right: 10, padding: 20}} onPress={() => {
-                        if(time > 0){
-                            setIsPlaying(true);
+                    <IconButton
+                        onPress={() => {
+                            if(time > 0){
+                                setIsPlaying(true);
+                            }}
                         }
-                    }}>
-                        <FontAwesome5 name="play" size={25}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{left: 10, padding: 20}} onPress={() => (setIsPlaying(false), setTimerKey(prev => prev + 1))}>
-                        <FontAwesome5 name="stop" size={25}/>
-                    </TouchableOpacity>
+                        icon={"play"}
+                        size={30}
+                        color="black"
+                        backgroundColor="#ffffff00"
+                        style={{padding: 10}}
+                    />
+                    <IconButton
+                        onPress={() => (setIsPlaying(false), setTimerKey(prev => prev + 1))}
+                        icon={"stop"}
+                        size={30}
+                        color="black"
+                        backgroundColor="#ffffff00"
+                        style={{padding: 10}}
+                    />
                 </View>
             </View>
             
