@@ -2,7 +2,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet } from 'react-native';
 import Home from './screens/Home';
-import DetalhesTreino from './screens/DetalhesTreino';
 import UserArea from './screens/UserArea';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,6 +11,7 @@ import MostrarInformacoes from './screens/account/MostrarInformacoes';
 import TrainingHistory from './screens/account/TrainingHistory';
 import Login from './screens/LoginScreen';
 import PasswordUpdateScreen from './screens/account/components/PasswordUpdateScreen';
+import WorkoutScreen from './screens/components/WorkoutScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,7 +21,7 @@ export default function App() {
       <NavigationContainer>
         <StatusBar style='auto'/>
         <Stack.Navigator initialRouteName='Home'>
-          <Stack.Screen name='DetalhesTreino' component={DetalhesTreino} options={{
+          <Stack.Screen name='WorkoutScreen' component={WorkoutScreen} options={{
             title: "Treino"
             // headerStyle: {backgroundColor: '#1a7431'},
           }}/>

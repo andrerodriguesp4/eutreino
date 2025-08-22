@@ -3,7 +3,7 @@ import { db } from "../firebaseConfig";
 import {collection, getDocs, doc, setDoc} from "firebase/firestore";
 import {useEffect, useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { getExerciciosDoTreino, getWorkouts } from "../services/workoutService";
+import { getWorkouts } from "../services/workoutService";
 import { getUser } from '../services/getUser';
 import { COLORS } from "./styles/default";
 import ModernButton from "../utils/ModernButton";
@@ -100,9 +100,10 @@ export default function Treinos({navigation}){
                     if(!item.workoutDone){
                         return (
                             <TouchableOpacity onPress={async() => {
-                                const detalhes = await getExerciciosDoTreino(user, item.id);
-                                navigation.navigate('DetalhesTreino', {
-                                    treinoDetalhe: detalhes, treino: item.id, });
+                                navigation.navigate('WorkoutScreen', {
+                                    userId: user,
+                                    treinoId: item.id,
+                                });
                             }}>
                                 <View style={{...styles.listaTreinos, flexDirection: 'row'}} key={item.id}>
                                     <Text style={{...styles.textTituloTreino, flex: 1}}>{item.titulo}</Text>
