@@ -37,13 +37,9 @@ export default function Timer (){
                             }}
                         }
                         icon={"minus"}
-                        size={20}
                         disabled={isPlaying}
                     />
                     <Text style={{fontSize: 30, marginHorizontal: 20}}>{time}</Text>
-                    {/* <TouchableOpacity onPress={() => setTime(time + 5)} disabled={isPlaying}>
-                        <FontAwesome5 name="plus" size={30}/>
-                    </TouchableOpacity> */}
                     <IconButton
                         onPress={() => setTime(time + 5)}
                         icon={"plus"}
@@ -58,18 +54,14 @@ export default function Timer (){
                             }}
                         }
                         icon={"play"}
-                        size={30}
                         color="black"
                         backgroundColor="#ffffff00"
-                        style={{padding: 10}}
                     />
                     <IconButton
                         onPress={() => (setIsPlaying(false), setTimerKey(prev => prev + 1))}
                         icon={"stop"}
-                        size={30}
                         color="black"
                         backgroundColor="#ffffff00"
-                        style={{padding: 10}}
                     />
                 </View>
             </View>
@@ -95,6 +87,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         top: 20,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
     },
 })

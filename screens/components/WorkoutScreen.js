@@ -16,7 +16,8 @@ export default function WorkoutScreen ({
     userId: propUserId,
     treinoId: propTreinoId,
     markAsDone = false,
-    deleteVisible = true
+    deleteVisible = true,
+    addVisible = true,
 }) {
     const { userId: routeUserId, treinoId: routeTreinoId } = route?.params || {};
     const userId = propUserId || routeUserId;
@@ -207,23 +208,27 @@ export default function WorkoutScreen ({
                     deleteExercicio={deleteExercicio}
                     deleteVisible={deleteVisible}
                 />
-                <View style={{width: '60%', alignSelf: 'center'}}>
-                    <ModernButton
-                        text="Adicionar Exercício"
-                        onPress={() => setAddExerciseVisible(true)}
-                        icon="plus"
-                    />
-                </View>
-                {addExerciseVisible && (
-                    <View style={styles.overlay}>
-                        <SetExerciseForm
-                            userId={userId}
-                            treinoId={workout.id}
-                            exercicioId={selectedExercise}
-                            setVisible={setAddExerciseVisible}
-                            setExerciseFunction={handleNewExercise}
-                            isNew={true}
-                        />
+                {addVisible && (
+                    <View>
+                        <View style={{width: '60%', alignSelf: 'center'}}>
+                            <ModernButton
+                                text="Adicionar Exercício"
+                                onPress={() => setAddExerciseVisible(true)}
+                                icon="plus"
+                            />
+                        </View>
+                        {addExerciseVisible && (
+                            <View style={styles.overlay}>
+                                <SetExerciseForm
+                                    userId={userId}
+                                    treinoId={workout.id}
+                                    exercicioId={selectedExercise}
+                                    setVisible={setAddExerciseVisible}
+                                    setExerciseFunction={handleNewExercise}
+                                    isNew={true}
+                                />
+                            </View>
+                        )}
                     </View>
                 )}
             </View>

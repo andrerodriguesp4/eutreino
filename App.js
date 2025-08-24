@@ -21,18 +21,13 @@ export default function App() {
       <NavigationContainer>
         <StatusBar style='auto'/>
         <Stack.Navigator initialRouteName='Home'>
-          <Stack.Screen name='WorkoutScreen' component={WorkoutScreen} options={{
-            title: "Treino"
-            // headerStyle: {backgroundColor: '#1a7431'},
-          }}/>
+          <Stack.Screen name='WorkoutScreen' component={WorkoutScreen} options={{ title: "Treino"}}/>
           <Stack.Screen name='Home' component={Home} options={{
             ...styles.optionsnv,
             
             header: () => false,
             }}/>
-          <Stack.Screen name='UserArea' component={UserArea} options={{
-            ...styles.optionsnv,
-            
+          <Stack.Screen name='UserArea' component={UserArea} options={{            
             gestureEnabled:false,
             header: () => false,
             }}/>

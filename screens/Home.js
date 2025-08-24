@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ImageBackground } from "react-native";
+import { View, Text, ImageBackground } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styles from "./styles/HomeStyles";
 import ModernButton from "../utils/ModernButton";

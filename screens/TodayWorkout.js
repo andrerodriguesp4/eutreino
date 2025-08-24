@@ -14,6 +14,7 @@ const TodayWorkout = ({ navigation }) => {
             userId={userId}
             markAsDone={true}
             deleteVisible={false}
+            addVisible={false}
         />
     )
 }
